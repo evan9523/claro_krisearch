@@ -83,14 +83,7 @@ const Home = ({ navigation }) => {
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
-            >
-              <View style={{ marginTop: 20 }}>
-                <Button
-                  title="Go to Profile"
-                  onPress={() => navigation.navigate("Profile")}
-                />
-              </View>
-            </View>
+            ></View>
           </View>
         ) : null}
 
@@ -107,7 +100,7 @@ const Home = ({ navigation }) => {
             title="GO to Search"
             onPress={() => navigation.navigate("Search")}
           /> */}
-          {winWidth < 767 ? (
+          {/* {winWidth < 767 ? (
             <View
               style={{
                 width: "100%",
@@ -130,7 +123,7 @@ const Home = ({ navigation }) => {
             >
               <TextInput
                 style={{
-                  width: "80%",
+                  width: "60%",
                   height: 40,
                   fontSize: 20,
                   backgroundColor: "#fff",
@@ -155,7 +148,7 @@ const Home = ({ navigation }) => {
                 <SimpleLineIcons name="magnifier" size={20} color="#346beb" />
               </View>
             </View>
-          ) : null}
+          ) : null} */}
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View
@@ -168,8 +161,8 @@ const Home = ({ navigation }) => {
                 padding: 10,
               }}
             >
-              <SimpleLineIcons name="compass" size={20} color="#346beb" />
-              <Text style={{ fontSize: 20, marginLeft: 5 }}>Discover</Text>
+              <SimpleLineIcons name="compass" size={22} color="#346beb" />
+              <Text style={{ fontSize: 22, marginLeft: 5 }}>Discover</Text>
             </View>
             <View
               style={{
@@ -211,8 +204,12 @@ const Home = ({ navigation }) => {
           </ScrollView>
           <Modalize
             ref={modalizeRef}
-            modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.95}
+            modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.9}
             threshold={100}
+            modalStyle={{
+              width: winWidth > 767 ? "50%" : "100%",
+              alignSelf: "center",
+            }}
             // modalStyle={
             //   winWidth > 767 ? { width: 500, alignSelf: "center" } : null
             // }
@@ -228,7 +225,7 @@ const Home = ({ navigation }) => {
                       style={{
                         backgroundColor: "#3A48ED",
                         width: "100%",
-                        height: 190,
+                        height: 170,
                         borderWidth: 1,
                         top: -2,
                         borderRadius: 15,
@@ -374,7 +371,7 @@ const Home = ({ navigation }) => {
                       <View style={{ top: -40 }}>
                         <Text
                           style={{
-                            marginTop: 60,
+                            marginTop: winWidth < 400 ? 40 : 60,
                             padding: 5,
                             fontWeight: "500",
                             color: "#6F6F6F",
@@ -397,7 +394,7 @@ const Home = ({ navigation }) => {
                             flexDirection: "column",
                             marginTop: 10,
                             padding: 10,
-                            height: 180,
+                            height: winWidth < 400 ? 100 : 180,
                             justifyContent: "space-between",
                           }}
                         >
@@ -456,7 +453,7 @@ const Home = ({ navigation }) => {
                                         />
                                         <Text
                                           style={{
-                                            fontSize: 30,
+                                            fontSize: 20,
                                             marginLeft: 5,
                                           }}
                                         >
@@ -501,7 +498,7 @@ const Home = ({ navigation }) => {
                                 </Text>
                               </View>
                               <View>
-                                <Text style={{ fontSize: 30, marginLeft: 5 }}>
+                                <Text style={{ fontSize: 20, marginLeft: 5 }}>
                                   {item.harvestDate}
                                 </Text>
                               </View>
@@ -542,7 +539,7 @@ const Home = ({ navigation }) => {
                                 </Text>
                               </View>
                               <View>
-                                <Text style={{ fontSize: 30 }}>
+                                <Text style={{ fontSize: 20 }}>
                                   {item.area} Kattha
                                 </Text>
                               </View>
@@ -578,7 +575,7 @@ const Home = ({ navigation }) => {
                                 </Text>
                               </View>
                               <View>
-                                <Text style={{ fontSize: 30, marginLeft: 5 }}>
+                                <Text style={{ fontSize: 20, marginLeft: 5 }}>
                                   {item.quantity} quintal
                                 </Text>
                               </View>
@@ -592,7 +589,7 @@ const Home = ({ navigation }) => {
                             alignSelf: "center",
                             height: 1,
                             backgroundColor: "#C0C0C0",
-                            marginTop: 10,
+                            marginTop: winWidth < 400 ? 30 : 10,
                           }}
                         />
                       </View>
@@ -624,8 +621,8 @@ const Home = ({ navigation }) => {
                         >
                           <TouchableOpacity
                             style={{
-                              width: 120,
-                              height: 50,
+                              width: winWidth < 400 ? 90 : 120,
+                              height: winWidth < 400 ? 30 : 50,
                               backgroundColor: "#A9A9A9",
                               alignItems: "center",
                               justifyContent: "center",
@@ -640,12 +637,12 @@ const Home = ({ navigation }) => {
                           >
                             <FontAwesome5
                               name="whatsapp"
-                              size={25}
+                              size={20}
                               color="#fff"
                             />
                             <Text
                               style={{
-                                fontSize: 20,
+                                fontSize: winWidth < 400 ? 16 : 20,
                                 color: "#fff",
                                 marginLeft: 5,
                               }}
@@ -655,8 +652,8 @@ const Home = ({ navigation }) => {
                           </TouchableOpacity>
                           <TouchableOpacity
                             style={{
-                              width: 120,
-                              height: 50,
+                              width: winWidth < 400 ? 90 : 120,
+                              height: winWidth < 400 ? 30 : 50,
                               backgroundColor: "#A9A9A9",
                               alignItems: "center",
                               justifyContent: "center",
@@ -667,7 +664,7 @@ const Home = ({ navigation }) => {
                           >
                             <Text
                               style={{
-                                fontSize: 20,
+                                fontSize: winWidth < 400 ? 16 : 20,
                                 color: "#fff",
                                 marginLeft: 5,
                               }}
@@ -677,8 +674,8 @@ const Home = ({ navigation }) => {
                           </TouchableOpacity>
                           <TouchableOpacity
                             style={{
-                              width: 120,
-                              height: 50,
+                              width: winWidth < 400 ? 90 : 120,
+                              height: winWidth < 400 ? 40 : 50,
                               backgroundColor: "#fff",
                               alignItems: "center",
                               justifyContent: "center",
@@ -695,12 +692,12 @@ const Home = ({ navigation }) => {
                           >
                             <FontAwesome
                               name="handshake-o"
-                              size={25}
+                              size={15}
                               color="#A9A9A9"
                             />
                             <Text
                               style={{
-                                fontSize: 20,
+                                fontSize: winWidth < 400 ? 16 : 20,
                                 color: "#A9A9A9",
                                 marginLeft: 5,
                               }}

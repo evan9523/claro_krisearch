@@ -231,7 +231,12 @@ const App = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
+        <Tab.Navigator
+          tabBar={(props) => <MyTabBar {...props} />}
+          tabBarOptions={{
+            keyboardHidesTabBar: true,
+          }}
+        >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Search" component={Search} />
           <Tab.Screen name="Profile" component={Profile} />
