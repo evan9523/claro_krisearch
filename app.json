@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "claro_krisearch",
-    "slug": "claro_krisearch",
+    "name": "Krisearch",
+    "slug": "Krisearch",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon1.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#346beb"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -21,12 +21,17 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive-icon1.png",
         "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon1.png",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#346beb"
+      }
     }
   }
 }

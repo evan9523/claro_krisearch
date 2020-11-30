@@ -1,0 +1,51 @@
+[
+    {
+        "id":1,
+        "name":"Rice",
+        "type":"crop",
+        "image":"https://images.fineartamerica.com/images-medium-large-5/green-rice-paddy-sungjin-kim.jpg"
+    },
+
+    {
+        "id":2,
+        "name":"Almond",
+        "type":"nut",
+        "image":"https://static.independent.co.uk/s3fs-public/thumbnails/image/2020/04/28/21/almonds-1-sustainability-indyeats.jpg"
+    },
+
+    {
+        "id":3,
+        "name":"Wheat",
+        "type":"crop",
+        "image":"https://cdn.vox-cdn.com/thumbor/Zd_RL3RGVz3xJFCeVRKVsb_j-24=/0x0:5555x3750/1200x800/filters:focal(2304x1023:3192x1911)/cdn.vox-cdn.com/uploads/chorus_image/image/66419322/AdobeStock_278395497.0.jpeg"
+    },
+
+    {
+        "id":4,
+        "name":"Sugar Beet",
+        "type":"vegetable",
+        "image":"https://diy.sndimg.com/content/dam/images/diy/fullset/2015/5/20/0/Getty-Images_Sugar-Beets_Saccherifera_Variety_Wally-Eberhart.jpg.rend.hgtvcom.1280.960.suffix/1432166924353.jpeg"
+    },
+
+    {
+        "id":5,
+        "name":"Sugarcane",
+        "type":"plant",
+        "image":"https://static.toiimg.com/photo/msid-69095049/69095049.jpg?1675636"
+    },
+
+    {
+        "id":6,
+        "name":"Mango",
+        "type":"fruit",
+        "image":"https://3.imimg.com/data3/IB/SQ/MY-4978719/fresh-mangoes-500x500.jpg"
+    },
+
+    {
+        "id":7,
+        "name":"Apple",
+        "type":"fruit",
+        "image":"https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9"
+
+    }
+]
