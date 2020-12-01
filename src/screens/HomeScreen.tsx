@@ -67,9 +67,9 @@ const Home = ({ navigation }) => {
   // }, []);
   console.log("REACHING HOME");
   useEffect(() => {
-    fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
+    fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-      mode: "cors",
+
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const Home = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
+    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
       method: "post",
       headers: {
         Accept: "application/json",
