@@ -66,27 +66,28 @@ const Home = ({ navigation }) => {
   //     .catch((error) => console.error(error));
   // }, []);
   console.log("REACHING HOME");
+  // useEffect(() => {
+  //   fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
+  //     method: "post",
+  //     mode: "cors",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       gender: null,
+  //       harvestDate: null,
+  //       state: "Bihar",
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => setfarmers(data.data.list))
+  //     .catch((error) => console.error(error));
+  // }, []);
+
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-      mode: "no-cors",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        // "Access-Control-Allow-Origin": "Access-Control-Allow-Headers",
-      },
-      body: JSON.stringify({
-        name: cropper,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => setfarmers(data.data.list))
-      .catch((error) => console.error(error));
-  }, []);
-
-  useEffect(() => {
-    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
-      method: "post",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -96,7 +97,7 @@ const Home = ({ navigation }) => {
       }),
     })
       .then((response) => response.json())
-      .then((data) => setcrop(data.data.list))
+      .then((data) => console.log(data.data.list))
       .catch((error) => console.error(error));
   }, []);
 
