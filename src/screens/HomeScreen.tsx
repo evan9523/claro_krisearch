@@ -105,7 +105,13 @@ const Home = ({ navigation }) => {
   console.log(farmer);
   return (
     <View style={styles.container}>
-      <View style={{ marginTop: 40, width: "100%", elevation: 1000 }}>
+      <View
+        style={{
+          marginTop: 40,
+          width: "100%",
+          elevation: 1000,
+        }}
+      >
         <Header onTap={() => navigation.navigate("Search")} />
       </View>
 
@@ -117,60 +123,10 @@ const Home = ({ navigation }) => {
           height: "100%",
         }}
       >
-        {winWidth > 767 ? (
-          <View
-            style={{
-              backgroundColor: "#8cbaff",
-              width: "30%",
-              height: "100%",
-              alignItems: "center",
-
-              padding: 10,
-            }}
-          >
-            <Text style={{ fontSize: 24, alignSelf: "flex-start" }}>
-              Welcome to Krisearch
-            </Text>
-            <Text
-              style={{
-                fontSize: 24,
-                marginBottom: 20,
-                alignSelf: "flex-start",
-              }}
-            >
-              Lets start discovering Farmers
-            </Text>
-
-            {/* <View style={{ flex: 1, padding: 24 }}>
-              {isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <FlatList
-                  data={sata}
-                  keyExtractor={({ id }, index) => id}
-                  renderItem={({ item }) => (
-                    <Text>
-                      {item.title}, {item.releaseYear}
-                    </Text>
-                  )}
-                />
-              )}
-            </View> */}
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            ></View>
-          </View>
-        ) : null}
-
         <View
           style={{
             backgroundColor: "#deebff",
-            width: winWidth > 767 ? "70%" : "100%",
+            width: winWidth > 767 ? "100%" : "100%",
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
@@ -233,24 +189,11 @@ const Home = ({ navigation }) => {
           <ScrollView showsVerticalScrollIndicator={false}>
             <View
               style={{
-                width: "100%",
-                flexDirection: "row",
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                height: 40,
-                padding: 10,
-              }}
-            >
-              <SimpleLineIcons name="compass" size={22} color="#346beb" />
-              <Text style={{ fontSize: 22, marginLeft: 5 }}>Discover</Text>
-            </View>
-            <View
-              style={{
                 flexDirection: "row",
                 width: "100%",
                 flexWrap: "wrap",
-                alignItems: "flex-start",
-                justifyContent: winWidth > 767 ? "flex-start" : "center",
+                alignItems: "center",
+                justifyContent: winWidth > 767 ? "center" : "center",
                 padding: winWidth > 767 ? 10 : 2,
               }}
             >
@@ -289,7 +232,7 @@ const Home = ({ navigation }) => {
         ref={modalizeRef}
         modalHeight={winWidth > 767 ? winHeight : winHeight * 0.9}
         threshold={100}
-        modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
+        // modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
         // modalStyle={
         //   winWidth > 767 ? { width: 500, alignSelf: "center" } : null
         // }

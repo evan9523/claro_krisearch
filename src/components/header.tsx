@@ -31,7 +31,7 @@ const Header = (props: HeaderProps) => {
       >
         <Image
           source={{ uri: require("../../assets/newicon2.png") }}
-          style={{ width: 20, height: 20 }}
+          style={{ width: 40, height: 40 }}
         />
         <Text style={styles.headerText}>Krisearch</Text>
       </View>
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     height: 60,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     backgroundColor: "#346beb",
     padding: 5,
   },
