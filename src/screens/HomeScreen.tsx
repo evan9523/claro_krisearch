@@ -88,7 +88,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-      mode: "cors",
+      mode: "no-cors",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
