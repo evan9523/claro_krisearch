@@ -65,7 +65,7 @@ const Home = ({ navigation }) => {
   //     .then((data) => console.log(data))
   //     .catch((error) => console.error(error));
   // }, []);
-
+  console.log("REACHING HOME");
   useEffect(() => {
     fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
       method: "post",
