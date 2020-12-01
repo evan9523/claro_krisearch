@@ -67,7 +67,7 @@ const Home = ({ navigation }) => {
   // }, []);
   console.log("REACHING HOME");
   useEffect(() => {
-    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
+    fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
       method: "post",
       mode: "cors",
       headers: {
@@ -86,7 +86,7 @@ const Home = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
+    fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
       method: "post",
       headers: {
         Accept: "application/json",
