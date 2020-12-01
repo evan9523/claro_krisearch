@@ -97,8 +97,8 @@ const Home = ({ navigation }) => {
         name: "rice",
       }),
     })
-      .then((response) => console.log(response))
-      // .then((data) => console.log(data))
+      .then((response) => response.json())
+      .then((data) => console.log(data))
       .catch((error) => console.error(error));
   }, []);
 
