@@ -97,8 +97,8 @@ const Home = ({ navigation }) => {
         name: cropper,
       }),
     })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
+      .then((response) => console.log(response))
+      // .then((data) => console.log(data))
       .catch((error) => console.error(error));
   }, []);
 
