@@ -94,7 +94,7 @@ const Home = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: cropper,
+        name: "rice",
       }),
     })
       .then((response) => console.log(response))
