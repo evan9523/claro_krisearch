@@ -73,7 +73,6 @@ const Home = ({ navigation }) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": " *",
       },
       body: JSON.stringify({
         gender: null,
@@ -89,7 +88,6 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -104,7 +102,7 @@ const Home = ({ navigation }) => {
   }, []);
 
   console.log(crop);
-  console.log(farmer);
+  console.log(farmers);
   return (
     <View style={styles.container}>
       <View
