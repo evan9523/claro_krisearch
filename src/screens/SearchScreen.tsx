@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -52,6 +52,48 @@ const Search = ({ navigation }) => {
     let dynamic = text.toLowerCase();
     console.log("dynamic: " + dynamic);
   };
+
+  const [crop, setcrop] = useState([]);
+  const [farmers, setfarmers] = useState([]);
+  const [modalName, setmodalName] = useState("");
+  const cropper = "rice";
+
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gender: null,
+        harvestDate: null,
+        state: "Bihar",
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => setfarmers(data.data.list))
+      .catch((error) => console.error(error));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: cropper,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => setcrop(data.data.list))
+      .catch((error) => console.error(error));
+  }, []);
+
+  console.log(crop);
+  console.log(farmers);
 
   const filteredCrops = Data.filter((item) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());

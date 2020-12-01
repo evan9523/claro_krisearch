@@ -207,7 +207,6 @@ const App = () => {
             },
             headerShown: false,
           }}
-          initialRouteName="Welcome"
         >
           <Stack.Screen
             name="Welcome"
