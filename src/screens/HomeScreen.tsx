@@ -69,6 +69,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
       method: "post",
+      mode: "cors",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
