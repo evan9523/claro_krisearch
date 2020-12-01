@@ -69,15 +69,14 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-
+      mode: "cors",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        // "Access-Control-Allow-Origin": "Access-Control-Allow-Headers",
       },
       body: JSON.stringify({
-        gender: null,
-        harvestDate: null,
-        state: "Bihar",
+        name: cropper,
       }),
     })
       .then((response) => response.json())
