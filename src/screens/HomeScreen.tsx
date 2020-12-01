@@ -66,24 +66,24 @@ const Home = ({ navigation }) => {
   //     .catch((error) => console.error(error));
   // }, []);
   console.log("REACHING HOME");
-  // useEffect(() => {
-  //   fetch("https://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
-  //     method: "post",
-  //     mode: "cors",
-  //     headers: {
-  //       Accept: "application/json",
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       gender: null,
-  //       harvestDate: null,
-  //       state: "Bihar",
-  //     }),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => setfarmers(data.data.list))
-  //     .catch((error) => console.error(error));
-  // }, []);
+  useEffect(() => {
+    fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
+      method: "post",
+      mode: "no-cors",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gender: null,
+        harvestDate: null,
+        state: "Bihar",
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => setfarmers(data.data.list))
+      .catch((error) => console.error(error));
+  }, []);
 
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
@@ -94,11 +94,11 @@ const Home = ({ navigation }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: "rice",
+        name: cropper,
       }),
     })
       .then((response) => response.json())
-      .then((data) => console.log(data))
+      .then((data) => setcrop(data.data.list))
       .catch((error) => console.error(error));
   }, []);
 
