@@ -69,7 +69,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
       method: "post",
-
+      mode: "same-origin",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
-
+      mode: "same-origin",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
