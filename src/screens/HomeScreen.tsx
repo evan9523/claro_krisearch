@@ -28,6 +28,7 @@ import {
 } from "@expo/vector-icons";
 import hideNumber from "../utils/hideNumber";
 import getSmallString from "../utils/getSmallString";
+import States from "../data/states.json";
 
 const Home = ({ navigation }) => {
   const [farmer, setfarmer] = useState(0);
@@ -49,6 +50,8 @@ const Home = ({ navigation }) => {
   const [crop, setcrop] = useState([]);
   const [farmers, setfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
+  const [firstScroll, setfirstScroll] = useState(0);
+  const [selectedState, setselectedState] = useState("");
 
   // useEffect(() => {
   //   fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
@@ -66,6 +69,7 @@ const Home = ({ navigation }) => {
   //     .catch((error) => console.error(error));
   // }, []);
   console.log("REACHING HOME");
+
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
       method: "post",
@@ -77,13 +81,13 @@ const Home = ({ navigation }) => {
       body: JSON.stringify({
         gender: null,
         harvestDate: null,
-        state: "Bihar",
+        state: selectedState,
       }),
     })
       .then((response) => response.json())
-      .then((data) => setfarmers(data.data.list))
+      .then((data) => setfarmers(data.data.list.slice(0, firstScroll + 24)))
       .catch((error) => console.error(error));
-  }, []);
+  }, [firstScroll]);
 
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
@@ -103,9 +107,46 @@ const Home = ({ navigation }) => {
 
   console.log(crop);
   console.log(farmers);
+
+  const selectState = () => {
+    States.map((item) => {
+      console.log(item.name);
+      farmers.map((i) => {
+        console.log(i.state);
+        if (
+          item.name.toString().toLowerCase() ===
+          i.state.toString().toLowerCase()
+        ) {
+          setselectedState(item.name);
+        }
+      });
+    });
+  };
+
+  const handleLoad = () => {
+    setfirstScroll(firstScroll + 18);
+  };
+
+  const renderItems = ({ item }) => (
+    <Card
+      key={item.id}
+      name={item.farmerName}
+      avatar={item.farmerImage}
+      phone={item.phone}
+      address={item.state}
+      crop={item.crops.map((i) => i.cropName)}
+      onPress={() => {
+        console.log(item.farmerName),
+          setfarmer(item.id),
+          console.log(item.crops.map((i) => i.quantity));
+        onOpen(), setmodalName(item.farmerName);
+      }}
+    />
+  );
+
   return (
     <View style={styles.container}>
-      <View
+      {/* <View
         style={{
           marginTop: 40,
           width: "100%",
@@ -113,13 +154,12 @@ const Home = ({ navigation }) => {
         }}
       >
         <Header onTap={() => navigation.navigate("Search")} />
-      </View>
+      </View> */}
 
       <View
         style={{
           flexDirection: winWidth > 767 ? "row" : "column",
           width: "100%",
-
           height: "100%",
         }}
       >
@@ -132,6 +172,8 @@ const Home = ({ navigation }) => {
             justifyContent: "center",
           }}
         >
+          <Header onTap={() => navigation.navigate("Search")} />
+
           {/* <Button
             title="GO to Search"
             onPress={() => navigation.navigate("Search")}
@@ -186,7 +228,40 @@ const Home = ({ navigation }) => {
             </View>
           ) : null} */}
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          {/* <Button
+            title="Loadmore"
+            onPress={() => setfirstScroll(firstScroll + 5)}
+          /> */}
+          <View
+            style={{
+              width: "100%",
+              height: winHeight * 0.89,
+            }}
+          >
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={farmers}
+              renderItem={renderItems}
+              ListEmptyComponent={() => (
+                <View style={styles.container}>
+                  <ActivityIndicator size="large" />
+                </View>
+              )}
+              contentContainerStyle={{
+                flexDirection: "row",
+                width: "100%",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: winWidth > 767 ? "center" : "center",
+                padding: winWidth > 767 ? 10 : 2,
+              }}
+              onEndReached={handleLoad}
+            />
+          </View>
+          {/* <ScrollView
+            showsVerticalScrollIndicator={false}
+            onScrollEndDrag={() => setfirstScroll(firstScroll + 5)}
+          >
             <View
               style={{
                 flexDirection: "row",
@@ -205,12 +280,13 @@ const Home = ({ navigation }) => {
                     avatar={item.farmerImage}
                     phone={item.phone}
                     address={item.state}
-                    crop={item.crops.cropName}
+                    crop={item.crops.map((i) => i.cropName)}
                     onPress={() => {
-                      console.log(item.farmerName), setfarmer(item.id);
+                      console.log(item.farmerName),
+                        setfarmer(item.id),
+                        console.log(item.crops.map((i) => i.quantity));
                       onOpen(), setmodalName(item.farmerName);
                     }}
-                    cropAvatar={item.image}
                   />
                 );
               })}
@@ -225,13 +301,14 @@ const Home = ({ navigation }) => {
                 }}
               ></View>
             ) : null}
-          </ScrollView>
+          </ScrollView> */}
         </View>
       </View>
       <Modalize
         ref={modalizeRef}
-        modalHeight={winWidth > 767 ? winHeight : winHeight * 0.9}
+        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.95}
         threshold={100}
+        modalStyle={winWidth > 767 ? { width: 500, alignSelf: "center" } : null}
         // modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
         // modalStyle={
         //   winWidth > 767 ? { width: 500, alignSelf: "center" } : null
@@ -446,43 +523,9 @@ const Home = ({ navigation }) => {
                             </Text>
                           </View>
                           <View>
-                            {Crops.map((cropName, cIndex) => {
-                              let a = cropName.name.toLowerCase();
-                              let b = item.crop?.toLowerCase();
-                              let result = a.localeCompare(b);
-
-                              if (a == b) {
-                                return (
-                                  <View
-                                    style={{
-                                      flexDirection: "row",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <Image
-                                      source={{ uri: cropName.image }}
-                                      style={{
-                                        height: 30,
-                                        width: 30,
-                                        borderWidth: 1,
-                                        borderRadius: 30,
-                                        borderColor: "#3ECF8E",
-                                      }}
-                                    />
-                                    <Text
-                                      style={{
-                                        fontSize: 20,
-                                        marginLeft: 5,
-                                      }}
-                                    >
-                                      {cropName.name}
-                                    </Text>
-                                  </View>
-                                );
-                              } else {
-                                null;
-                              }
-                            })}
+                            <Text style={{ fontSize: 20 }}>
+                              {item.crops.map((i) => i.cropName)}
+                            </Text>
                           </View>
                         </View>
 
@@ -517,7 +560,9 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                              {item.crops.harvestDate}
+                              <Text>
+                                {item.crops.map((i) => i.harvestDate)}
+                              </Text>
                             </Text>
                           </View>
                         </View>
@@ -592,7 +637,7 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                              {item.crops.quantity} quintal
+                              {item.crops.map((i) => i.quantity) / 100} q
                             </Text>
                           </View>
                         </View>
@@ -739,5 +784,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#deebff",
     alignItems: "center",
     justifyContent: "center",
+    height: winHeight,
   },
 });

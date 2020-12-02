@@ -59,8 +59,9 @@ const Search = ({ navigation }) => {
   const cropper = "rice";
 
   useEffect(() => {
-    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/farmers", {
+    fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
       method: "post",
+
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -77,7 +78,7 @@ const Search = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
+    fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
       method: "post",
       headers: {
         Accept: "application/json",

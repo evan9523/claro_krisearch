@@ -23,34 +23,46 @@ const Header = (props: HeaderProps) => {
     <View style={styles.header}>
       <View
         style={{
+          width: winWidth < 767 ? "100%" : "70%",
+          top: winWidth > 767 ? 5 : 10,
+          height: "100%",
           flexDirection: "row",
+          alignSelf: "flex-start",
           alignItems: "center",
-          justifyContent: "flex-start",
-          top: 5,
+          justifyContent: "space-between",
         }}
       >
-        <Image
-          source={{ uri: require("../../assets/newicon2.png") }}
-          style={{ width: 40, height: 40 }}
-        />
-        <Text style={styles.headerText}>Krisearch</Text>
-      </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            top: winWidth > 767 ? 5 : 10,
+          }}
+        >
+          <Image
+            source={{ uri: require("../../assets/newicon2.png") }}
+            style={{ width: 30, height: 30, top: -2 }}
+          />
+          <Text style={styles.headerText}>Krisearch</Text>
+        </View>
 
-      <TextInput
-        style={{
-          width: "50%",
-          height: winWidth > 767 ? 40 : 35,
-          fontSize: winWidth > 767 ? 20 : 16,
-          backgroundColor: windowWidth > 767 ? "#fff" : "#003bc4",
-          outlineColor: "#fff",
-          borderRadius: 10,
-          padding: 5,
-          marginTop: 10,
-        }}
-        placeholder="Search for Crops..."
-        placeholderTextColor={winWidth > 767 ? "#000" : "#fff"}
-        onFocus={onTap}
-      />
+        <TextInput
+          style={{
+            width: "50%",
+            height: winWidth > 767 ? 40 : 35,
+            fontSize: winWidth > 767 ? 20 : 16,
+            backgroundColor: "#fff",
+            outlineColor: "#fff",
+            borderRadius: 10,
+            padding: 5,
+            marginTop: 10,
+          }}
+          placeholder="Search for Crops..."
+          placeholderTextColor="#000"
+          onFocus={onTap}
+        />
+      </View>
     </View>
   );
 };
@@ -60,10 +72,9 @@ export default Header;
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    height: 60,
+    height: 90,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#346beb",
     padding: 5,
   },
@@ -72,5 +83,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     marginLeft: 2,
+    alignSelf: "flex-start",
   },
 });

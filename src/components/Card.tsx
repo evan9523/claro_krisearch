@@ -11,6 +11,7 @@ import {
   Image,
 } from "react-native";
 import getSmallString from "../utils/getSmallString";
+import hideNumber from "../utils/hideNumber";
 
 export interface CardProps {
   name: string;
@@ -105,9 +106,7 @@ export default function Card(props: CardProps) {
                 }
           }
         />
-        <Text style={{ fontWeight: "500", marginTop: 10 }}>
-          {getSmallString(name)}
-        </Text>
+        <Text style={{ fontWeight: "500", marginTop: 10 }}>{name}</Text>
 
         {!isCrop ? (
           <View
@@ -125,16 +124,6 @@ export default function Card(props: CardProps) {
                 justifyContent: "center",
               }}
             >
-              <Image
-                source={{ uri: cropAvatar }}
-                style={{
-                  height: 15,
-                  width: 15,
-                  borderColor: "green",
-                  borderWidth: 1,
-                  borderRadius: 15,
-                }}
-              />
               <Text> {crop}</Text>
             </View>
             <Entypo name="dot-single" size={15} style={{ top: 10 }} />
@@ -146,7 +135,7 @@ export default function Card(props: CardProps) {
 
         {!isCrop ? (
           <View>
-            <Text>{phone}</Text>
+            <Text>{phone ? hideNumber(phone) : "Not available"}</Text>
           </View>
         ) : null}
       </View>
