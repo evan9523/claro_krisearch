@@ -10,6 +10,8 @@ import {
   TextInput,
   Platform,
   ScrollView,
+  ActivityIndicator,
+  FlatList,
 } from "react-native";
 import Header from "../components/header";
 import { winWidth, winHeight } from "../utils/window";
@@ -56,6 +58,7 @@ const Search = ({ navigation }) => {
   const [crop, setcrop] = useState([]);
   const [farmers, setfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
+  const [selectedState, setselectedState] = useState("");
   const cropper = "rice";
 
   useEffect(() => {
@@ -69,7 +72,7 @@ const Search = ({ navigation }) => {
       body: JSON.stringify({
         gender: null,
         harvestDate: null,
-        state: "Bihar",
+        state: selectedState,
       }),
     })
       .then((response) => response.json())
@@ -96,6 +99,38 @@ const Search = ({ navigation }) => {
   console.log(crop);
   console.log(farmers);
 
+  const selectState = () => {
+    States.map((item) => {
+      console.log(item.name);
+      farmers.map((i) => {
+        console.log(i.state);
+        if (
+          item.name.toString().toLowerCase() ===
+          i.state.toString().toLowerCase()
+        ) {
+          setselectedState(item.name);
+        }
+      });
+    });
+  };
+
+  const renderFarmers = ({ item }) => (
+    <Card
+      key={item.id}
+      name={item.farmerName}
+      avatar={item.farmerImage}
+      phone={item.phone}
+      address={item.state}
+      crop={item.crops.map((i) => i.cropName)}
+      onPress={() => {
+        console.log(item.farmerName),
+          setfarmer(item.id),
+          console.log(item.crops.map((i) => i.quantity));
+        onOpen(), setmodalName(item.farmerName);
+      }}
+    />
+  );
+
   const filteredCrops = Data.filter((item) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());
   });
@@ -104,8 +139,9 @@ const Search = ({ navigation }) => {
     return item.type.toLocaleLowerCase().includes(term.toLowerCase());
   });
 
-  const filteredFarmers = Farmers.filter((item) => {
-    return item.crop.toLocaleLowerCase().includes(term.toLowerCase());
+  const filteredFarmers = farmers.filter((item) => {
+    let a = item.crops.map((i) => i.cropName);
+    return a.toString().toLocaleLowerCase().includes(term.toLowerCase());
   });
 
   const genderFilter = filteredFarmers.filter((item) => {
@@ -116,9 +152,11 @@ const Search = ({ navigation }) => {
 
   const addrFilter = filteredFarmers.filter((item) => {
     if (addr) {
-      return item.address.toLocaleLowerCase() === addr.toLowerCase();
+      return item.state.toLocaleLowerCase() === addr.toLowerCase();
     }
   });
+
+  console.log(filteredFarmers);
 
   const applyFilterFinal = [genderFilter, addrFilter].flat();
 
@@ -126,9 +164,10 @@ const Search = ({ navigation }) => {
 
   const modalizeFilterRef = useRef<Modalize>(null);
 
-  const mergeResult = (genderFilter && addrFilter).filter((item) => {
-    // if (val && addr) {
+  console.log(genderFilter);
 
+  const mergeResult = filteredFarmers.filter((item) => {
+    // if (val && addr) {
     // }
     // if (addr && !val) {
     //   return item.address.toLocaleLowerCase() === addr.toLowerCase();
@@ -137,8 +176,8 @@ const Search = ({ navigation }) => {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
     return (
-      item.gender.toLocaleLowerCase() === val.toLowerCase() &&
-      item.address.toLocaleLowerCase() === addr.toLowerCase()
+      item.gender.toLowerCase() === val.toLowerCase() &&
+      item.state.toLowerCase() === addr.toLowerCase()
     );
   });
 
@@ -160,18 +199,57 @@ const Search = ({ navigation }) => {
 
   const genderData = [
     {
-      key: "male",
+      key: "m",
       text: "Male",
     },
     {
-      key: "female",
+      key: "f",
       text: "Female",
     },
     {
-      key: "other",
+      key: "o",
       text: "Other",
     },
   ];
+
+  const renderItems = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setplacer(true), setblur(!blur), setterm(item.name);
+      }}
+      style={{ marginBottom: 2 }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        {/* <Image
+          source={{ uri: item.image }}
+          style={{
+            height: 35,
+            width: 35,
+            borderColor: "green",
+            borderWidth: 1,
+            borderRadius: 35,
+          }}
+        /> */}
+        <Text style={{ fontSize: 20 }}> {item.name}</Text>
+        {/* <Text
+          style={{
+            fontSize: 15,
+            alignSelf: "center",
+            color: "#989898",
+          }}
+        >
+          {" "}
+          in{" "}
+        </Text>
+        <Text style={{ fontSize: 15 }}>{item.type}</Text> */}
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -186,57 +264,10 @@ const Search = ({ navigation }) => {
           height: "100%",
         }}
       >
-        {winWidth > 767 ? (
-          <View
-            style={{
-              backgroundColor: "#8cbaff",
-              width: "30%",
-              height: "100%",
-              alignItems: "center",
-
-              padding: 10,
-            }}
-          >
-            <Text style={{ fontSize: 24, alignSelf: "flex-start" }}>
-              Welcome to Krisearch
-            </Text>
-            <Text
-              style={{
-                fontSize: 24,
-                marginBottom: 20,
-                alignSelf: "flex-start",
-              }}
-            >
-              Lets start discovering Farmers
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ marginTop: 20 }}>
-                <Button
-                  title="Go to Home"
-                  onPress={() => navigation.navigate("Home")}
-                />
-              </View>
-              <View style={{ marginTop: 20 }}>
-                <Button
-                  title="Go to Profile"
-                  onPress={() => navigation.navigate("Profile")}
-                />
-              </View>
-            </View>
-          </View>
-        ) : null}
-
         <View
           style={{
             backgroundColor: "#deebff",
-            width: winWidth > 767 ? "70%" : "100%",
+            width: "100%",
             height: "100%",
             alignItems: "flex-start",
             justifyContent: "center",
@@ -259,8 +290,35 @@ const Search = ({ navigation }) => {
             <View
               style={{
                 width: winWidth > 767 ? winWidth * 0.45 : winWidth * 0.9,
+                top: winWidth > 767 ? 25 : 0,
+                flexDirection: "row",
               }}
             >
+              {winWidth > 767 ? (
+                <TouchableOpacity
+                  style={{
+                    width: 120,
+                    height: 40,
+                    backgroundColor: "#346beb",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    borderRadius: 10,
+                  }}
+                  onPress={() => navigation.navigate("Home")}
+                >
+                  <FontAwesome5 name="home" size={20} color="#fff" />
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: "#fff",
+                      marginLeft: 5,
+                    }}
+                  >
+                    Go home
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
               <ScrollHeader
                 headerTap={() => {
                   setblur(!blur), setterm(""), setparent(false);
@@ -277,7 +335,7 @@ const Search = ({ navigation }) => {
 
             <Text
               style={{
-                marginTop: 10,
+                marginTop: 20,
                 padding: 5,
                 fontWeight: "500",
                 color: "#6F6F6F",
@@ -534,11 +592,11 @@ const Search = ({ navigation }) => {
                       return (
                         <Card
                           key={item.id}
-                          name={item.name}
-                          avatar={item.avatar}
+                          name={item.farmerName}
+                          avatar={item.farmerImage}
                           phone={item.phone}
-                          address={item.address}
-                          crop={item.crop}
+                          address={item.state}
+                          crop={item.crops.map((i) => i.cropName)}
                           onPress={() => {
                             setfarmer(item.id), onOpen(), sethideFAB(true);
                           }}
@@ -562,15 +620,14 @@ const Search = ({ navigation }) => {
                       return (
                         <Card
                           key={item.id}
-                          name={item.name}
-                          avatar={item.avatar}
+                          name={item.farmerName}
+                          avatar={item.farmerImage}
                           phone={item.phone}
-                          address={item.address}
-                          crop={item.crop}
+                          address={item.state}
+                          crop={item.crops.map((i) => i.cropName)}
                           onPress={() => {
                             setfarmer(item.id), onOpen(), sethideFAB(true);
                           }}
-                          cropAvatar={item.image}
                         />
                       );
                     })}
@@ -590,11 +647,11 @@ const Search = ({ navigation }) => {
                       return (
                         <Card
                           key={item.id}
-                          name={item.name}
-                          avatar={item.avatar}
+                          name={item.farmerName}
+                          avatar={item.farmerImage}
                           phone={item.phone}
-                          address={item.address}
-                          crop={item.crop}
+                          address={item.state}
+                          crop={item.crops.map((i) => i.cropName)}
                           onPress={() => {
                             setfarmer(item.id), onOpen();
                           }}
@@ -607,42 +664,59 @@ const Search = ({ navigation }) => {
                   <Text>No Result Found</Text>
                 )
               ) : (
+                // <View
+                //   style={{
+                //     flexDirection: "row",
+                //     width: "100%",
+                //     flexWrap: "wrap",
+                //     alignItems: "flex-start",
+                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                //     padding: winWidth > 767 ? 10 : 2,
+                //   }}
+                // >
+                //   {filteredFarmers.map((item, cIndex) => {
+                //     return (
+                //       <Card
+                //         key={item.id}
+                //         name={item.name}
+                //         avatar={item.avatar}
+                //         phone={item.phone}
+                //         address={item.address}
+                //         crop={item.crop}
+                //         onPress={() => {
+                //           setfarmer(item.id), onOpen(), sethideFAB(true);
+                //         }}
+                //         cropAvatar={item.image}
+                //       />
+                //     );
+                //   })}
+                // </View>
                 <View
                   style={{
-                    flexDirection: "row",
                     width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "flex-start",
-                    justifyContent: winWidth > 767 ? "flex-start" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
+                    height: winHeight * 0.89,
                   }}
                 >
-                  {filteredFarmers.map((item, cIndex) => {
-                    return (
-                      <Card
-                        key={item.id}
-                        name={item.name}
-                        avatar={item.avatar}
-                        phone={item.phone}
-                        address={item.address}
-                        crop={item.crop}
-                        onPress={() => {
-                          setfarmer(item.id), onOpen(), sethideFAB(true);
-                        }}
-                        cropAvatar={item.image}
-                      />
-                    );
-                  })}
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={filteredFarmers}
+                    renderItem={renderFarmers}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <ActivityIndicator size="large" />
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      justifyContent: winWidth > 767 ? "center" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
                 </View>
               )}
-              <View
-                style={{
-                  height: 60,
-                  width: "100%",
-                  backgroundColor: "transparent",
-                  marginTop: 10,
-                }}
-              ></View>
             </ScrollView>
             <Modalize
               ref={modalizeRef}
@@ -654,9 +728,8 @@ const Search = ({ navigation }) => {
               closeOnOverlayTap={true}
               mod
             >
-              {filteredFarmers.map((item, cIndex) => {
-                let kisan = farmer;
-                if (kisan == item.id) {
+              {farmers.map((item, cIndex) => {
+                if (farmer == item.id) {
                   return (
                     <View>
                       <View
@@ -744,7 +817,7 @@ const Search = ({ navigation }) => {
                             }}
                           >
                             <Image
-                              source={{ uri: item.avatar }}
+                              source={{ uri: item.farmerImage }}
                               style={{
                                 height: 120,
                                 width: 120,
@@ -782,7 +855,7 @@ const Search = ({ navigation }) => {
                                     marginLeft: 5,
                                   }}
                                 >
-                                  {getSmallString(item.name)}
+                                  {getSmallString(item.farmerName)}
                                 </Text>
                               </View>
                               <View style={{ flexDirection: "row" }}>
@@ -799,7 +872,7 @@ const Search = ({ navigation }) => {
                                     marginLeft: 5,
                                   }}
                                 >
-                                  {item.address}
+                                  {item.state}
                                 </Text>
                               </View>
                               <View style={{ flexDirection: "row" }}>
@@ -885,7 +958,13 @@ const Search = ({ navigation }) => {
                                   </Text>
                                 </View>
                                 <View>
-                                  {Data.map((cropName, cIndex) => {
+                                  <View>
+                                    <Text style={{ fontSize: 20 }}>
+                                      {item.crops.map((i) => i.cropName)}
+                                    </Text>
+                                  </View>
+
+                                  {/* {Data.map((cropName, cIndex) => {
                                     let a = cropName.name.toLowerCase();
                                     let b = item.crop?.toLowerCase();
                                     let result = a.localeCompare(b);
@@ -921,7 +1000,7 @@ const Search = ({ navigation }) => {
                                     } else {
                                       null;
                                     }
-                                  })}
+                                  })} */}
                                 </View>
                               </View>
 
@@ -955,8 +1034,8 @@ const Search = ({ navigation }) => {
                                   </Text>
                                 </View>
                                 <View>
-                                  <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                                    {item.harvestDate}
+                                  <Text style={{ fontSize: 20 }}>
+                                    {item.crops.map((i) => i.harvestDate)}
                                   </Text>
                                 </View>
                               </View>
@@ -1000,7 +1079,7 @@ const Search = ({ navigation }) => {
                                 </View>
                                 <View>
                                   <Text style={{ fontSize: 20 }}>
-                                    {item.area} Kattha
+                                    {item.land} Kattha
                                   </Text>
                                 </View>
                               </View>
@@ -1036,7 +1115,7 @@ const Search = ({ navigation }) => {
                                 </View>
                                 <View>
                                   <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                                    {item.quantity} quintal
+                                    {item.crops.map((i) => i.quantity) / 100} q
                                   </Text>
                                 </View>
                               </View>
@@ -1533,7 +1612,7 @@ const Search = ({ navigation }) => {
                 style={{
                   backgroundColor: "#fff",
                   height: 55,
-                  width: "97%",
+                  width: winWidth > 767 ? "50%" : "97%",
                   alignSelf: "center",
                   flexDirection: "row",
                   alignItems: "center",
@@ -1571,6 +1650,7 @@ const Search = ({ navigation }) => {
                     console.log(text), setterm(text), setSearch(text);
                   }}
                 />
+
                 <View
                   style={{
                     flexDirection: "row",
@@ -1585,23 +1665,47 @@ const Search = ({ navigation }) => {
                     >
                       <View
                         style={{
-                          width: 25,
-                          height: 25,
+                          width: 50,
+                          height: 35,
                           borderWidth: 2,
-                          borderColor: "#A1C7FF",
+                          borderColor: "#3d3f40",
                           alignItems: "center",
                           alignSelf: "flex-end",
                           justifyContent: "center",
-                          right: -10,
-                          backgroundColor: "#A1C7FF",
-                          borderRadius: 25,
+                          marginRight: 5,
+                          backgroundColor: "#3d3f40",
+                          borderRadius: 5,
                         }}
                       >
-                        <AntDesign name="close" size={20} color="#3A48ED" />
+                        <Text style={{ fontSize: 15, color: "#fff" }}>
+                          Clear
+                        </Text>
                       </View>
                     </TouchableOpacity>
                   ) : null}
                 </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setblur(false);
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 25,
+                      height: 25,
+                      borderWidth: 2,
+                      borderColor: "#A1C7FF",
+                      alignItems: "center",
+                      alignSelf: "flex-end",
+                      justifyContent: "center",
+                      right: -10,
+                      backgroundColor: "#A1C7FF",
+                      borderRadius: 25,
+                    }}
+                  >
+                    <AntDesign name="close" size={20} color="#3A48ED" />
+                  </View>
+                </TouchableOpacity>
               </View>
               <View style={{ flex: 1, alignItems: "center", width: "100%" }}>
                 {/* <TouchableOpacity style={{width:"100%", height:30, alignItems:"center", justifyContent:"center", backgroundColor:"transparent"}} onPress={()=>{setplacer(true),setblur(!blur)}}>
@@ -1610,7 +1714,7 @@ const Search = ({ navigation }) => {
                 {term !== null ? (
                   <View
                     style={{
-                      width: "97%",
+                      width: winWidth > 767 ? "50%" : "97%",
                       alignItems: "center",
                       backgroundColor: "#fff",
                       borderRadius: 10,
@@ -1621,7 +1725,7 @@ const Search = ({ navigation }) => {
                       style={{
                         width: "100%",
                         alignItems: "flex-start",
-                        padding: 5,
+                        padding: 10,
                         marginBottom: 10,
                         marginTop: 5,
                       }}
@@ -1650,6 +1754,35 @@ const Search = ({ navigation }) => {
                       )}
                     </View>
 
+                    <View
+                      style={{
+                        width: "100%",
+                        height: winHeight * 0.5,
+                      }}
+                    >
+                      <FlatList
+                        showsVerticalScrollIndicator={false}
+                        data={filteredCrops}
+                        renderItem={renderItems}
+                        ListEmptyComponent={() => (
+                          <View style={styles.container}>
+                            <ActivityIndicator size="large" />
+                          </View>
+                        )}
+                        contentContainerStyle={{
+                          // flexDirection: "row",
+                          // width: "100%",
+                          // flexWrap: "wrap",
+                          // alignItems: "center",
+                          // justifyContent:
+                          //   winWidth > 767 ? "center" : "center",
+                          // padding: winWidth > 767 ? 10 : 2,
+                          width: "100%",
+                        }}
+                      />
+                    </View>
+
+                    {/* 
                     {filteredCrops.map((item, cIndex) => {
                       return (
                         <View
@@ -1726,9 +1859,18 @@ const Search = ({ navigation }) => {
                           </TouchableOpacity>
                         </View>
                       );
-                    })}
+                    })} */}
                   </View>
                 ) : null}
+
+                <TouchableOpacity
+                  style={{
+                    width: "100%",
+                    flex: 1,
+                    backgroundColor: "transparent",
+                  }}
+                  onPress={() => navigation.navigate("Home")}
+                ></TouchableOpacity>
               </View>
             </View>
           </BlurView>
@@ -1746,6 +1888,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#deebff",
     alignItems: "center",
     justifyContent: "center",
+    height: winHeight,
   },
   buttonContainer: {
     flexDirection: "row",

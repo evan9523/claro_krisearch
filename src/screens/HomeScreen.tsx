@@ -29,6 +29,7 @@ import {
 import hideNumber from "../utils/hideNumber";
 import getSmallString from "../utils/getSmallString";
 import States from "../data/states.json";
+import Data from "../data/items.json";
 
 const Home = ({ navigation }) => {
   const [farmer, setfarmer] = useState(0);
@@ -122,6 +123,8 @@ const Home = ({ navigation }) => {
       });
     });
   };
+
+  const selectCrop = () => {};
 
   const handleLoad = () => {
     setfirstScroll(firstScroll + 18);
@@ -238,25 +241,27 @@ const Home = ({ navigation }) => {
               height: winHeight * 0.89,
             }}
           >
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={farmers}
-              renderItem={renderItems}
-              ListEmptyComponent={() => (
-                <View style={styles.container}>
-                  <ActivityIndicator size="large" />
-                </View>
-              )}
-              contentContainerStyle={{
-                flexDirection: "row",
-                width: "100%",
-                flexWrap: "wrap",
-                alignItems: "center",
-                justifyContent: winWidth > 767 ? "center" : "center",
-                padding: winWidth > 767 ? 10 : 2,
-              }}
-              onEndReached={handleLoad}
-            />
+            {farmers.length > 10 ? (
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={farmers}
+                renderItem={renderItems}
+                ListEmptyComponent={() => (
+                  <View style={styles.container}>
+                    <ActivityIndicator size="large" />
+                  </View>
+                )}
+                contentContainerStyle={{
+                  flexDirection: "row",
+                  width: "100%",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: winWidth > 767 ? "center" : "center",
+                  padding: winWidth > 767 ? 10 : 2,
+                }}
+                onEndReached={handleLoad}
+              />
+            ) : null}
           </View>
           {/* <ScrollView
             showsVerticalScrollIndicator={false}
@@ -559,10 +564,8 @@ const Home = ({ navigation }) => {
                             </Text>
                           </View>
                           <View>
-                            <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                              <Text>
-                                {item.crops.map((i) => i.harvestDate)}
-                              </Text>
+                            <Text style={{ fontSize: 20 }}>
+                              {item.crops.map((i) => i.harvestDate)}
                             </Text>
                           </View>
                         </View>

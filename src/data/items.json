@@ -1,51 +1,537 @@
+
+      
+      
+    
+       
+       
+
 [
     {
         "id":1,
-        "name":"Rice",
-        "type":"crop",
-        "image":"https://images.fineartamerica.com/images-medium-large-5/green-rice-paddy-sungjin-kim.jpg"
+        "name":"Banana",
+        "type":""
+       
     },
 
     {
         "id":2,
-        "name":"Almond",
-        "type":"nut",
-        "image":"https://static.independent.co.uk/s3fs-public/thumbnails/image/2020/04/28/21/almonds-1-sustainability-indyeats.jpg"
+        "name":"Bottle Gourd",
+        "type":""
+       
     },
 
     {
         "id":3,
-        "name":"Wheat",
-        "type":"crop",
-        "image":"https://cdn.vox-cdn.com/thumbor/Zd_RL3RGVz3xJFCeVRKVsb_j-24=/0x0:5555x3750/1200x800/filters:focal(2304x1023:3192x1911)/cdn.vox-cdn.com/uploads/chorus_image/image/66419322/AdobeStock_278395497.0.jpeg"
+        "name":"Brinjal",
+        "type":""
+       
     },
 
     {
         "id":4,
-        "name":"Sugar Beet",
-        "type":"vegetable",
-        "image":"https://diy.sndimg.com/content/dam/images/diy/fullset/2015/5/20/0/Getty-Images_Sugar-Beets_Saccherifera_Variety_Wally-Eberhart.jpg.rend.hgtvcom.1280.960.suffix/1432166924353.jpeg"
+        "name":"Cabbage",
+        "type":""
+       
     },
 
     {
         "id":5,
-        "name":"Sugarcane",
-        "type":"plant",
-        "image":"https://static.toiimg.com/photo/msid-69095049/69095049.jpg?1675636"
+        "name":"Cauliflower",
+        "type":""
+      
     },
 
     {
         "id":6,
-        "name":"Mango",
-        "type":"fruit",
-        "image":"https://3.imimg.com/data3/IB/SQ/MY-4978719/fresh-mangoes-500x500.jpg"
+        "name":"Chili",
+        "type":""
+      
     },
 
+  
     {
-        "id":7,
+        "id":8,
+        "name":"Coriander",
+        "type":""
+       
+
+    },
+    {
+        "id":9,
+        "name":"Green Chilli",
+        "type":""
+       
+
+    },
+    {
+        "id":10,
+        "name":"Corn",
+        "type":""
+       
+
+    },
+    {
+        "id":11,
+        "name":"Green Potato",
+        "type":""
+       
+
+    },
+    {
+        "id":12,
+        "name":"Lady Finger",
+        "type":""
+       
+
+    },{
+        "id":13,
+        "name":"Lychee",
+        "type":""
+       
+
+    },
+    {
+        "id":14,
+        "name":"Mango",
+        "type":""
+       
+
+    },
+    {
+        "id":15,
+        "name":"Papaya",
+        "type":""
+       
+
+    },
+    {
+        "id":16,
+        "name":"Pumpkin",
+        "type":""
+       
+
+    },
+    {
+        "id":17,
+        "name":"Kinnow",
+        "type":""
+       
+
+    },
+    {
+        "id":18,
+        "name":"Orange",
+        "type":""
+       
+
+    },
+    {
+        "id":19,
+        "name":"Rice",
+        "type":"Crop"
+       
+
+    },
+    {
+        "id":20,
+        "name":"Sugarcane",
+        "type":""
+       
+
+    },
+    {
+        "id":21,
+        "name":"Turmeric",
+        "type":"Spices"
+       
+
+    },
+    {
+        "id":22,
+        "name":"Wheat",
+        "type":""
+       
+
+    },
+    {
+        "id":24,
+        "name":"Barley",
+        "type":""
+       
+
+    },
+    {
+        "id":25,
+        "name":"Rapeseed",
+        "type":""
+       
+
+    },
+    {
+        "id":26,
+        "name":"Mustard",
+        "type":""
+       
+
+    },
+    {
+        "id":27,
+        "name":"Sunflower",
+        "type":""
+       
+
+    },
+    {
+        "id":28,
+        "name":"Cotton",
+        "type":""
+       
+
+    },
+    {
+        "id":29,
+        "name":"Jowar",
+        "type":""
+       
+
+    },
+    {
+        "id":30,
+        "name":"Bajra",
+        "type":""
+       
+
+    },
+    {
+        "id":31,
+        "name":"Gram",
+        "type":""
+       
+
+    },
+    {
+        "id":32,
+        "name":"Groundnut",
+        "type":""
+       
+
+    },
+    {
+        "id":33,
+        "name":"Floriculture",
+        "type":""
+       
+
+    },
+    {
+        "id":34,
+        "name":"Betel",
+        "type":""
+       
+
+    },
+    {
+        "id":35,
+        "name":"Jute",
+        "type":""
+       
+
+    },
+    {
+        "id":36,
+        "name":"Dates",
+        "type":""
+       
+
+    },
+    {
+        "id":37,
+        "name":"Urad",
+        "type":""
+       
+
+    },
+    {
+        "id":38,
+        "name":"Moong",
+        "type":""
+       
+
+    },
+    {
+        "id":39,
+        "name":"Soyabean",
+        "type":""
+       
+
+    },
+    {
+        "id":40,
+        "name":"Redgram",
+        "type":""
+       
+
+    },
+    {
+        "id":41,
+        "name":"Potato",
+        "type":""
+       
+
+    },
+    {
+        "id":42,
+        "name":"Ginger",
+        "type":""
+       
+
+    },
+    {
+        "id":43,
         "name":"Apple",
-        "type":"fruit",
-        "image":"https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9"
+        "type":""
+       
+
+    },
+    {
+        "id":44,
+        "name":"Walnuts",
+        "type":""
+       
+
+    },
+    {
+        "id":45,
+        "name":"Tea",
+        "type":""
+       
+
+    },
+    {
+        "id":46,
+        "name":"Vine",
+        "type":""
+       
+
+    },
+    {
+        "id":47,
+        "name":"Tobacco",
+        "type":""
+       
+
+    },
+    {
+        "id":48,
+        "name":"Pointed Gourd",
+        "type":""
+       
+
+    },
+    {
+        "id":49,
+        "name":"Beans",
+        "type":""
+       
+
+    },
+    {
+        "id":50,
+        "name":"Capsicum",
+        "type":""
+       
+
+    },
+    {
+        "id":51,
+        "name":"Onion",
+        "type":""
+       
+
+    },
+    {
+        "id":52,
+        "name":"Raddish",
+        "type":""
+       
+
+    },
+    {
+        "id":53,
+        "name":"Grapes",
+        "type":""
+       
+
+    },
+    {
+        "id":54,
+        "name":"Carrot",
+        "type":""
+       
+
+    },
+    {
+        "id":55,
+        "name":"Pea",
+        "type":""
+       
+
+    },
+    {
+        "id":56,
+        "name":"Broccoli",
+        "type":""
+       
+
+    },
+    {
+        "id":57,
+        "name":"Mint",
+        "type":""
+       
+
+    },
+    {
+        "id":58,
+        "name":"Fenugreek",
+        "type":""
+       
+
+    },
+    {
+        "id":59,
+        "name":"Spinach",
+        "type":""
+       
+
+    },
+    {
+        "id":60,
+        "name":"Turnips",
+        "type":""
+       
+
+    },
+    {
+        "id":61,
+        "name":"Beetroot",
+        "type":""
+       
+
+    },
+    {
+        "id":62,
+        "name":"Bitter Gourd",
+        "type":""
+       
+
+    },
+    {
+        "id":63,
+        "name":"Tomato",
+        "type":""
+       
+
+    },
+    {
+        "id":64,
+        "name":"Ridge Gourd",
+        "type":""
+       
+
+    },
+    {
+        "id":65,
+        "name":"Mushroom",
+        "type":""
+       
+
+    },
+    {
+        "id":66,
+        "name":"Lemon",
+        "type":""
+       
+
+    },
+    {
+        "id":67,
+        "name":"Jackfruit",
+        "type":""
+       
+
+    },
+    {
+        "id":68,
+        "name":"Garlic",
+        "type":""
+       
+
+    },
+    {
+        "id":69,
+        "name":"Cucumber",
+        "type":""
+       
+
+    },
+    {
+        "id":70,
+        "name":"Spine Gourd",
+        "type":""
+       
+
+    },
+    {
+        "id":71,
+        "name":"Kidney bean",
+        "type":""
+       
+
+    },
+    {
+        "id":72,
+        "name":"Colocasia Root",
+        "type":""
+       
+
+    },
+    {
+        "id":73,
+        "name":"Elephant Foot Yam",
+        "type":""
+       
+
+    },
+    {
+        "id":74,
+        "name":"Pomegranate",
+        "type":""
+       
+
+    },
+    {
+        "id":75,
+        "name":"Watermelon",
+        "type":""
+       
+
+    },
+    {
+        "id":76,
+        "name":"Muskmelon",
+        "type":""
+       
+
+    },
+    {
+        "id":77,
+        "name":"Guava",
+        "type":""
+       
 
     }
+
+
+
 ]
