@@ -287,7 +287,11 @@ const Search = ({ navigation }) => {
               height: winHeight * 0.99,
             }}
           >
-            <View
+            <Header
+              onTap={() => setblur(true)}
+              onLogoTap={() => navigation.navigate("Home")}
+            />
+            {/* <View
               style={{
                 width: winWidth > 767 ? winWidth * 0.45 : winWidth * 0.9,
                 top: winWidth > 767 ? 25 : 0,
@@ -331,19 +335,34 @@ const Search = ({ navigation }) => {
                     : "Search for crops..."
                 }
               />
-            </View>
+            </View> */}
 
-            <Text
-              style={{
-                marginTop: 20,
-                padding: 5,
-                fontWeight: "500",
-                color: "#6F6F6F",
-                fontSize: 18,
-              }}
-            >
-              Showing results for {term}
-            </Text>
+            {term ? (
+              <Text
+                style={{
+                  marginTop: 20,
+                  padding: 5,
+                  fontWeight: "500",
+                  color: "#6F6F6F",
+                  fontSize: 18,
+                  fontStyle: "italic",
+                }}
+              >
+                Showing results for {term}
+              </Text>
+            ) : (
+              <Text
+                style={{
+                  marginTop: 20,
+                  padding: 5,
+                  fontWeight: "500",
+                  color: "#6F6F6F",
+                  fontSize: 18,
+                }}
+              >
+                Showing all results
+              </Text>
+            )}
 
             {/* <View style={{ width: "100%", flexDirection: "row" }}>
               <TouchableOpacity
@@ -1657,7 +1676,7 @@ const Search = ({ navigation }) => {
                     justifyContent: "space-between",
                   }}
                 >
-                  {term ? (
+                  {/* {term ? (
                     <TouchableOpacity
                       onPress={() => {
                         setterm("");
@@ -1682,11 +1701,12 @@ const Search = ({ navigation }) => {
                         </Text>
                       </View>
                     </TouchableOpacity>
-                  ) : null}
+                  ) : null} */}
                 </View>
                 <TouchableOpacity
                   onPress={() => {
-                    setblur(false);
+                    // setblur(false);
+                    term ? setblur(false) : navigation.navigate("Home");
                   }}
                 >
                   <View

@@ -8,6 +8,7 @@ import {
   View,
   Image,
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { winWidth } from "../utils/window";
 
 const windowHeight = Dimensions.get("screen").height;
@@ -15,10 +16,11 @@ const windowWidth = Dimensions.get("screen").width;
 
 export interface HeaderProps {
   onTap(): any;
+  onLogoTap(): any;
 }
 
 const Header = (props: HeaderProps) => {
-  const { onTap } = props;
+  const { onTap, onLogoTap } = props;
   return (
     <View style={styles.header}>
       <View
@@ -32,20 +34,21 @@ const Header = (props: HeaderProps) => {
           justifyContent: "space-between",
         }}
       >
-        <View
+        <TouchableOpacity
           style={{
             flexDirection: "row",
             alignItems: "flex-start",
             justifyContent: "flex-start",
             top: winWidth > 767 ? 5 : 10,
           }}
+          onPress={onLogoTap}
         >
           <Image
             source={{ uri: require("../../assets/newicon2.png") }}
             style={{ width: 30, height: 30, top: -2 }}
           />
           <Text style={styles.headerText}>Krisearch</Text>
-        </View>
+        </TouchableOpacity>
 
         <TextInput
           style={{

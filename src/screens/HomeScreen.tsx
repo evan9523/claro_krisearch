@@ -74,7 +74,6 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
       method: "post",
-
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -175,7 +174,10 @@ const Home = ({ navigation }) => {
             justifyContent: "center",
           }}
         >
-          <Header onTap={() => navigation.navigate("Search")} />
+          <Header
+            onTap={() => navigation.navigate("Search")}
+            onLogoTap={() => console.log("Home active")}
+          />
 
           {/* <Button
             title="GO to Search"
