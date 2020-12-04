@@ -27,11 +27,13 @@ import {
   FontAwesome,
   FontAwesome5,
   SimpleLineIcons,
+  Ionicons,
 } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import States from "../data/states.json";
 import ScrollHeader from "../components/ScrollHeader";
 import Card from "../components/Card";
+import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 
 const Search = ({ navigation }) => {
   const [blur, setblur] = useState(true);
@@ -59,7 +61,8 @@ const Search = ({ navigation }) => {
   const [farmers, setfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
   const [selectedState, setselectedState] = useState("");
-  const cropper = "rice";
+  const [value, onChange] = useState([new Date(), new Date()]);
+  const cropper = "";
 
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
@@ -236,7 +239,7 @@ const Search = ({ navigation }) => {
           }}
         /> */}
         <Text style={{ fontSize: 20 }}> {item.name}</Text>
-        {/* <Text
+        <Text
           style={{
             fontSize: 15,
             alignSelf: "center",
@@ -246,7 +249,18 @@ const Search = ({ navigation }) => {
           {" "}
           in{" "}
         </Text>
-        <Text style={{ fontSize: 15 }}>{item.type}</Text> */}
+        <TouchableOpacity
+          onPress={() => {
+            setparent(!parent),
+              setterm(item.type),
+              setplacer(!placer),
+              setblur(!blur);
+          }}
+        >
+          <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 10 }}>
+            {item.type}
+          </Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -291,6 +305,7 @@ const Search = ({ navigation }) => {
               onTap={() => setblur(true)}
               onLogoTap={() => navigation.navigate("Home")}
             />
+
             {/* <View
               style={{
                 width: winWidth > 767 ? winWidth * 0.45 : winWidth * 0.9,
@@ -336,7 +351,7 @@ const Search = ({ navigation }) => {
                 }
               />
             </View> */}
-
+            {/* 
             {term ? (
               <Text
                 style={{
@@ -362,7 +377,7 @@ const Search = ({ navigation }) => {
               >
                 Showing all results
               </Text>
-            )}
+            )} */}
 
             {/* <View style={{ width: "100%", flexDirection: "row" }}>
               <TouchableOpacity
@@ -394,6 +409,7 @@ const Search = ({ navigation }) => {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    alignSelf: "flex-start",
                   }}
                 >
                   {/* <Text
@@ -413,8 +429,51 @@ const Search = ({ navigation }) => {
                       width: "100%",
                       alignItems: "center",
                       justifyContent: "flex-start",
+
+                      padding: 5,
                     }}
                   >
+                    {winWidth > 767 ? (
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                          marginRight: 25,
+                          left: 5,
+                          backgroundColor: "transparent",
+                          padding: 5,
+                          height: 30,
+                          borderWidth: 2,
+                          borderColor: "#346beb",
+                          borderRadius: 5,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        }}
+                        onPress={() => {
+                          setfilteractive(false), navigation.navigate("Home");
+                        }}
+                      >
+                        <Ionicons
+                          name="ios-arrow-dropleft"
+                          size={20}
+                          color="#346beb"
+                        />
+                        <Text
+                          style={{
+                            color: "#346beb",
+                            fontWeight: "700",
+                            marginLeft: 5,
+                            bottom: 2,
+                          }}
+                        >
+                          Back to Home
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
+
+                    {/* <Button
+                      title="GO Home"
+                      onPress={() => navigation.navigate("Home")}
+                    /> */}
                     <TouchableOpacity
                       style={{
                         top: 10,
@@ -447,6 +506,20 @@ const Search = ({ navigation }) => {
                         Filter Results
                       </Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: term ? "#3ECF8E" : "#deebff",
+                        padding: 5,
+                        height: 30,
+                        borderRadius: 5,
+                      }}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "700" }}>
+                        {term ? term : null}
+                      </Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity
                       style={{
@@ -455,7 +528,7 @@ const Search = ({ navigation }) => {
                         backgroundColor: val ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        borderRadius: 10,
+                        borderRadius: 5,
                       }}
                     >
                       <Text style={{ color: "#000" }}>{val ? val : null}</Text>
@@ -467,7 +540,7 @@ const Search = ({ navigation }) => {
                         backgroundColor: addr ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        borderRadius: 10,
+                        borderRadius: 5,
                       }}
                     >
                       <Text style={{ color: "#000" }}>
@@ -514,7 +587,6 @@ const Search = ({ navigation }) => {
               >
                 <Text
                   style={{
-                    marginTop: 60,
                     padding: 5,
                     fontWeight: "500",
                     color: "#6F6F6F",
@@ -597,87 +669,171 @@ const Search = ({ navigation }) => {
                 </View>
               ) : filteractive ? (
                 merge ? (
+                  // <View
+                  //   style={{
+                  //     flexDirection: "row",
+                  //     width: "100%",
+                  //     flexWrap: "wrap",
+                  //     alignItems: "flex-start",
+                  //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                  //     padding: winWidth > 767 ? 10 : 2,
+                  //   }}
+                  // >
+                  //   {mergeResult.map((item, cIndex) => {
+                  //     return (
+                  //       <Card
+                  //         key={item.id}
+                  //         name={item.farmerName}
+                  //         avatar={item.farmerImage}
+                  //         phone={item.phone}
+                  //         address={item.state}
+                  //         crop={item.crops.map((i) => i.cropName)}
+                  //         onPress={() => {
+                  //           setfarmer(item.id), onOpen(), sethideFAB(true);
+                  //         }}
+                  //         cropAvatar={item.image}
+                  //       />
+                  //     );
+                  //   })}
+                  // </View>
                   <View
                     style={{
-                      flexDirection: "row",
                       width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
+                      height: winHeight * 0.89,
                     }}
                   >
-                    {mergeResult.map((item, cIndex) => {
-                      return (
-                        <Card
-                          key={item.id}
-                          name={item.farmerName}
-                          avatar={item.farmerImage}
-                          phone={item.phone}
-                          address={item.state}
-                          crop={item.crops.map((i) => i.cropName)}
-                          onPress={() => {
-                            setfarmer(item.id), onOpen(), sethideFAB(true);
-                          }}
-                          cropAvatar={item.image}
-                        />
-                      );
-                    })}
+                    <FlatList
+                      showsVerticalScrollIndicator={false}
+                      data={mergeResult}
+                      renderItem={renderFarmers}
+                      ListEmptyComponent={() => (
+                        <View style={styles.container}>
+                          <Text style={{ fontSize: 30 }}>
+                            {" "}
+                            Oops ! Didnt find that
+                          </Text>
+                        </View>
+                      )}
+                      contentContainerStyle={{
+                        flexDirection: "row",
+                        width: "100%",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: winWidth > 767 ? "center" : "center",
+                        padding: winWidth > 767 ? 10 : 2,
+                      }}
+                    />
                   </View>
                 ) : val && !addr ? (
+                  // <View
+                  //   style={{
+                  //     flexDirection: "row",
+                  //     width: "100%",
+                  //     flexWrap: "wrap",
+                  //     alignItems: "flex-start",
+                  //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                  //     padding: winWidth > 767 ? 10 : 2,
+                  //   }}
+                  // >
+                  //   {genderFilter.map((item, cIndex) => {
+                  //     return (
+                  //       <Card
+                  //         key={item.id}
+                  //         name={item.farmerName}
+                  //         avatar={item.farmerImage}
+                  //         phone={item.phone}
+                  //         address={item.state}
+                  //         crop={item.crops.map((i) => i.cropName)}
+                  //         onPress={() => {
+                  //           setfarmer(item.id), onOpen(), sethideFAB(true);
+                  //         }}
+                  //       />
+                  //     );
+                  //   })}
+                  // </View>
                   <View
                     style={{
-                      flexDirection: "row",
                       width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
+                      height: winHeight * 0.89,
                     }}
                   >
-                    {genderFilter.map((item, cIndex) => {
-                      return (
-                        <Card
-                          key={item.id}
-                          name={item.farmerName}
-                          avatar={item.farmerImage}
-                          phone={item.phone}
-                          address={item.state}
-                          crop={item.crops.map((i) => i.cropName)}
-                          onPress={() => {
-                            setfarmer(item.id), onOpen(), sethideFAB(true);
-                          }}
-                        />
-                      );
-                    })}
+                    <FlatList
+                      showsVerticalScrollIndicator={false}
+                      data={genderFilter}
+                      renderItem={renderFarmers}
+                      ListEmptyComponent={() => (
+                        <View style={styles.container}>
+                          <Text style={{ fontSize: 30 }}>
+                            {" "}
+                            Oops ! Didnt find that
+                          </Text>
+                        </View>
+                      )}
+                      contentContainerStyle={{
+                        flexDirection: "row",
+                        width: "100%",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: winWidth > 767 ? "center" : "center",
+                        padding: winWidth > 767 ? 10 : 2,
+                      }}
+                    />
                   </View>
                 ) : !val && addr ? (
+                  // <View
+                  //   style={{
+                  //     flexDirection: "row",
+                  //     width: "100%",
+                  //     flexWrap: "wrap",
+                  //     alignItems: "flex-start",
+                  //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                  //     padding: winWidth > 767 ? 10 : 2,
+                  //   }}
+                  // >
+                  //   {addrFilter.map((item, cIndex) => {
+                  //     return (
+                  //       <Card
+                  //         key={item.id}
+                  //         name={item.farmerName}
+                  //         avatar={item.farmerImage}
+                  //         phone={item.phone}
+                  //         address={item.state}
+                  //         crop={item.crops.map((i) => i.cropName)}
+                  //         onPress={() => {
+                  //           setfarmer(item.id), onOpen();
+                  //         }}
+                  //         cropAvatar={item.image}
+                  //       />
+                  //     );
+                  //   })}
+                  // </View>
                   <View
                     style={{
-                      flexDirection: "row",
                       width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
+                      height: winHeight * 0.89,
                     }}
                   >
-                    {addrFilter.map((item, cIndex) => {
-                      return (
-                        <Card
-                          key={item.id}
-                          name={item.farmerName}
-                          avatar={item.farmerImage}
-                          phone={item.phone}
-                          address={item.state}
-                          crop={item.crops.map((i) => i.cropName)}
-                          onPress={() => {
-                            setfarmer(item.id), onOpen();
-                          }}
-                          cropAvatar={item.image}
-                        />
-                      );
-                    })}
+                    <FlatList
+                      showsVerticalScrollIndicator={false}
+                      data={addrFilter}
+                      renderItem={renderFarmers}
+                      ListEmptyComponent={() => (
+                        <View style={styles.container}>
+                          <Text style={{ fontSize: 30 }}>
+                            {" "}
+                            Oops ! Didnt find that
+                          </Text>
+                        </View>
+                      )}
+                      contentContainerStyle={{
+                        flexDirection: "row",
+                        width: "100%",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: winWidth > 767 ? "center" : "center",
+                        padding: winWidth > 767 ? 10 : 2,
+                      }}
+                    />
                   </View>
                 ) : (
                   <Text>No Result Found</Text>
@@ -722,7 +878,10 @@ const Search = ({ navigation }) => {
                     renderItem={renderFarmers}
                     ListEmptyComponent={() => (
                       <View style={styles.container}>
-                        <ActivityIndicator size="large" />
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
                       </View>
                     )}
                     contentContainerStyle={{
@@ -1521,6 +1680,30 @@ const Search = ({ navigation }) => {
                     alignItems: "center",
                   }}
                 ></View>
+                <View>
+                  <Text
+                    style={{
+                      color: "#6F6F6F",
+                      fontSize: 15,
+                      marginTop: 10,
+                      marginLeft: 0,
+                      marginBottom: 5,
+                    }}
+                  >
+                    By Harvest Date
+                  </Text>
+                  {/* <DateRangePicker onChange={onChange} value={value} /> */}
+                </View>
+                <View
+                  style={{
+                    width: "95%",
+                    alignSelf: "center",
+                    height: 1,
+                    backgroundColor: "#C0C0C0",
+                    marginTop: 10,
+                    alignItems: "center",
+                  }}
+                ></View>
               </View>
               <View
                 style={{
@@ -1528,7 +1711,6 @@ const Search = ({ navigation }) => {
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-evenly",
-                  top: 5,
                 }}
               >
                 <TouchableOpacity
@@ -1786,7 +1968,10 @@ const Search = ({ navigation }) => {
                         renderItem={renderItems}
                         ListEmptyComponent={() => (
                           <View style={styles.container}>
-                            <ActivityIndicator size="large" />
+                            <Text style={{ fontSize: 30 }}>
+                              {" "}
+                              Oops ! Didnt find that
+                            </Text>
                           </View>
                         )}
                         contentContainerStyle={{

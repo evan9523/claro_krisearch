@@ -9,42 +9,42 @@
     {
         "id":1,
         "name":"Banana",
-        "type":""
+        "type":"fruit"
        
     },
 
     {
         "id":2,
         "name":"Bottle Gourd",
-        "type":""
+        "type":"vegetable"
        
     },
 
     {
         "id":3,
         "name":"Brinjal",
-        "type":""
+        "type":"vegetable"
        
     },
 
     {
         "id":4,
         "name":"Cabbage",
-        "type":""
+        "type":"vegetable"
        
     },
 
     {
         "id":5,
         "name":"Cauliflower",
-        "type":""
+        "type":"vegetable"
       
     },
 
     {
         "id":6,
         "name":"Chili",
-        "type":""
+        "type":"vegetable"
       
     },
 
@@ -52,76 +52,76 @@
     {
         "id":8,
         "name":"Coriander",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":9,
         "name":"Green Chilli",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":10,
         "name":"Corn",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":11,
         "name":"Green Potato",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":12,
         "name":"Lady Finger",
-        "type":""
+        "type":"vegetable"
        
 
     },{
         "id":13,
         "name":"Lychee",
-        "type":""
+        "type":"fruit"
        
 
     },
     {
         "id":14,
         "name":"Mango",
-        "type":""
+        "type":"fruit"
        
 
     },
     {
         "id":15,
         "name":"Papaya",
-        "type":""
+        "type":"fruit"
        
 
     },
     {
         "id":16,
         "name":"Pumpkin",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":17,
         "name":"Kinnow",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":18,
         "name":"Orange",
-        "type":""
+        "type":"fruit"
        
 
     },
@@ -135,7 +135,7 @@
     {
         "id":20,
         "name":"Sugarcane",
-        "type":""
+        "type":"grass"
        
 
     },
@@ -149,35 +149,35 @@
     {
         "id":22,
         "name":"Wheat",
-        "type":""
+        "type":"Crop"
        
 
     },
     {
         "id":24,
         "name":"Barley",
-        "type":""
+        "type":"Crop"
        
 
     },
     {
         "id":25,
         "name":"Rapeseed",
-        "type":""
+        "type":"vegetable"
        
 
     },
     {
         "id":26,
         "name":"Mustard",
-        "type":""
+        "type":"spices"
        
 
     },
     {
         "id":27,
         "name":"Sunflower",
-        "type":""
+        "type":"spices"
        
 
     },
