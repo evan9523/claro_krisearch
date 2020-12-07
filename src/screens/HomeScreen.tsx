@@ -53,6 +53,7 @@ const Home = ({ navigation }) => {
   const [modalName, setmodalName] = useState("");
   const [firstScroll, setfirstScroll] = useState(0);
   const [selectedState, setselectedState] = useState("");
+  const [cats, setcats] = useState(false);
 
   // useEffect(() => {
   //   fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
@@ -177,6 +178,7 @@ const Home = ({ navigation }) => {
           <Header
             onTap={() => navigation.navigate("Search")}
             onLogoTap={() => console.log("Home active")}
+            catTap={() => setcats(!cats)}
           />
 
           {/* <Button
@@ -237,10 +239,14 @@ const Home = ({ navigation }) => {
             title="Loadmore"
             onPress={() => setfirstScroll(firstScroll + 5)}
           /> */}
+
+          <View style={{ width: "100%", height: 25, backgroundColor: "red" }}>
+            <Text>See by category</Text>
+          </View>
           <View
             style={{
               width: "100%",
-              height: winHeight * 0.89,
+              height: winHeight * 0.86,
             }}
           >
             {farmers.length > 10 ? (

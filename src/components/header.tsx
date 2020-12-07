@@ -10,6 +10,14 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { winWidth } from "../utils/window";
+import {
+  SimpleLineIcons,
+  Feather,
+  Entypo,
+  FontAwesome5,
+  FontAwesome,
+  AntDesign,
+} from "@expo/vector-icons";
 
 const windowHeight = Dimensions.get("screen").height;
 const windowWidth = Dimensions.get("screen").width;
@@ -17,10 +25,11 @@ const windowWidth = Dimensions.get("screen").width;
 export interface HeaderProps {
   onTap(): any;
   onLogoTap(): any;
+  catTap(): any;
 }
 
 const Header = (props: HeaderProps) => {
-  const { onTap, onLogoTap } = props;
+  const { onTap, onLogoTap, catTap } = props;
   return (
     <View style={styles.header}>
       <View
@@ -65,6 +74,34 @@ const Header = (props: HeaderProps) => {
           placeholderTextColor="#000"
           onFocus={onTap}
         />
+      </View>
+      <View
+        style={{
+          alignSelf: "center",
+          alignItems: "flex-end",
+          flex: 1,
+
+          top: 10,
+          justifyContent: "flex-end",
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            alignSelf: "center",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            backgroundColor: "#03329e",
+            flexDirection: "row",
+            padding: 5,
+            borderRadius: 20,
+          }}
+          onPress={catTap}
+        >
+          <Text style={{ fontSize: 20, marginRight: 5, color: "#fff" }}>
+            Categories
+          </Text>
+          <AntDesign name="downcircleo" size={20} color="#fff" />
+        </TouchableOpacity>
       </View>
     </View>
   );

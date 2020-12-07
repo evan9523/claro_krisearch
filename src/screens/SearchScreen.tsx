@@ -1692,7 +1692,7 @@ const Search = ({ navigation }) => {
                   >
                     By Harvest Date
                   </Text>
-                  {/* <DateRangePicker onChange={onChange} value={value} /> */}
+                  <DateRangePicker onChange={onChange} value={value} />
                 </View>
                 <View
                   style={{
