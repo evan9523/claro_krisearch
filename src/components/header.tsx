@@ -25,11 +25,11 @@ const windowWidth = Dimensions.get("screen").width;
 export interface HeaderProps {
   onTap(): any;
   onLogoTap(): any;
-  catTap(): any;
+  // catTap(): any;
 }
 
 const Header = (props: HeaderProps) => {
-  const { onTap, onLogoTap, catTap } = props;
+  const { onTap, onLogoTap } = props;
   return (
     <View style={styles.header}>
       <View
@@ -75,7 +75,7 @@ const Header = (props: HeaderProps) => {
           onFocus={onTap}
         />
       </View>
-      <View
+      {/* <View
         style={{
           alignSelf: "center",
           alignItems: "flex-end",
@@ -102,7 +102,7 @@ const Header = (props: HeaderProps) => {
           </Text>
           <AntDesign name="downcircleo" size={20} color="#fff" />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };
