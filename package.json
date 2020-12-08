@@ -1,6 +1,6 @@
 {
   "main": "node_modules/expo/AppEntry.js",
-  
+  "homepage": "/kri",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
+    "@expo/webpack-config": "^0.12.49",
     "@types/react": "~16.9.35",
     "@types/react-dom": "~16.9.8",
     "@types/react-native": "~0.63.2",

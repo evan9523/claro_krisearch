@@ -239,14 +239,14 @@ const Home = ({ navigation }) => {
             title="Loadmore"
             onPress={() => setfirstScroll(firstScroll + 5)}
           /> */}
-
+          {/* 
           <View style={{ width: "100%", height: 25, backgroundColor: "red" }}>
             <Text>See by category</Text>
-          </View>
+          </View> */}
           <View
             style={{
               width: "100%",
-              height: winHeight * 0.86,
+              height: winHeight * 0.88,
             }}
           >
             {farmers.length > 10 ? (
