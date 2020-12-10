@@ -8,13 +8,22 @@ const Welcome = ({ navigation }) => {
   }, 2000);
 
   return (
-    <View style={[styles.container, { backgroundColor: "#fff" }]}>
+    <View style={[styles.container, { backgroundColor: "#346beb" }]}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Image
-          source={{ uri: require("../../assets/icon1.png") }}
-          style={{ height: 50, width: 50 }}
+          source={{ uri: require("../../assets/newicon4.png") }}
+          style={{ height: 100, width: 100 }}
         />
-        <Text style={{ color: "#346beb", fontSize: 34 }}>Krisearch</Text>
+        <Text
+          style={{
+            color: "#fff",
+            marginLeft: 10,
+            fontSize: 50,
+            fontWeight: "bold",
+          }}
+        >
+          Krisearch
+        </Text>
       </View>
 
       <StatusBar style="auto" />
@@ -27,7 +36,7 @@ export default Welcome;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#deebff",
+    backgroundColor: "#346beb",
     alignItems: "center",
     justifyContent: "center",
   },

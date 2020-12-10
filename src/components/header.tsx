@@ -57,8 +57,8 @@ const Header = (props: HeaderProps) => {
           onFocus={onLogoTap}
         >
           <Image
-            source={{ uri: require("../../assets/newicon2.png") }}
-            style={{ width: 30, height: 30, top: -2 }}
+            source={{ uri: require("../../assets/newicon4.png") }}
+            style={{ width: 35, height: 35, top: -2 }}
           />
           <Text style={styles.headerText}>Krisearch</Text>
         </TouchableOpacity>
@@ -138,10 +138,11 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   headerText: {
-    fontSize: winWidth > 767 ? 22 : 20,
+    fontSize: winWidth > 767 ? 25 : 20,
     color: "#fff",
     fontWeight: "600",
     marginLeft: 2,
     alignSelf: "flex-start",
+    marginTop: winWidth < 767 ? 5 : 0,
   },
 });

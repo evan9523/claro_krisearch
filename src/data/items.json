@@ -2,35 +2,35 @@
   {
     "id": 1,
     "name": "Banana",
-    "type": "fruit",
+    "type": "Fruit",
     "image": "https://cdn.mos.cms.futurecdn.net/42E9as7NaTaAi4A6JcuFwG-1200-80.jpg"
   },
 
   {
     "id": 2,
     "name": "Bottle Gourd",
-    "type": "vegetable",
+    "type": "Vegetable",
     "image": "https://images-na.ssl-images-amazon.com/images/I/51-iuawxu4L._SL1036_.jpg"
   },
 
   {
     "id": 3,
     "name": "Brinjal",
-    "type": "vegetable",
+    "type": "Vegetable",
     "image": "https://images-na.ssl-images-amazon.com/images/I/51JbI%2BBTW7L._SL1000_.jpg"
   },
 
   {
     "id": 4,
     "name": "Cabbage",
-    "type": "vegetable",
+    "type": "Vegetable",
     "image": "https://5.imimg.com/data5/OO/AQ/DU/SELLER-98223548/cabbage-green-500x500.jpg"
   },
 
   {
     "id": 5,
     "name": "Cauliflower",
-    "type": "vegetable",
+    "type": "Vegetable",
     "image": "https://indiaphile.info/wp-content/uploads/2014/02/tandooricauliflower-1223.jpg"
   },
 
@@ -56,7 +56,7 @@
   {
     "id": 10,
     "name": "Corn",
-    "type": "vegetable",
+    "type": "Vegetable",
     "image": "https://images-na.ssl-images-amazon.com/images/I/41F62-VbHSL._SX425_.jpg"
   },
   {
@@ -165,13 +165,13 @@
   {
     "id": 30,
     "name": "Bajra",
-    "type": "crop",
+    "type": "Crop",
     "image": "https://images-na.ssl-images-amazon.com/images/I/5150-8V2mLL._SX425_.jpg"
   },
   {
     "id": 31,
     "name": "Gram",
-    "type": "crop",
+    "type": "Pulses",
     "image": "https://5.imimg.com/data5/TE/VC/MY-8155364/gram-dal-500x500.jpg"
   },
   {

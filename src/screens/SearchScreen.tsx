@@ -139,11 +139,15 @@ const Search = ({ navigation }) => {
     />
   );
 
-  const filteredCrops = Data.filter((item) => {
+  const filteredCrops = crop.filter((item) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());
   });
 
-  const filteredParents = Data.filter((item) => {
+  const filteredBlur = Data.filter((item) => {
+    return item.name.toLocaleLowerCase().includes(term.toLowerCase());
+  });
+
+  const filteredParents = crop.filter((item) => {
     return item.type.toLocaleLowerCase().includes(term.toLowerCase());
   });
 
@@ -2096,7 +2100,7 @@ const Search = ({ navigation }) => {
                 {term !== "" ? (
                   <FlatList
                     showsVerticalScrollIndicator={false}
-                    data={filteredCrops}
+                    data={filteredBlur}
                     renderItem={renderItems}
                     ListEmptyComponent={() => (
                       <View style={styles.container}>

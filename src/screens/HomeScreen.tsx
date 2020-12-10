@@ -61,7 +61,7 @@ const Home = ({ navigation }) => {
   const [isLoading, setLoading] = useState(true);
   const [sata, setSata] = useState([]);
 
-  const cropper = "rice";
+  const cropper = "";
 
   const [crop, setcrop] = useState([]);
   const [farmers, setfarmers] = useState([]);
@@ -71,9 +71,11 @@ const Home = ({ navigation }) => {
   const [cats, setcats] = useState(false);
   const [val, setval] = useState("");
   const [addr, setaddr] = useState("");
+  const [parenter, setparenter] = useState("");
   const [term, setterm] = useState("");
   const [filteractive, setfilteractive] = useState(false);
   const [addrToggle, setaddrToggle] = useState(false);
+  const [cropToggle, setcropToggle] = useState(false);
   const [merge, setmerge] = useState(false);
   const [dater, setdater] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
@@ -123,6 +125,7 @@ const Home = ({ navigation }) => {
       },
       body: JSON.stringify({
         name: cropper,
+        farmerData: true,
       }),
     })
       .then((response) => response.json())
@@ -171,13 +174,37 @@ const Home = ({ navigation }) => {
     />
   );
 
+  const bgdata = crop.filter((item) => {
+    console.log(item.farmers);
+  });
+
+  console.log(bgdata);
   const filteredCrops = Data.filter((item) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());
   });
 
-  const filteredParents = Data.filter((item) => {
-    return item.type.toLocaleLowerCase().includes(term.toLowerCase());
-  });
+  const filteredParents = [
+    {
+      id: 1,
+      type: "Crop",
+    },
+    {
+      id: 2,
+      type: "Fruits",
+    },
+    {
+      id: 3,
+      type: "Vegetable",
+    },
+    {
+      id: 4,
+      type: "Pulses",
+    },
+    {
+      id: 5,
+      type: "Spices",
+    },
+  ];
 
   const filteredFarmers = farmers.filter((item) => {
     let a = item.crops.map((i) => i.cropName);
@@ -188,6 +215,11 @@ const Home = ({ navigation }) => {
     if (val) {
       return item.gender.toLocaleLowerCase() === val.toLowerCase();
     }
+  });
+
+  const parentFilter = farmers.filter((item) => {
+    let a = item.crops.map((i) => i.cropType);
+    return a.toString().toLocaleLowerCase() === parenter.toLowerCase();
   });
 
   const addrFilter = filteredFarmers.filter((item) => {
@@ -386,7 +418,7 @@ const Home = ({ navigation }) => {
                   }}
                 />
               </View>
-            ) : val && !addr && !dater ? (
+            ) : val && !addr && !dater && !parenter ? (
               // <View
               //   style={{
               //     flexDirection: "row",
@@ -441,7 +473,7 @@ const Home = ({ navigation }) => {
                   }}
                 />
               </View>
-            ) : !val && addr && !dater ? (
+            ) : !val && addr && !dater && !parenter ? (
               // <View
               //   style={{
               //     flexDirection: "row",
@@ -497,7 +529,7 @@ const Home = ({ navigation }) => {
                   }}
                 />
               </View>
-            ) : !val && !addr && dater ? (
+            ) : !val && !addr && dater && !parenter ? (
               <View
                 style={{
                   width: "100%",
@@ -508,6 +540,36 @@ const Home = ({ navigation }) => {
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   data={harvestResult}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            ) : !val && !addr && !dater && parenter ? (
+              <View
+                style={{
+                  width: "100%",
+                  height: winHeight * 0.915,
+                }}
+              >
+                {" "}
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={parentFilter}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
                     <View style={styles.container}>
@@ -1125,6 +1187,7 @@ const Home = ({ navigation }) => {
                   onCloseFilter(),
                   setval(""),
                   setaddr("");
+                setparenter("");
                 setdater(false);
                 setStartDate(new Date());
                 setEndDate(new Date());
@@ -1153,11 +1216,12 @@ const Home = ({ navigation }) => {
               }}
               onPress={() => {
                 // !merge && filteractive ? setmerge(false) : setmerge(true);
-                (!val && addr && !dater && !merge) ||
-                (val && !addr && !dater && !merge) ||
-                (!val && !addr && dater && !merge)
+                (!val && addr && !dater && !parenter && !merge) ||
+                (val && !addr && !dater && !parenter && !merge) ||
+                (!val && !addr && dater && !parenter && !merge) ||
+                (!val && !addr && !dater && parenter && !merge)
                   ? (setfilteractive(true), setmerge(false))
-                  : !val && !addr && !dater && merge
+                  : !val && !addr && !dater && !parenter && merge
                   ? (setmerge(true), setfilteractive(false))
                   : setmerge(true);
                 onCloseFilter();
@@ -1199,7 +1263,67 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-
+        <Text
+          style={{
+            color: "#6F6F6F",
+            fontSize: 15,
+            marginTop: 10,
+            marginLeft: 7,
+            marginBottom: 5,
+            padding: 5,
+          }}
+        >
+          By Category
+        </Text>
+        <View
+          style={{
+            width: "32%",
+            marginTop: 10,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: 5,
+            marginLeft: 7,
+            alignSelf: "flex-start",
+          }}
+        >
+          {filteredParents.map((item) => {
+            return (
+              <View key={item.id} style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.circle}
+                  onPress={() => {
+                    setfilteractive(true);
+                    setparenter(item.type);
+                    // toggler(item.key);
+                    // let a = item.text;
+                    // let b = filteredFarmers.filter((i) => {
+                    //   return i.gender.toLowerCase() === a.toLowerCase();
+                    // });
+                    // console.log(item.text);
+                    // console.log(a);
+                    // console.log(b);
+                  }}
+                >
+                  {parenter === item.type && (
+                    <View style={styles.checkedCircle} />
+                  )}
+                </TouchableOpacity>
+                <Text style={{ fontSize: 16, marginLeft: 5 }}>{item.type}</Text>
+              </View>
+            );
+          })}
+        </View>
+        <View
+          style={{
+            width: "95%",
+            alignSelf: "center",
+            height: 1,
+            backgroundColor: "#C0C0C0",
+            marginTop: 10,
+            alignItems: "center",
+          }}
+        ></View>
         <Text
           style={{
             color: "#6F6F6F",
