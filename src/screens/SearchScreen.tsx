@@ -1792,6 +1792,7 @@ const Search = ({ navigation }) => {
                               borderWidth: 2,
                               padding: 5,
                               fontSize: 15,
+                              width: 100,
                             }}
                           />
                         }
@@ -1813,6 +1814,7 @@ const Search = ({ navigation }) => {
                               borderColor: "#7b42ff",
                               padding: 5,
                               fontSize: 15,
+                              width: 100,
                             }}
                           />
                         }
