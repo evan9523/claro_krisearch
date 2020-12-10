@@ -1,6 +1,5 @@
 {
   "main": "node_modules/expo/AppEntry.js",
-  "homepage": "/kri",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
