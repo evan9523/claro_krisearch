@@ -331,7 +331,8 @@ const Search = ({ navigation }) => {
           >
             <Header
               onTap={() => {
-                setblur(true), (filteredCrops.length = 0);
+                setblur(true), (filteredCrops.length = 0), setparent(false);
+                setterm("");
               }}
               onLogoTap={() => navigation.navigate("Home")}
               onFilter={() => onOpenfilter()}
@@ -588,39 +589,6 @@ const Search = ({ navigation }) => {
                   </View>
                 </View>
               )
-            ) : parent ? (
-              <View
-                style={{
-                  flexDirection: "column",
-                  width: "100%",
-                  height: 40,
-                  marginTop: 10,
-                }}
-              >
-                <View
-                  style={{
-                    width: "100%",
-                    height: 30,
-                    backgroundColor: "#deebff",
-                    top: winWidth > 767 ? "20%" : "10%",
-                    borderTopLeftRadius: 10,
-                    borderTopRightRadius: 10,
-                  }}
-                >
-                  <Text
-                    style={{
-                      padding: 5,
-                      fontWeight: "500",
-                      color: "#000",
-                      alignSelf: "center",
-                      fontSize: winWidth > 767 ? 20 : 15,
-                      marginBottom: 10,
-                    }}
-                  >
-                    Available {term}s
-                  </Text>
-                </View>
-              </View>
             ) : null}
             {/* {placer ? (
             <TouchableOpacity
