@@ -1,539 +1,443 @@
-
-      
-      
-    
-       
-       
-
 [
-    {
-        "id":1,
-        "name":"Banana",
-        "type":"fruit",
-        "image":"../../../cropimages/Banana.jpg"
-
-       
-    },
-
-    {
-        "id":2,
-        "name":"Bottle Gourd",
-        "type":"vegetable"
-       
-    },
-
-    {
-        "id":3,
-        "name":"Brinjal",
-        "type":"vegetable"
-       
-    },
-
-    {
-        "id":4,
-        "name":"Cabbage",
-        "type":"vegetable"
-       
-    },
-
-    {
-        "id":5,
-        "name":"Cauliflower",
-        "type":"vegetable"
-      
-    },
-
-    {
-        "id":6,
-        "name":"Chili",
-        "type":"vegetable"
-      
-    },
-
-  
-    {
-        "id":8,
-        "name":"Coriander",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":9,
-        "name":"Green Chilli",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":10,
-        "name":"Corn",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":11,
-        "name":"Green Potato",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":12,
-        "name":"Lady Finger",
-        "type":"vegetable"
-       
-
-    },{
-        "id":13,
-        "name":"Lychee",
-        "type":"fruit"
-       
-
-    },
-    {
-        "id":14,
-        "name":"Mango",
-        "type":"fruit"
-       
-
-    },
-    {
-        "id":15,
-        "name":"Papaya",
-        "type":"fruit"
-       
-
-    },
-    {
-        "id":16,
-        "name":"Pumpkin",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":17,
-        "name":"Kinnow",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":18,
-        "name":"Orange",
-        "type":"fruit"
-       
-
-    },
-    {
-        "id":19,
-        "name":"Rice",
-        "type":"Crop"
-       
-
-    },
-    {
-        "id":20,
-        "name":"Sugarcane",
-        "type":"grass"
-       
-
-    },
-    {
-        "id":21,
-        "name":"Turmeric",
-        "type":"Spices"
-       
-
-    },
-    {
-        "id":22,
-        "name":"Wheat",
-        "type":"Crop"
-       
-
-    },
-    {
-        "id":24,
-        "name":"Barley",
-        "type":"Crop"
-       
-
-    },
-    {
-        "id":25,
-        "name":"Rapeseed",
-        "type":"vegetable"
-       
-
-    },
-    {
-        "id":26,
-        "name":"Mustard",
-        "type":"spices"
-       
-
-    },
-    {
-        "id":27,
-        "name":"Sunflower",
-        "type":"spices"
-       
-
-    },
-    {
-        "id":28,
-        "name":"Cotton",
-        "type":"crop"
-       
-
-    },
-    {
-        "id":29,
-        "name":"Jowar",
-        "type":"crop"
-       
-
-    },
-    {
-        "id":30,
-        "name":"Bajra",
-        "type":"crop"
-       
-
-    },
-    {
-        "id":31,
-        "name":"Gram",
-        "type":"crop"
-       
-
-    },
-    {
-        "id":32,
-        "name":"Groundnut",
-        "type":"nuts"
-       
-
-    },
-    {
-        "id":33,
-        "name":"Floriculture",
-        "type":""
-       
-
-    },
-    {
-        "id":34,
-        "name":"Betel",
-        "type":"nuts"
-       
-
-    },
-    {
-        "id":35,
-        "name":"Jute",
-        "type":"crop"
-       
-
-    },
-    {
-        "id":36,
-        "name":"Dates",
-        "type":"fruit"
-       
-
-    },
-    {
-        "id":37,
-        "name":"Urad",
-        "type":""
-       
-
-    },
-    {
-        "id":38,
-        "name":"Moong",
-        "type":""
-       
-
-    },
-    {
-        "id":39,
-        "name":"Soyabean",
-        "type":""
-       
-
-    },
-    {
-        "id":40,
-        "name":"Redgram",
-        "type":""
-       
-
-    },
-    {
-        "id":41,
-        "name":"Potato",
-        "type":""
-       
-
-    },
-    {
-        "id":42,
-        "name":"Ginger",
-        "type":""
-       
-
-    },
-    {
-        "id":43,
-        "name":"Apple",
-        "type":""
-       
-
-    },
-    {
-        "id":44,
-        "name":"Walnuts",
-        "type":""
-       
-
-    },
-    {
-        "id":45,
-        "name":"Tea",
-        "type":""
-       
-
-    },
-    {
-        "id":46,
-        "name":"Vine",
-        "type":""
-       
-
-    },
-    {
-        "id":47,
-        "name":"Tobacco",
-        "type":""
-       
-
-    },
-    {
-        "id":48,
-        "name":"Pointed Gourd",
-        "type":""
-       
-
-    },
-    {
-        "id":49,
-        "name":"Beans",
-        "type":""
-       
-
-    },
-    {
-        "id":50,
-        "name":"Capsicum",
-        "type":""
-       
-
-    },
-    {
-        "id":51,
-        "name":"Onion",
-        "type":""
-       
-
-    },
-    {
-        "id":52,
-        "name":"Raddish",
-        "type":""
-       
-
-    },
-    {
-        "id":53,
-        "name":"Grapes",
-        "type":""
-       
-
-    },
-    {
-        "id":54,
-        "name":"Carrot",
-        "type":""
-       
-
-    },
-    {
-        "id":55,
-        "name":"Pea",
-        "type":""
-       
-
-    },
-    {
-        "id":56,
-        "name":"Broccoli",
-        "type":""
-       
-
-    },
-    {
-        "id":57,
-        "name":"Mint",
-        "type":""
-       
-
-    },
-    {
-        "id":58,
-        "name":"Fenugreek",
-        "type":""
-       
-
-    },
-    {
-        "id":59,
-        "name":"Spinach",
-        "type":""
-       
-
-    },
-    {
-        "id":60,
-        "name":"Turnips",
-        "type":""
-       
-
-    },
-    {
-        "id":61,
-        "name":"Beetroot",
-        "type":""
-       
-
-    },
-    {
-        "id":62,
-        "name":"Bitter Gourd",
-        "type":""
-       
-
-    },
-    {
-        "id":63,
-        "name":"Tomato",
-        "type":""
-       
-
-    },
-    {
-        "id":64,
-        "name":"Ridge Gourd",
-        "type":""
-       
-
-    },
-    {
-        "id":65,
-        "name":"Mushroom",
-        "type":""
-       
-
-    },
-    {
-        "id":66,
-        "name":"Lemon",
-        "type":""
-       
-
-    },
-    {
-        "id":67,
-        "name":"Jackfruit",
-        "type":""
-       
-
-    },
-    {
-        "id":68,
-        "name":"Garlic",
-        "type":""
-       
-
-    },
-    {
-        "id":69,
-        "name":"Cucumber",
-        "type":""
-       
-
-    },
-    {
-        "id":70,
-        "name":"Spine Gourd",
-        "type":""
-       
-
-    },
-    {
-        "id":71,
-        "name":"Kidney bean",
-        "type":""
-       
-
-    },
-    {
-        "id":72,
-        "name":"Colocasia Root",
-        "type":""
-       
-
-    },
-    {
-        "id":73,
-        "name":"Elephant Foot Yam",
-        "type":""
-       
-
-    },
-    {
-        "id":74,
-        "name":"Pomegranate",
-        "type":""
-       
-
-    },
-    {
-        "id":75,
-        "name":"Watermelon",
-        "type":""
-       
-
-    },
-    {
-        "id":76,
-        "name":"Muskmelon",
-        "type":""
-       
-
-    },
-    {
-        "id":77,
-        "name":"Guava",
-        "type":""
-       
-
-    }
-
-
-
+  {
+    "id": 1,
+    "name": "Banana",
+    "type": "fruit",
+    "image": "https://cdn.mos.cms.futurecdn.net/42E9as7NaTaAi4A6JcuFwG-1200-80.jpg"
+  },
+
+  {
+    "id": 2,
+    "name": "Bottle Gourd",
+    "type": "vegetable",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/51-iuawxu4L._SL1036_.jpg"
+  },
+
+  {
+    "id": 3,
+    "name": "Brinjal",
+    "type": "vegetable",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/51JbI%2BBTW7L._SL1000_.jpg"
+  },
+
+  {
+    "id": 4,
+    "name": "Cabbage",
+    "type": "vegetable",
+    "image": "https://5.imimg.com/data5/OO/AQ/DU/SELLER-98223548/cabbage-green-500x500.jpg"
+  },
+
+  {
+    "id": 5,
+    "name": "Cauliflower",
+    "type": "vegetable",
+    "image": "https://indiaphile.info/wp-content/uploads/2014/02/tandooricauliflower-1223.jpg"
+  },
+
+  {
+    "id": 6,
+    "name": "Chili",
+    "type": "vegetable",
+    "image": "https://www.harighotra.co.uk/images/Shutterstock/chillies_560x560.jpg"
+  },
+
+  {
+    "id": 8,
+    "name": "Coriander",
+    "type": "vegetable",
+    "image": "https://cdn.shopify.com/s/files/1/1380/2059/products/Coriander_grande.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Green Chilli",
+    "type": "vegetable",
+    "image": "https://i2.wp.com/freshmarket.co.in/wp-content/uploads/2019/10/Green-chilli-02.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Corn",
+    "type": "vegetable",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/41F62-VbHSL._SX425_.jpg"
+  },
+  {
+    "id": 11,
+    "name": "Green Potato",
+    "type": "vegetable",
+    "image": "https://cdn.britannica.com/69/194969-131-F02C2E81/potatoes-solanine.jpg"
+  },
+  {
+    "id": 12,
+    "name": "Lady Finger",
+    "type": "vegetable",
+    "image": "https://www.onlinebayong.com/wp-content/uploads/2019/02/OKRA.jpg"
+  },
+  {
+    "id": 13,
+    "name": "Lychee",
+    "type": "fruit",
+    "image": "https://globalnews.ca/wp-content/uploads/2017/02/lychee_thumb.jpg"
+  },
+  {
+    "id": 14,
+    "name": "Mango",
+    "type": "fruit",
+    "image": "https://plantogram.com/wa-data/public/shop/products/38/03/338/images/604/604.970.jpg"
+  },
+  {
+    "id": 15,
+    "name": "Papaya",
+    "type": "fruit",
+    "image": "https://c.ndtvimg.com/2019-06/qlo3s8ko_papaya-seeds_625x300_06_June_19.jpg"
+  },
+  {
+    "id": 16,
+    "name": "Pumpkin",
+    "type": "vegetable",
+    "image": "https://sb-assets.sgp1.cdn.digitaloceanspaces.com/product/main_image/14127/small_b391b964-7dcf-42c9-b0f1-a903744c6e25.jpg"
+  },
+  {
+    "id": 17,
+    "name": "Kinnow",
+    "type": "vegetable",
+    "image": "https://cdn.mos.cms.futurecdn.net/42E9as7NaTaAi4A6JcuFwG-1200-80.jpg"
+  },
+  {
+    "id": 18,
+    "name": "Orange",
+    "type": "fruit",
+    "image": "https://i.pinimg.com/originals/ad/c0/54/adc054f24be487845a1d064f638f9f01.jpg"
+  },
+  {
+    "id": 19,
+    "name": "Rice",
+    "type": "Crop",
+    "image": "https://thumbs.dreamstime.com/b/rice-paddy-plant-closeup-17059970.jpg"
+  },
+  {
+    "id": 20,
+    "name": "Sugarcane",
+    "type": "grass",
+    "image": "https://static.toiimg.com/thumb/msid-69095049,width-800,height-600,resizemode-75,imgsize-1675636,pt-32,y_pad-40/69095049.jpg"
+  },
+  {
+    "id": 21,
+    "name": "Turmeric",
+    "type": "Spices",
+    "image": "https://themuslimtimesdotinfodotcom.files.wordpress.com/2020/01/turmeric-root-and-powder.jpg"
+  },
+  {
+    "id": 22,
+    "name": "Wheat",
+    "type": "Crop",
+    "image": "https://cdn.britannica.com/80/157180-050-7B906E02/Heads-wheat-grains.jpg"
+  },
+  {
+    "id": 24,
+    "name": "Barley",
+    "type": "Crop",
+    "image": "https://5.imimg.com/data5/GE/IT/MY-5929034/hulled-barley-500x500.jpg"
+  },
+
+  {
+    "id": 26,
+    "name": "Mustard",
+    "type": "spice",
+    "image": "https://www.alimentarium.org/en/system/files/thumbnails/image/WEB----Carr%C3%A9---moutarde.png"
+  },
+  {
+    "id": 27,
+    "name": "Sunflower",
+    "type": "spice",
+    "image": "https://static.wixstatic.com/media/e6591e_3a5449fe774a4993a1166b1d33e233f7~mv2_d_1880_1253_s_2.jpg"
+  },
+  {
+    "id": 28,
+    "name": "Cotton",
+    "type": "crop",
+    "image": "https://images.ctfassets.net/3s5io6mnxfqz/4TV7YTCO1DJuMhhn7RD1Ol/b5a6c12340e6529a86bc1b557ed2d8f8/AdobeStock_136921602.jpeg"
+  },
+  {
+    "id": 29,
+    "name": "Jowar",
+    "type": "crop",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/71LAscznKGL._SX679_.jpg"
+  },
+  {
+    "id": 30,
+    "name": "Bajra",
+    "type": "crop",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/5150-8V2mLL._SX425_.jpg"
+  },
+  {
+    "id": 31,
+    "name": "Gram",
+    "type": "crop",
+    "image": "https://5.imimg.com/data5/TE/VC/MY-8155364/gram-dal-500x500.jpg"
+  },
+  {
+    "id": 32,
+    "name": "Groundnut",
+    "type": "nuts",
+    "image": "https://5.imimg.com/data5/SX/UO/MY-7941396/groundnut-500x500.jpg"
+  },
+
+  {
+    "id": 34,
+    "name": "Betel",
+    "type": "nuts",
+    "image": "https://www.fijiproduce.com.au/wp-content/uploads/2020/07/Betel-Leaves.jpg"
+  },
+  {
+    "id": 35,
+    "name": "Jute",
+    "type": "crop",
+    "image": "https://5.imimg.com/data5/RT/SO/MY-25065022/jute-fiber-500x500.jpg"
+  },
+  {
+    "id": 36,
+    "name": "Dates",
+    "type": "fruit",
+    "image": "https://www.mamanatural.com/wp-content/uploads/Dates-During-Pregnancy-Do-They-Really-Ease-Labor-article-by-Mama-Natural.jpg"
+  },
+  {
+    "id": 37,
+    "name": "Urad",
+    "type": "",
+    "image": "https://sc01.alicdn.com/kf/U246e086c0e754353afd5470c7fb77eeaz.jpg"
+  },
+  {
+    "id": 38,
+    "name": "Moong",
+    "type": "",
+    "image": "https://5.imimg.com/data5/SW/OG/GLADMIN-38961290/desi-yellow-moong-dal-full-of-fiber-and-protein-500x500.png"
+  },
+  {
+    "id": 39,
+    "name": "Soyabean",
+    "type": "",
+    "image": "https://5.imimg.com/data5/MW/KM/MY-4726415/soya-bean-pulse-500x500.jpg"
+  },
+  {
+    "id": 40,
+    "name": "Redgram",
+    "type": "",
+    "image": "https://5.imimg.com/data5/BV/JG/MY-4708029/arhar-or-redgram-or-tur-dal-500x500.jpeg"
+  },
+  {
+    "id": 41,
+    "name": "Potato",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/71P46K9QwqL._SX679_.jpg"
+  },
+  {
+    "id": 42,
+    "name": "Ginger",
+    "type": "",
+    "image": "https://www.thespruceeats.com/thmb/QxqFC_PtR8hR7I9-tsCB3S9b7R8=/2128x1409/filters:fill(auto,1)/GettyImages-116360266-57fa9c005f9b586c357e92cd.jpg"
+  },
+  {
+    "id": 43,
+    "name": "Apple",
+    "type": "",
+    "image": "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg"
+  },
+  {
+    "id": 44,
+    "name": "Walnuts",
+    "type": "",
+    "image": "https://www.jaindryfruits.com/image/cache/catalog/Berry/w1-800x800-product_popup.jpg"
+  },
+  {
+    "id": 45,
+    "name": "Tea",
+    "type": "",
+    "image": "https://www.herbazest.com/imgs/0/d/c/934550/tea_plant.jpg"
+  },
+  {
+    "id": 46,
+    "name": "Vine",
+    "type": "",
+    "image": "https://p7.hiclipart.com/preview/9/319/650/common-ivy-virginia-creeper-vine-leaf-plant-vines-are-available-for-free-download.jpg"
+  },
+  {
+    "id": 47,
+    "name": "Tobacco",
+    "type": "",
+    "image": "https://cdn.britannica.com/72/115272-050-D0702B0A/Plants-tobacco-potential-modification-pharming-production-compounds.jpg"
+  },
+  {
+    "id": 48,
+    "name": "Pointed Gourd",
+    "type": "",
+    "image": "https://i1.wp.com/tukwila.de/wp-content/uploads/2017/08/Patal-Parwal-potol-pointed-gourd_Tukwila-Online-Store-e1601935701803.png"
+  },
+  {
+    "id": 49,
+    "name": "Beans",
+    "type": "",
+    "image": "https://static.toiimg.com/thumb/msid-71233243,imgsize-562395,width-800,height-600,resizemode-75/71233243.jpg"
+  },
+  {
+    "id": 50,
+    "name": "Capsicum",
+    "type": "",
+    "image": "https://5.imimg.com/data5/DS/UH/MY-48187645/capsicum-500x500.jpg"
+  },
+  {
+    "id": 51,
+    "name": "Onion",
+    "type": "",
+    "image": "https://www.gannett-cdn.com/presto/2020/08/01/PDTF/29f093d0-80cc-4ec0-9ae7-673a2d3143fa-GettyImages-93232747.jpg"
+  },
+  {
+    "id": 52,
+    "name": "Raddish",
+    "type": "",
+    "image": "https://5.imimg.com/data5/WN/NI/XR/SELLER-92669985/raddish-250x250.jpg"
+  },
+  {
+    "id": 53,
+    "name": "Grapes",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/61IO4txt5ZL._SL1200_.jpg"
+  },
+  {
+    "id": 54,
+    "name": "Carrot",
+    "type": "",
+    "image": "https://i.ndtvimg.com/mt/cooks/2014-11/carrots.jpg"
+  },
+  {
+    "id": 55,
+    "name": "Pea",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/51q4Qj0gHeL._SL1000_.jpg"
+  },
+  {
+    "id": 56,
+    "name": "Broccoli",
+    "type": "",
+    "image": "https://www.producemarketguide.com/sites/default/files/Commodities.tar/Commodities/broccoli_commodity-page.png"
+  },
+  {
+    "id": 57,
+    "name": "Mint",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/51ZlUrHAr1L._AC_SX466_.jpg"
+  },
+  {
+    "id": 58,
+    "name": "Fenugreek",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/81v4pbV6xjL._SL1500_.jpg"
+  },
+  {
+    "id": 59,
+    "name": "Spinach",
+    "type": "",
+    "image": "https://5.imimg.com/data5/TO/JM/NY/SELLER-77767236/image-500x500.jpg"
+  },
+  {
+    "id": 60,
+    "name": "Turnips",
+    "type": "",
+    "image": "https://justfunfacts.com/wp-content/uploads/2019/12/turnips.png"
+  },
+  {
+    "id": 61,
+    "name": "Beetroot",
+    "type": "",
+    "image": "https://5.imimg.com/data5/AG/TI/GLADMIN-50838747/fresh-beetroot-500x500.png"
+  },
+  {
+    "id": 62,
+    "name": "Bitter Gourd",
+    "type": "",
+    "image": "https://ii1.pepperfry.com/media/catalog/product/b/i/1100x1210/bitter-gourd--karela---bitter-melon-gardening-pack-of-20-seeds-by-wonderland-bitter-gourd--karela----1ymwaj.jpg"
+  },
+  {
+    "id": 63,
+    "name": "Tomato",
+    "type": "",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg"
+  },
+  {
+    "id": 64,
+    "name": "Ridge Gourd",
+    "type": "",
+    "image": "https://www.organicgarden.co.in/wp-content/uploads/2018/12/ridgegourd.jpg"
+  },
+  {
+    "id": 65,
+    "name": "Mushroom",
+    "type": "",
+    "image": "https://assets.shop.loblaws.ca/products_jpeg/20321225001/en/20321225001_lrg_1_@1x.jpg"
+  },
+  {
+    "id": 66,
+    "name": "Lemon",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/71ptno4aB1L._SX569_.jpg"
+  },
+  {
+    "id": 67,
+    "name": "Jackfruit",
+    "type": "",
+    "image": "https://www.verywellfit.com/thmb/28y2agH7U70yVHgCSuOo8vVgLP8=/2157x1213/smart/filters:no_upscale()/jackfruit-f1bbe7a0f7ac4f2ab0bee3cc62a9e03a.jpg"
+  },
+  {
+    "id": 68,
+    "name": "Garlic",
+    "type": "",
+    "image": "https://5.imimg.com/data5/HL/FE/MY-24461174/garlic-500x500.png"
+  },
+  {
+    "id": 69,
+    "name": "Cucumber",
+    "type": "",
+    "image": "https://cdn.mos.cms.futurecdn.net/EBEXFvqez44hySrWqNs3CZ.jpg"
+  },
+  {
+    "id": 70,
+    "name": "Spine Gourd",
+    "type": "",
+    "image": "https://cdn.shopify.com/s/files/1/2135/8235/products/spine-gourd_580x.jpg"
+  },
+
+  {
+    "id": 72,
+    "name": "Colocasia Root",
+    "type": "",
+    "image": "https://www.thehealthsite.com/wp-content/uploads/2015/09/arbi.jpg"
+  },
+  {
+    "id": 73,
+    "name": "Elephant Foot Yam",
+    "type": "",
+    "image": "https://images-na.ssl-images-amazon.com/images/I/41kDg76t-ZL._SX466_.jpg"
+  },
+  {
+    "id": 74,
+    "name": "Pomegranate",
+    "type": "",
+    "image": "https://freepngimg.com/thumb/pomegranate/22854-6-pomegranate-transparent-image.png"
+  },
+  {
+    "id": 75,
+    "name": "Watermelon",
+    "type": "",
+    "image": "https://cdn.mos.cms.futurecdn.net/QCRt2ButzyC6FJi8pb6hNi.jpg"
+  },
+  {
+    "id": 76,
+    "name": "Muskmelon",
+    "type": "",
+    "image": "https://www.ugaoo.com/media/wysiwyg/cantaloupemuskmelon_dyk.jpg"
+  },
+  {
+    "id": 77,
+    "name": "Guava",
+    "type": "",
+    "image": "https://miro.medium.com/max/1200/1*d_2uqzG2HltwtSgndHl4bA.jpeg"
+  }
 ]

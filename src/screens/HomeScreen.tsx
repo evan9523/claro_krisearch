@@ -197,10 +197,15 @@ const Home = ({ navigation }) => {
   });
 
   const harvestResult = filteredFarmers.filter((item) => {
-    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], temp[1], temp[0]);
+    console.log(dt);
     return dt >= startDate && dt <= endDate;
   });
-
   const mergeResult = filteredFarmers.filter((item) => {
     // if (val && addr) {
     // }
@@ -256,7 +261,9 @@ const Home = ({ navigation }) => {
         >
           <Header
             onTap={() => navigation.navigate("Search")}
-            onLogoTap={() => console.log("Home active")}
+            onLogoTap={() => {
+              setfilteractive(false);
+            }}
             onFilter={() => onOpenfilter()}
           />
 
@@ -354,7 +361,7 @@ const Home = ({ navigation }) => {
               <View
                 style={{
                   width: "100%",
-                  height: winHeight * 0.89,
+                  height: winHeight * 0.915,
                 }}
               >
                 <FlatList
@@ -409,7 +416,7 @@ const Home = ({ navigation }) => {
               <View
                 style={{
                   width: "100%",
-                  height: winHeight * 0.89,
+                  height: winHeight * 0.915,
                 }}
               >
                 <FlatList
@@ -465,7 +472,7 @@ const Home = ({ navigation }) => {
               <View
                 style={{
                   width: "100%",
-                  height: winHeight * 0.89,
+                  height: winHeight * 0.915,
                 }}
               >
                 <FlatList
@@ -490,15 +497,14 @@ const Home = ({ navigation }) => {
                   }}
                 />
               </View>
-            ) : !val && !addr && startDate && endDate ? (
+            ) : !val && !addr && dater ? (
               <View
                 style={{
                   width: "100%",
-                  height: winHeight * 0.89,
+                  height: winHeight * 0.915,
                 }}
               >
                 {" "}
-                <Text>Dater</Text>
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   data={harvestResult}
@@ -1150,8 +1156,8 @@ const Home = ({ navigation }) => {
                 (!val && addr && !dater && !merge) ||
                 (val && !addr && !dater && !merge) ||
                 (!val && !addr && dater && !merge)
-                  ? setfilteractive(true)
-                  : !val && !addr && merge
+                  ? (setfilteractive(true), setmerge(false))
+                  : !val && !addr && !dater && merge
                   ? (setmerge(true), setfilteractive(false))
                   : setmerge(true);
                 onCloseFilter();
@@ -1401,7 +1407,9 @@ const Home = ({ navigation }) => {
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
                   selected={endDate}
-                  onChange={(date) => setEndDate(date)}
+                  onChange={(date) => {
+                    setEndDate(date), setdater(true), setfilteractive(true);
+                  }}
                   customInput={
                     <TextInput
                       style={{

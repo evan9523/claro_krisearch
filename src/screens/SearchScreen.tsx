@@ -68,6 +68,7 @@ const Search = ({ navigation }) => {
   const [endDate, setEndDate] = useState(new Date());
   const cropper = "";
 
+  function makestate() {}
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
       method: "post",
@@ -195,9 +196,16 @@ const Search = ({ navigation }) => {
   console.log(genderFilter);
 
   const harvestResult = filteredFarmers.filter((item) => {
-    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], temp[1], temp[0]);
+    console.log(dt);
     return dt >= startDate && dt <= endDate;
   });
+
   const mergeResult = filteredFarmers.filter((item) => {
     // if (val && addr) {
     // }
@@ -208,6 +216,7 @@ const Search = ({ navigation }) => {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
     let dt = new Date(item.crops.map((i) => i.harvestDate));
+
     return (
       item.gender.toLowerCase() === val.toLowerCase() &&
       item.state.toLowerCase() === addr.toLowerCase() &&
@@ -244,53 +253,68 @@ const Search = ({ navigation }) => {
   ];
 
   const renderItems = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => {
-        setplacer(true), setblur(!blur), setterm(item.name);
+    <View
+      style={{
+        height: 55,
+        width: winWidth > 767 ? winWidth / 2.1 : winWidth * 0.95,
+        padding: 2,
       }}
-      style={{ marginBottom: 2 }}
     >
-      <View
+      <TouchableOpacity
+        onPress={() => {
+          setplacer(true), setblur(!blur), setterm(item.name);
+        }}
         style={{
-          flexDirection: "row",
-          alignItems: "center",
+          marginBottom: 2,
+          width: "100%",
+          backgroundColor: "#fff",
+          height: "100%",
+          padding: 5,
+          borderRadius: 10,
         }}
       >
-        <Image
-          source={{ uri: item.image }}
+        <View
           style={{
-            height: 35,
-            width: 35,
-            borderColor: "green",
-            borderWidth: 1,
-            borderRadius: 35,
-          }}
-        />
-        <Text style={{ fontSize: 20 }}> {item.name}</Text>
-        <Text
-          style={{
-            fontSize: 15,
-            alignSelf: "center",
-            color: "#989898",
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
-          {" "}
-          in{" "}
-        </Text>
-        <TouchableOpacity
-          onPress={() => {
-            setparent(!parent),
-              setterm(item.type),
-              setplacer(!placer),
-              setblur(!blur);
-          }}
-        >
-          <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 10 }}>
-            {item.type}
+          <Image
+            source={{ uri: item.image }}
+            style={{
+              height: 35,
+              width: 35,
+              borderColor: "green",
+              borderWidth: 1,
+              borderRadius: 35,
+            }}
+          />
+          <Text style={{ fontSize: 20 }}> {item.name}</Text>
+          <Text
+            style={{
+              fontSize: 15,
+              alignSelf: "center",
+              color: "#989898",
+            }}
+          >
+            {" "}
+            in{" "}
           </Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setparent(true),
+                setterm(item.type),
+                setplacer(true),
+                setblur(!blur);
+            }}
+          >
+            <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 10 }}>
+              {item.type}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -331,7 +355,10 @@ const Search = ({ navigation }) => {
           >
             <Header
               onTap={() => {
-                setblur(true), (filteredCrops.length = 0), setparent(false);
+                setblur(true),
+                  (filteredCrops.length = 0),
+                  setparent(false),
+                  setplacer(false);
                 setterm("");
               }}
               onLogoTap={() => navigation.navigate("Home")}
@@ -442,6 +469,8 @@ const Search = ({ navigation }) => {
                     alignItems: "center",
                     justifyContent: "space-between",
                     alignSelf: "center",
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#bfd8ff",
                   }}
                 >
                   {/* <Text
@@ -458,7 +487,7 @@ const Search = ({ navigation }) => {
                   <View
                     style={{
                       flexDirection: "row",
-                      width: "50%",
+                      width: "100%",
                       alignSelf: "center",
                       marginTop: winWidth > 767 ? 15 : 10,
                       alignItems: "flex-start",
@@ -511,7 +540,8 @@ const Search = ({ navigation }) => {
                         backgroundColor: term ? "#3ECF8E" : "#deebff",
                         padding: 5,
                         height: 30,
-                        borderRadius: 5,
+                        width: 80,
+                        borderRadius: 20,
                       }}
                     >
                       <Text style={{ color: "#fff", fontWeight: "700" }}>
@@ -526,7 +556,8 @@ const Search = ({ navigation }) => {
                         backgroundColor: val ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        borderRadius: 5,
+                        width: 80,
+                        borderRadius: 20,
                       }}
                     >
                       <Text style={{ color: "#000" }}>
@@ -546,11 +577,31 @@ const Search = ({ navigation }) => {
                         backgroundColor: addr ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        borderRadius: 5,
+                        width: 80,
+                        borderRadius: 20,
                       }}
                     >
                       <Text style={{ color: "#000" }}>
                         {addr ? addr : null}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: dater ? "#fff" : "#deebff",
+                        padding: 5,
+                        height: 30,
+
+                        borderRadius: 20,
+                      }}
+                    >
+                      <Text style={{ color: "#000" }}>
+                        {dater
+                          ? startDate.toDateString() +
+                            " - " +
+                            endDate.toDateString()
+                          : null}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -622,7 +673,7 @@ const Search = ({ navigation }) => {
                         avatar={item.image}
                         isCrop={true}
                         onPress={() => {
-                          setparent(!parent), setterm(item.name);
+                          setparent(false), setterm(item.name);
                         }}
                       />
                     );
@@ -796,7 +847,7 @@ const Search = ({ navigation }) => {
                       }}
                     />
                   </View>
-                ) : !val && !addr && startDate && endDate ? (
+                ) : !val && !addr && dater ? (
                   <View
                     style={{
                       width: "100%",
@@ -804,7 +855,6 @@ const Search = ({ navigation }) => {
                     }}
                   >
                     {" "}
-                    <Text>Dater</Text>
                     <FlatList
                       showsVerticalScrollIndicator={false}
                       data={harvestResult}
@@ -1460,7 +1510,16 @@ const Search = ({ navigation }) => {
                     alignItems: "center",
 
                     width: "40%",
-                    justifyContent: "space-between",
+                    justifyContent:
+                      (val && addr && !dater && !merge) ||
+                      (!val && addr && dater && !merge) ||
+                      (val && !addr && dater && !merge) ||
+                      (!val && addr && !dater && !merge) ||
+                      (!val && !addr && dater && !merge) ||
+                      (val && !addr && !dater && !merge) ||
+                      (!val && !addr && !dater && !merge)
+                        ? "flex-end"
+                        : "space-between",
                   }}
                 >
                   <TouchableOpacity
@@ -1496,41 +1555,54 @@ const Search = ({ navigation }) => {
                       Reset
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={{
-                      width: 60,
-                      height: 30,
-                      backgroundColor: "#3ECF8E",
-                      alignItems: "center",
-                      justifyContent: "center",
-
-                      borderRadius: 10,
-                      borderColor: "#3ECF8E",
-                      borderWidth: 2,
-                    }}
-                    onPress={() => {
-                      // !merge && filteractive ? setmerge(false) : setmerge(true);
-                      (!val && addr && !dater && !merge) ||
-                      (val && !addr && !dater && !merge) ||
-                      (!val && !addr && dater && !merge)
-                        ? setfilteractive(true)
-                        : !val && !addr && merge
-                        ? (setmerge(true), setfilteractive(false))
-                        : setmerge(true);
-                      onCloseFilter();
-                      sethideFAB(false);
-                      setdater(true);
-                    }}
-                  >
-                    <Text
+                  {(val && addr && !dater && !merge) ||
+                  (!val && addr && dater && !merge) ||
+                  (val && !addr && dater && !merge) ||
+                  (!val && addr && !dater && !merge) ||
+                  (!val && !addr && dater && !merge) ||
+                  (val && !addr && !dater && !merge) ||
+                  (!val && !addr && !dater && !merge) ? null : (
+                    <TouchableOpacity
                       style={{
-                        fontSize: 16,
-                        color: "#fff",
+                        width: 60,
+                        height: 30,
+                        backgroundColor: "#3ECF8E",
+                        alignItems: "center",
+                        justifyContent: "center",
+
+                        borderRadius: 10,
+                        borderColor: "#3ECF8E",
+                        borderWidth: 2,
+                      }}
+                      onPress={() => {
+                        // !merge && filteractive ? setmerge(false) : setmerge(true);
+                        // (!val && addr && !dater && !merge) ||
+                        // (val && !addr && !dater && !merge) ||
+                        // (!val && !addr && dater && !merge)
+                        //   ? (setfilteractive(true), setmerge(false))
+                        //   : !val && !addr && !dater && merge
+                        //   ?
+                        //   : setmerge(true);
+                        // onCloseFilter();
+                        // sethideFAB(false);
+                        // setdater(true);
+                        (!val && addr && !dater && !merge) ||
+                        (val && !addr && !dater && !merge) ||
+                        (!val && !addr && dater && !merge)
+                          ? (setfilteractive(true), setmerge(false))
+                          : (setfilteractive(false), setmerge(true));
                       }}
                     >
-                      Apply
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#fff",
+                        }}
+                      >
+                        Apply
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
                   <TouchableOpacity
                     onPress={() => {
@@ -1549,6 +1621,7 @@ const Search = ({ navigation }) => {
                         flexDirection: "row",
                         backgroundColor: "#A1C7FF",
                         borderRadius: 25,
+                        marginLeft: 10,
                       }}
                     >
                       <AntDesign name="close" size={20} color="#3A48ED" />
@@ -1771,7 +1844,11 @@ const Search = ({ navigation }) => {
                       <DatePicker
                         dateFormat="dd/MM/yyyy"
                         selected={endDate}
-                        onChange={(date) => setEndDate(date)}
+                        onChange={(date) => {
+                          setEndDate(date),
+                            setdater(true),
+                            setfilteractive(true);
+                        }}
                         customInput={
                           <TextInput
                             style={{
@@ -2016,160 +2093,183 @@ const Search = ({ navigation }) => {
                 {/* <TouchableOpacity style={{width:"100%", height:30, alignItems:"center", justifyContent:"center", backgroundColor:"transparent"}} onPress={()=>{setplacer(true),setblur(!blur)}}>
 <Text>{term}</Text>
 </TouchableOpacity> */}
-                {term !== null ? (
-                  <View
-                    style={{
-                      width: winWidth > 767 ? "50%" : "97%",
-                      alignItems: "center",
-                      backgroundColor: "#fff",
-                      borderRadius: 10,
-                      margin: 5,
+                {term !== "" ? (
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={filteredCrops}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      // flexDirection: "row",
+                      // width: "100%",
+                      // flexWrap: "wrap",
+                      // alignItems: "center",
+                      // justifyContent:
+                      //   winWidth > 767 ? "center" : "center",
+                      // padding: winWidth > 767 ? 10 : 2,
+                      width: "100%",
                     }}
-                  >
-                    <View
-                      style={{
-                        width: "100%",
-                        alignItems: "flex-start",
-                        padding: 10,
-                        marginBottom: 10,
-                        marginTop: 5,
-                      }}
-                    >
-                      {filteredCrops.length > 0 ? (
-                        <Text
-                          style={{
-                            marginLeft: 20,
-                            fontSize: 15,
-                            fontWeight: "600",
-                          }}
-                        >
-                          Available Crops
-                        </Text>
-                      ) : (
-                        <Text
-                          style={{
-                            marginLeft: 20,
-                            fontSize: 15,
-                            fontWeight: "600",
-                            alignSelf: "center",
-                          }}
-                        >
-                          🤔 ....That seems to be missing...
-                        </Text>
-                      )}
-                    </View>
+                  />
+                ) : // <View
+                //   style={{
+                //     width: winWidth > 767 ? "50%" : "97%",
+                //     alignItems: "center",
+                //     backgroundColor: "#fff",
+                //     borderRadius: 10,
+                //     margin: 5,
+                //   }}
+                // >
+                //   <View
+                //     style={{
+                //       width: "100%",
+                //       alignItems: "flex-start",
+                //       padding: 10,
+                //       marginBottom: 10,
+                //       marginTop: 5,
+                //     }}
+                //   >
+                //     {filteredCrops.length > 0 ? (
+                //       <Text
+                //         style={{
+                //           marginLeft: 20,
+                //           fontSize: 15,
+                //           fontWeight: "600",
+                //         }}
+                //       >
+                //         Available Crops
+                //       </Text>
+                //     ) : (
+                //       <Text
+                //         style={{
+                //           marginLeft: 20,
+                //           fontSize: 15,
+                //           fontWeight: "600",
+                //           alignSelf: "center",
+                //         }}
+                //       >
+                //         🤔 ....That seems to be missing...
+                //       </Text>
+                //     )}
+                //   </View>
 
-                    <View
-                      style={{
-                        width: "100%",
-                        height: winHeight * 0.5,
-                      }}
-                    >
-                      <FlatList
-                        showsVerticalScrollIndicator={false}
-                        data={filteredCrops}
-                        renderItem={renderItems}
-                        ListEmptyComponent={() => (
-                          <View style={styles.container}>
-                            <Text style={{ fontSize: 30 }}>
-                              {" "}
-                              Oops ! Didnt find that
-                            </Text>
-                          </View>
-                        )}
-                        contentContainerStyle={{
-                          // flexDirection: "row",
-                          // width: "100%",
-                          // flexWrap: "wrap",
-                          // alignItems: "center",
-                          // justifyContent:
-                          //   winWidth > 767 ? "center" : "center",
-                          // padding: winWidth > 767 ? 10 : 2,
-                          width: "100%",
-                        }}
-                      />
-                    </View>
+                //   <View
+                //     style={{
+                //       width: "100%",
+                //       height: winHeight * 0.5,
+                //     }}
+                //   >
+                //     <FlatList
+                //       showsVerticalScrollIndicator={false}
+                //       data={filteredCrops}
+                //       renderItem={renderItems}
+                //       ListEmptyComponent={() => (
+                //         <View style={styles.container}>
+                //           <Text style={{ fontSize: 30 }}>
+                //             {" "}
+                //             Oops ! Didnt find that
+                //           </Text>
+                //         </View>
+                //       )}
+                //       contentContainerStyle={{
+                //         // flexDirection: "row",
+                //         // width: "100%",
+                //         // flexWrap: "wrap",
+                //         // alignItems: "center",
+                //         // justifyContent:
+                //         //   winWidth > 767 ? "center" : "center",
+                //         // padding: winWidth > 767 ? 10 : 2,
+                //         width: "100%",
+                //       }}
+                //     />
+                //   </View>
 
-                    {/* 
-                    {filteredCrops.map((item, cIndex) => {
-                      return (
-                        <View
-                          style={{
-                            width:
-                              winWidth > 768 ? winWidth - 80 : winWidth - 50,
-                            height: 45,
-                            padding: 5,
-                            borderRadius: 8,
-                            flexDirection: "row",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            backgroundColor: "#fff",
-                            margin: 2,
-                          }}
-                        >
-                          <TouchableOpacity
-                            onPress={() => {
-                              setplacer(true),
-                                setblur(!blur),
-                                setterm(item.name);
-                            }}
-                          >
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                              }}
-                            >
-                              <Image
-                                source={{ uri: item.image }}
-                                style={{
-                                  height: 35,
-                                  width: 35,
-                                  borderColor: "green",
-                                  borderWidth: 1,
-                                  borderRadius: 35,
-                                }}
-                              />
-                              <Text style={{ fontSize: 20 }}> {item.name}</Text>
-                              <Text
-                                style={{
-                                  fontSize: 15,
-                                  alignSelf: "center",
-                                  color: "#989898",
-                                }}
-                              >
-                                {" "}
-                                in{" "}
-                              </Text>
-                              <Text style={{ fontSize: 15 }}>{item.type}</Text>
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={{
-                              backgroundColor: "#3ECF8E",
-                              height: "100%",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              padding: 5,
-                              borderRadius: 5,
-                              alignSelf: "flex-end",
-                            }}
-                            onPress={() => {
-                              setparent(!parent),
-                                setterm(item.type),
-                                setplacer(!placer),
-                                setblur(!blur);
-                            }} //true
-                          >
-                            <Text style={{ fontSize: 15, color: "#fff" }}>
-                              View {item.type}s
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      );
-                    })} */}
-                  </View>
-                ) : null}
+                //   {/*
+                //   {filteredCrops.map((item, cIndex) => {
+                //     return (
+                //       <View
+                //         style={{
+                //           width:
+                //             winWidth > 768 ? winWidth - 80 : winWidth - 50,
+                //           height: 45,
+                //           padding: 5,
+                //           borderRadius: 8,
+                //           flexDirection: "row",
+                //           alignItems: "center",
+                //           justifyContent: "space-between",
+                //           backgroundColor: "#fff",
+                //           margin: 2,
+                //         }}
+                //       >
+                //         <TouchableOpacity
+                //           onPress={() => {
+                //             setplacer(true),
+                //               setblur(!blur),
+                //               setterm(item.name);
+                //           }}
+                //         >
+                //           <View
+                //             style={{
+                //               flexDirection: "row",
+                //               alignItems: "center",
+                //             }}
+                //           >
+                //             <Image
+                //               source={{ uri: item.image }}
+                //               style={{
+                //                 height: 35,
+                //                 width: 35,
+                //                 borderColor: "green",
+                //                 borderWidth: 1,
+                //                 borderRadius: 35,
+                //               }}
+                //             />
+                //             <Text style={{ fontSize: 20 }}> {item.name}</Text>
+                //             <Text
+                //               style={{
+                //                 fontSize: 15,
+                //                 alignSelf: "center",
+                //                 color: "#989898",
+                //               }}
+                //             >
+                //               {" "}
+                //               in{" "}
+                //             </Text>
+                //             <Text style={{ fontSize: 15 }}>{item.type}</Text>
+                //           </View>
+                //         </TouchableOpacity>
+                //         <TouchableOpacity
+                //           style={{
+                //             backgroundColor: "#3ECF8E",
+                //             height: "100%",
+                //             alignItems: "center",
+                //             justifyContent: "center",
+                //             padding: 5,
+                //             borderRadius: 5,
+                //             alignSelf: "flex-end",
+                //           }}
+                //           onPress={() => {
+                //             setparent(!parent),
+                //               setterm(item.type),
+                //               setplacer(!placer),
+                //               setblur(!blur);
+                //           }} //true
+                //         >
+                //           <Text style={{ fontSize: 15, color: "#fff" }}>
+                //             View {item.type}s
+                //           </Text>
+                //         </TouchableOpacity>
+                //       </View>
+                //     );
+                //   })} */}
+                // </View>
+                null}
 
                 <TouchableOpacity
                   style={{
