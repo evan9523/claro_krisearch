@@ -12,6 +12,7 @@ import {
   ScrollView,
   ActivityIndicator,
   FlatList,
+  ImageBackground,
 } from "react-native";
 import Header from "../components/header";
 import { winWidth, winHeight } from "../utils/window";
@@ -20,6 +21,7 @@ import Data from "../data/items.json";
 import { Modalize } from "react-native-modalize";
 import hideNumber from "../utils/hideNumber";
 import getSmallString from "../utils/getSmallString";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   AntDesign,
   Entypo,
@@ -31,9 +33,9 @@ import {
 } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import States from "../data/states.json";
-import ScrollHeader from "../components/ScrollHeader";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Card from "../components/Card";
-import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 
 const Search = ({ navigation }) => {
   const [blur, setblur] = useState(true);
@@ -51,6 +53,7 @@ const Search = ({ navigation }) => {
   const [filteractive, setfilteractive] = useState(false);
   const [addrToggle, setaddrToggle] = useState(false);
   const [merge, setmerge] = useState(false);
+  const [dater, setdater] = useState(false);
 
   const setSearch = (text: string) => {
     let dynamic = text.toLowerCase();
@@ -61,7 +64,8 @@ const Search = ({ navigation }) => {
   const [farmers, setfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
   const [selectedState, setselectedState] = useState("");
-  const [value, onChange] = useState([new Date(), new Date()]);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const cropper = "";
 
   useEffect(() => {
@@ -120,7 +124,7 @@ const Search = ({ navigation }) => {
   const renderFarmers = ({ item }) => (
     <Card
       key={item.id}
-      name={item.farmerName}
+      name={getSmallString(item.farmerName)}
       avatar={item.farmerImage}
       phone={item.phone}
       address={item.state}
@@ -159,6 +163,27 @@ const Search = ({ navigation }) => {
     }
   });
 
+  // const harvestFilter = filteredFarmers.filter((item) => {
+  //   if (startDate && endDate) {
+  //     return (
+  //       new Date(item.crops.map((i) => i.harvestDate)) >= startDate &&
+  //       new Date(item.crops.map((i) => i.harvestDate)) <= endDate
+  //     );
+  //   }
+  // });
+
+  // const showHarvests = () => {
+  //   console.log("Starting:" + startDate);
+  //   console.log("Ending" + endDate);
+  //   filteredFarmers.map((item) => {
+  //     let dt = new Date(item.crops.map((i) => i.harvestDate));
+  //     console.log(dt);
+  //     if (dt >= startDate && dt <= endDate) {
+  //       console.log("In Range" + dt);
+  //     }
+  //   });
+  // };
+
   console.log(filteredFarmers);
 
   const applyFilterFinal = [genderFilter, addrFilter].flat();
@@ -169,6 +194,10 @@ const Search = ({ navigation }) => {
 
   console.log(genderFilter);
 
+  const harvestResult = filteredFarmers.filter((item) => {
+    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    return dt >= startDate && dt <= endDate;
+  });
   const mergeResult = filteredFarmers.filter((item) => {
     // if (val && addr) {
     // }
@@ -178,9 +207,12 @@ const Search = ({ navigation }) => {
     // if (val && !addr) {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
+    let dt = new Date(item.crops.map((i) => i.harvestDate));
     return (
       item.gender.toLowerCase() === val.toLowerCase() &&
-      item.state.toLowerCase() === addr.toLowerCase()
+      item.state.toLowerCase() === addr.toLowerCase() &&
+      dt >= startDate &&
+      dt <= endDate
     );
   });
 
@@ -203,15 +235,11 @@ const Search = ({ navigation }) => {
   const genderData = [
     {
       key: "m",
-      text: "Male",
+      text: "Men",
     },
     {
       key: "f",
-      text: "Female",
-    },
-    {
-      key: "o",
-      text: "Other",
+      text: "Women",
     },
   ];
 
@@ -228,7 +256,7 @@ const Search = ({ navigation }) => {
           alignItems: "center",
         }}
       >
-        {/* <Image
+        <Image
           source={{ uri: item.image }}
           style={{
             height: 35,
@@ -237,7 +265,7 @@ const Search = ({ navigation }) => {
             borderWidth: 1,
             borderRadius: 35,
           }}
-        /> */}
+        />
         <Text style={{ fontSize: 20 }}> {item.name}</Text>
         <Text
           style={{
@@ -302,8 +330,11 @@ const Search = ({ navigation }) => {
             }}
           >
             <Header
-              onTap={() => setblur(true)}
+              onTap={() => {
+                setblur(true), (filteredCrops.length = 0);
+              }}
               onLogoTap={() => navigation.navigate("Home")}
+              onFilter={() => onOpenfilter()}
             />
 
             {/* <View
@@ -409,7 +440,7 @@ const Search = ({ navigation }) => {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    alignSelf: "flex-start",
+                    alignSelf: "center",
                   }}
                 >
                   {/* <Text
@@ -426,55 +457,21 @@ const Search = ({ navigation }) => {
                   <View
                     style={{
                       flexDirection: "row",
-                      width: "100%",
-                      alignItems: "center",
+                      width: "50%",
+                      alignSelf: "center",
+                      marginTop: winWidth > 767 ? 15 : 10,
+                      alignItems: "flex-start",
+                      marginLeft: winWidth > 767 ? -52 : -10,
                       justifyContent: "flex-start",
 
                       padding: 5,
                     }}
                   >
-                    {winWidth > 767 ? (
-                      <TouchableOpacity
-                        style={{
-                          alignItems: "center",
-                          marginRight: 25,
-                          left: 5,
-                          backgroundColor: "transparent",
-                          padding: 5,
-                          height: 30,
-                          borderWidth: 2,
-                          borderColor: "#346beb",
-                          borderRadius: 5,
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                        onPress={() => {
-                          setfilteractive(false), navigation.navigate("Home");
-                        }}
-                      >
-                        <Ionicons
-                          name="ios-arrow-dropleft"
-                          size={20}
-                          color="#346beb"
-                        />
-                        <Text
-                          style={{
-                            color: "#346beb",
-                            fontWeight: "700",
-                            marginLeft: 5,
-                            bottom: 2,
-                          }}
-                        >
-                          Back to Home
-                        </Text>
-                      </TouchableOpacity>
-                    ) : null}
-
                     {/* <Button
                       title="GO Home"
                       onPress={() => navigation.navigate("Home")}
                     /> */}
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       style={{
                         top: 10,
                         flexDirection: "row",
@@ -505,7 +502,7 @@ const Search = ({ navigation }) => {
                         {" "}
                         Filter Results
                       </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                       style={{
                         alignItems: "center",
@@ -531,7 +528,15 @@ const Search = ({ navigation }) => {
                         borderRadius: 5,
                       }}
                     >
-                      <Text style={{ color: "#000" }}>{val ? val : null}</Text>
+                      <Text style={{ color: "#000" }}>
+                        {val
+                          ? val === "m"
+                            ? "Men"
+                            : val === "f"
+                            ? "Women"
+                            : "Other"
+                          : null}
+                      </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={{
@@ -550,80 +555,73 @@ const Search = ({ navigation }) => {
                   </View>
                 </View>
               ) : (
-                <View>
-                  <Text
+                <View
+                  style={{
+                    flexDirection: "column",
+                    width: "100%",
+                    height: 40,
+                    marginTop: 10,
+                  }}
+                >
+                  <View
                     style={{
-                      marginTop: 60,
-                      padding: 5,
-                      fontWeight: "500",
-                      color: "#6F6F6F",
+                      width: "100%",
+                      height: 30,
+                      backgroundColor: "#deebff",
+                      top: winWidth > 767 ? "20%" : "10%",
+                      borderTopLeftRadius: 10,
+                      borderTopRightRadius: 10,
                     }}
                   >
-                    {term}
-                  </Text>
+                    <Text
+                      style={{
+                        padding: 5,
+                        fontWeight: "500",
+                        color: "#000",
+                        alignSelf: "center",
+                        fontSize: winWidth > 767 ? 20 : 15,
+                        marginBottom: 10,
+                      }}
+                    >
+                      Available {term}s
+                    </Text>
+                  </View>
                 </View>
               )
             ) : parent ? (
-              <View>
-                <Text
-                  style={{
-                    marginTop: 60,
-                    padding: 5,
-                    fontWeight: "500",
-                    color: "#6F6F6F",
-                  }}
-                >
-                  {term}
-                </Text>
-              </View>
-            ) : (
               <View
                 style={{
+                  flexDirection: "column",
                   width: "100%",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  height: 40,
+                  marginTop: 10,
                 }}
               >
-                <Text
+                <View
                   style={{
-                    padding: 5,
-                    fontWeight: "500",
-                    color: "#6F6F6F",
-                  }}
-                >
-                  {term}
-                </Text>
-                <TouchableOpacity
-                  style={{
-                    top: 20,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    backgroundColor: "#949cff",
+                    width: "100%",
                     height: 30,
-                    padding: 3,
-                    borderRadius: 5,
-                  }}
-                  onPress={() => {
-                    console.log("Biharma"), sethideFAB(true), onOpenfilter();
+                    backgroundColor: "#deebff",
+                    top: winWidth > 767 ? "20%" : "10%",
+                    borderTopLeftRadius: 10,
+                    borderTopRightRadius: 10,
                   }}
                 >
-                  <AntDesign name="filter" size={15} color="#3A48ED" />
                   <Text
                     style={{
-                      fontSize: 15,
+                      padding: 5,
                       fontWeight: "500",
-                      marginLeft: 2,
-                      color: "#fff",
+                      color: "#000",
+                      alignSelf: "center",
+                      fontSize: winWidth > 767 ? 20 : 15,
+                      marginBottom: 10,
                     }}
                   >
-                    {" "}
-                    Filter Results
+                    Available {term}s
                   </Text>
-                </TouchableOpacity>
+                </View>
               </View>
-            )}
+            ) : null}
             {/* {placer ? (
             <TouchableOpacity
               style={{ alignSelf: "flex-end", top: -23, width: 50, height: 20 }}
@@ -634,13 +632,7 @@ const Search = ({ navigation }) => {
               Filter
             </TouchableOpacity>
           ) : null} */}
-            <View
-              style={{
-                width: "100%",
-                height: 1,
-                backgroundColor: "#96c1ff",
-              }}
-            ></View>
+
             <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
               {parent ? (
                 <View
@@ -648,8 +640,9 @@ const Search = ({ navigation }) => {
                     flexDirection: "row",
                     width: "100%",
                     flexWrap: "wrap",
+
                     alignItems: "flex-start",
-                    justifyContent: winWidth > 767 ? "flex-start" : "center",
+                    justifyContent: "center",
                     padding: winWidth > 767 ? 10 : 2,
                   }}
                 >
@@ -724,7 +717,7 @@ const Search = ({ navigation }) => {
                       }}
                     />
                   </View>
-                ) : val && !addr ? (
+                ) : val && !addr && !dater ? (
                   // <View
                   //   style={{
                   //     flexDirection: "row",
@@ -779,7 +772,7 @@ const Search = ({ navigation }) => {
                       }}
                     />
                   </View>
-                ) : !val && addr ? (
+                ) : !val && addr && !dater ? (
                   // <View
                   //   style={{
                   //     flexDirection: "row",
@@ -835,8 +828,39 @@ const Search = ({ navigation }) => {
                       }}
                     />
                   </View>
+                ) : !val && !addr && startDate && endDate ? (
+                  <View
+                    style={{
+                      width: "100%",
+                      height: winHeight * 0.89,
+                    }}
+                  >
+                    {" "}
+                    <Text>Dater</Text>
+                    <FlatList
+                      showsVerticalScrollIndicator={false}
+                      data={harvestResult}
+                      renderItem={renderFarmers}
+                      ListEmptyComponent={() => (
+                        <View style={styles.container}>
+                          <Text style={{ fontSize: 30 }}>
+                            {" "}
+                            Oops ! Didnt find that
+                          </Text>
+                        </View>
+                      )}
+                      contentContainerStyle={{
+                        flexDirection: "row",
+                        width: "100%",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: winWidth > 767 ? "center" : "center",
+                        padding: winWidth > 767 ? 10 : 2,
+                      }}
+                    />
+                  </View>
                 ) : (
-                  <Text>No Result Found</Text>
+                  <Text>No result found</Text>
                 )
               ) : (
                 // <View
@@ -898,7 +922,7 @@ const Search = ({ navigation }) => {
             </ScrollView>
             <Modalize
               ref={modalizeRef}
-              modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.95}
+              modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
               modalStyle={
                 winWidth > 767 ? { width: 500, alignSelf: "center" } : null
               }
@@ -1435,7 +1459,7 @@ const Search = ({ navigation }) => {
 
             <Modalize
               ref={modalizeFilterRef}
-              modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.95}
+              modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
               modalStyle={
                 winWidth > 767 ? { width: 500, alignSelf: "center" } : null
               }
@@ -1447,99 +1471,144 @@ const Search = ({ navigation }) => {
                 style={{
                   width: "100%",
                   flexDirection: "row",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   justifyContent: "space-between",
                   padding: 5,
+                  top: 5,
                 }}
               >
-                <Text
-                  style={{
-                    padding: 5,
-                    fontWeight: "500",
-                    color: "#6F6F6F",
-                    fontSize: 20,
-                    marginLeft: 5,
-                  }}
-                >
-                  Filter resuts here
-                </Text>
                 {/* <TouchableOpacity onPress={() => onCloseFilter()}>
                 Close Filter
               </TouchableOpacity> */}
-                <TouchableOpacity
-                  onPress={() => {
-                    onCloseFilter(), sethideFAB(false);
-                  }}
+                <Text
+                  style={{ fontSize: 16, marginLeft: 7, fontWeight: "600" }}
+                >
+                  Filter Results
+                </Text>
+
+                <View
                   style={{
+                    flexDirection: "row",
                     alignItems: "center",
-                    marginTop: 5,
-                    marginRight: 2,
-                    padding: 5,
-                    justifyContent: "center",
-                    alignSelf: "flex-end",
-                    backgroundColor: "#000",
-                    borderRadius: 10,
-                    height: 35,
-                    width: 70,
+
+                    width: "40%",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <View
+                  <TouchableOpacity
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
+                      width: 60,
+                      height: 30,
+                      backgroundColor: "#fff",
                       alignItems: "center",
+                      justifyContent: "center",
+
+                      borderRadius: 10,
+                      borderColor: "#3A48ED",
+                      borderWidth: 2,
+                    }}
+                    onPress={() => {
+                      setmerge(false),
+                        setfilteractive(false),
+                        onCloseFilter(),
+                        setval(""),
+                        setaddr("");
+                      setdater(false);
+                      setStartDate(new Date());
+                      setEndDate(new Date());
+                      sethideFAB(!hideFAB);
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: 15,
-                        fontWeight: 500,
-                        color: "#fff",
-                        marginRight: 5,
+                        fontSize: 16,
+                        color: "#3A48ED",
                       }}
                     >
-                      Close
+                      Reset
                     </Text>
-                    <SimpleLineIcons
-                      name="close"
-                      size={15}
-                      color="#fff"
-                      onPress={() => {
-                        onCloseFilter(), sethideFAB(false);
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      width: 60,
+                      height: 30,
+                      backgroundColor: "#3ECF8E",
+                      alignItems: "center",
+                      justifyContent: "center",
+
+                      borderRadius: 10,
+                      borderColor: "#3ECF8E",
+                      borderWidth: 2,
+                    }}
+                    onPress={() => {
+                      // !merge && filteractive ? setmerge(false) : setmerge(true);
+                      (!val && addr && !dater && !merge) ||
+                      (val && !addr && !dater && !merge) ||
+                      (!val && !addr && dater && !merge)
+                        ? setfilteractive(true)
+                        : !val && !addr && merge
+                        ? (setmerge(true), setfilteractive(false))
+                        : setmerge(true);
+                      onCloseFilter();
+                      sethideFAB(false);
+                      setdater(true);
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: "#fff",
                       }}
-                    />
-                  </View>
-                </TouchableOpacity>
+                    >
+                      Apply
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      onCloseFilter(), sethideFAB(false);
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 25,
+                        height: 25,
+                        borderWidth: 2,
+                        borderColor: "#A1C7FF",
+                        alignItems: "center",
+                        alignSelf: "flex-end",
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        backgroundColor: "#A1C7FF",
+                        borderRadius: 25,
+                      }}
+                    >
+                      <AntDesign name="close" size={20} color="#3A48ED" />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View
-                style={{
-                  width: "95%",
-                  alignSelf: "center",
-                  height: 1,
-                  backgroundColor: "#C0C0C0",
-                  marginTop: 10,
-                  alignItems: "center",
-                }}
-              ></View>
+
               <Text
                 style={{
                   color: "#6F6F6F",
                   fontSize: 15,
                   marginTop: 3,
                   marginLeft: 7,
+                  padding: 5,
                 }}
               >
-                By gender
+                By Gender
               </Text>
               <View
                 style={{
-                  width: "60%",
+                  width: "32%",
                   marginTop: 10,
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "flex-start",
+                  justifyContent: "space-between",
                   padding: 5,
-
+                  marginLeft: 7,
                   alignSelf: "flex-start",
                 }}
               >
@@ -1600,6 +1669,7 @@ const Search = ({ navigation }) => {
                     marginTop: 10,
                     marginLeft: 0,
                     marginBottom: 5,
+                    padding: 5,
                   }}
                 >
                   By States
@@ -1612,12 +1682,13 @@ const Search = ({ navigation }) => {
                     backgroundColor: "#d6d9ff",
                     borderWidth: 2,
                     borderColor: "#7b42ff",
-                    borderRadius: 10,
+                    borderRadius: 5,
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: 5,
                     minWidth: "30%",
-                    marginBottom: 10,
+
+                    marginLeft: 7,
                   }}
                 >
                   <Text style={{ fontSize: 15 }}>
@@ -1688,19 +1759,82 @@ const Search = ({ navigation }) => {
                       marginTop: 10,
                       marginLeft: 0,
                       marginBottom: 5,
+                      zIndex: 1000,
+                      padding: 5,
                     }}
                   >
                     By Harvest Date
                   </Text>
-                  <DateRangePicker onChange={onChange} value={value} />
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      height: 150,
+                      padding: 5,
+                    }}
+                  >
+                    <View>
+                      <Text style={{ marginBottom: 10 }}>From</Text>
+                      <DatePicker
+                        dateFormat="dd/MM/yyyy"
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        customInput={
+                          <TextInput
+                            style={{
+                              backgroundColor: "#d6d9ff",
+                              borderRadius: 5,
+                              borderColor: "#7b42ff",
+                              height: 35,
+                              borderWidth: 2,
+                              padding: 5,
+                              fontSize: 15,
+                            }}
+                          />
+                        }
+                      />
+                    </View>
+                    <View style={{ marginLeft: 20 }}>
+                      <Text style={{ marginBottom: 10 }}>To</Text>
+                      <DatePicker
+                        dateFormat="dd/MM/yyyy"
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        customInput={
+                          <TextInput
+                            style={{
+                              height: 35,
+                              borderWidth: 2,
+                              backgroundColor: "#d6d9ff",
+                              borderRadius: 5,
+                              borderColor: "#7b42ff",
+                              padding: 5,
+                              fontSize: 15,
+                            }}
+                          />
+                        }
+                      />
+                    </View>
+                  </View>
+
+                  {/* <TouchableOpacity onPress={() => showHarvests()}>
+                    This week
+                  </TouchableOpacity>
+                  <TouchableOpacity>This month</TouchableOpacity>
+                  <TouchableOpacity>3 months from now</TouchableOpacity>
+                  <TouchableOpacity>6 months from now</TouchableOpacity>
+                  <TouchableOpacity>1 year from now</TouchableOpacity> */}
                 </View>
                 <View
                   style={{
                     width: "95%",
                     alignSelf: "center",
                     height: 1,
-                    backgroundColor: "#C0C0C0",
-                    marginTop: 10,
+
+                    marginTop: 100,
                     alignItems: "center",
                   }}
                 ></View>
@@ -1711,12 +1845,15 @@ const Search = ({ navigation }) => {
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-evenly",
+                  alignSelf: "flex-end",
+
+                  marginTop: "30%",
                 }}
               >
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={{
-                    width: 120,
-                    height: 50,
+                    width: 80,
+                    height: 40,
                     backgroundColor: "#fff",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1731,22 +1868,23 @@ const Search = ({ navigation }) => {
                       onCloseFilter(),
                       setval(""),
                       setaddr("");
+                    setdater(!dater);
                     sethideFAB(!hideFAB);
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: 20,
+                      fontSize: 16,
                       color: "#3A48ED",
                     }}
                   >
                     Reset
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                </TouchableOpacity> */}
+                {/* <TouchableOpacity
                   style={{
-                    width: 120,
-                    height: 50,
+                    width: 80,
+                    height: 40,
                     backgroundColor: "#3ECF8E",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1768,22 +1906,22 @@ const Search = ({ navigation }) => {
                 >
                   <Text
                     style={{
-                      fontSize: 20,
+                      fontSize: 16,
                       color: "#fff",
                     }}
                   >
                     Apply
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
-              <View
+              {/* <View
                 style={{
                   height: 60,
                   width: "100%",
                   backgroundColor: "#fff",
                   marginTop: 10,
                 }}
-              ></View>
+              ></View> */}
             </Modalize>
           </View>
         </View>
@@ -1844,7 +1982,7 @@ const Search = ({ navigation }) => {
                     }
                   }
                   placeholder="Search for Crops"
-                  value={term}
+                  onFocus={() => setplacer(false)}
                   autoFocus={true}
                   editable={blur}
                   onChangeText={(text) => {
@@ -1885,12 +2023,7 @@ const Search = ({ navigation }) => {
                     </TouchableOpacity>
                   ) : null} */}
                 </View>
-                <TouchableOpacity
-                  onPress={() => {
-                    // setblur(false);
-                    term ? setblur(false) : navigation.navigate("Home");
-                  }}
-                >
+                <TouchableOpacity onPress={() => setblur(false)}>
                   <View
                     style={{
                       width: 25,
@@ -2104,14 +2237,14 @@ const styles = StyleSheet.create({
   buttonnewContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginRight: 5,
-    marginTop: 2,
+    padding: 5,
   },
 
   circle: {
-    height: 30,
-    width: 30,
+    height: 15,
+    width: 15,
     borderRadius: 15,
     borderWidth: 1,
     borderColor: "#3A48ED",

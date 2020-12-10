@@ -91,11 +91,11 @@ export default function Card(props: CardProps) {
           style={
             !isCrop
               ? {
-                  width: 100,
-                  height: 100,
+                  width: 105,
+                  height: 105,
                   borderWidth: 1,
                   borderColor: "#fff",
-                  borderRadius: 100,
+                  borderRadius: 105,
                 }
               : {
                   width: 140,
@@ -106,7 +106,9 @@ export default function Card(props: CardProps) {
                 }
           }
         />
-        <Text style={{ fontWeight: "500", marginTop: 10 }}>{name}</Text>
+        <Text style={{ fontWeight: "500", fontSize: 16, marginTop: 10 }}>
+          {name}
+        </Text>
 
         {!isCrop ? (
           <View
@@ -114,7 +116,7 @@ export default function Card(props: CardProps) {
               flexDirection: "row",
               justifyContent: "space-evenly",
               alignItems: "center",
-              marginTop: 10,
+              marginTop: 5,
             }}
           >
             <View
@@ -126,7 +128,7 @@ export default function Card(props: CardProps) {
             >
               <Text> {crop}</Text>
             </View>
-            <Entypo name="dot-single" size={15} style={{ top: 10 }} />
+            <Entypo name="dot-single" size={15} style={{ marginTop: 5 }} />
             <View>
               <Text>{address}</Text>
             </View>

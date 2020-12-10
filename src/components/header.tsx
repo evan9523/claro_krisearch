@@ -7,8 +7,9 @@ import {
   Text,
   View,
   Image,
+  TouchableOpacity,
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+
 import { winWidth } from "../utils/window";
 import {
   SimpleLineIcons,
@@ -25,22 +26,25 @@ const windowWidth = Dimensions.get("screen").width;
 export interface HeaderProps {
   onTap(): any;
   onLogoTap(): any;
+  filterShown?: boolean;
+  onFilter(): any;
   // catTap(): any;
 }
 
 const Header = (props: HeaderProps) => {
-  const { onTap, onLogoTap } = props;
+  const { onTap, onLogoTap, filterShown, onFilter } = props;
   return (
     <View style={styles.header}>
       <View
         style={{
-          width: winWidth < 767 ? "100%" : "70%",
-          top: winWidth > 767 ? 5 : 10,
+          width: "100%",
+          top: winWidth > 767 ? 0 : 10,
           height: "100%",
           flexDirection: "row",
           alignSelf: "flex-start",
           alignItems: "center",
           justifyContent: "space-between",
+          padding: winWidth > 767 ? 5 : 1,
         }}
       >
         <TouchableOpacity
@@ -50,7 +54,7 @@ const Header = (props: HeaderProps) => {
             justifyContent: "flex-start",
             top: winWidth > 767 ? 5 : 10,
           }}
-          onPress={onLogoTap}
+          onFocus={onLogoTap}
         >
           <Image
             source={{ uri: require("../../assets/newicon2.png") }}
@@ -59,50 +63,65 @@ const Header = (props: HeaderProps) => {
           <Text style={styles.headerText}>Krisearch</Text>
         </TouchableOpacity>
 
-        <TextInput
+        <View
           style={{
-            width: "50%",
-            height: winWidth > 767 ? 40 : 35,
-            fontSize: winWidth > 767 ? 20 : 16,
-            backgroundColor: "#fff",
-            outlineColor: "#fff",
-            borderRadius: 10,
-            padding: 5,
-            marginTop: 10,
-          }}
-          placeholder="Search for Crops..."
-          placeholderTextColor="#000"
-          onFocus={onTap}
-        />
-      </View>
-      {/* <View
-        style={{
-          alignSelf: "center",
-          alignItems: "flex-end",
-          flex: 1,
-
-          top: 10,
-          justifyContent: "flex-end",
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            alignSelf: "center",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            backgroundColor: "#03329e",
             flexDirection: "row",
-            padding: 5,
-            borderRadius: 20,
+            alignItems: winWidth > 767 ? "flex-start" : "flex-end",
+            width: "69%",
+            justifyContent: winWidth > 767 ? "flex-start" : "flex-end",
           }}
-          onPress={catTap}
         >
-          <Text style={{ fontSize: 20, marginRight: 5, color: "#fff" }}>
-            Categories
-          </Text>
-          <AntDesign name="downcircleo" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              backgroundColor: "#fff",
+              width: winWidth > 767 ? "55%" : "65%",
+              height: 40,
+              padding: 5,
+              justifyContent: "space-between",
+              borderRadius: 10,
+              top: winWidth > 767 ? null : 3,
+            }}
+          >
+            <TextInput
+              style={{
+                width: winWidth > 767 ? "90%" : "95%",
+                height: winWidth > 767 ? 40 : 35,
+                fontSize: winWidth > 767 ? 16 : 16,
+                backgroundColor: "#fff",
+                outlineColor: "#fff",
+                borderRadius: 10,
+                padding: 5,
+                marginTop: winWidth < 767 ? 0 : 0,
+              }}
+              placeholder="Search for Crops"
+              placeholderTextColor="	#808080"
+              onFocus={onTap}
+            />
+            <AntDesign name="search1" size={20} color="#808080" />
+          </View>
+
+          <AntDesign
+            name="filter"
+            size={25}
+            style={{
+              alignSelf: "center",
+              borderColor: "#deebff",
+              width: 40,
+              height: 40,
+              marginLeft: 10,
+              alignItems: "center",
+              marginTop: winWidth < 767 ? 10 : -5,
+              justifyContent: "center",
+              padding: 11,
+              borderRadius: 40,
+            }}
+            color="#deebff"
+            onPress={onFilter}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -112,7 +131,7 @@ export default Header;
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    height: 90,
+    height: winWidth > 767 ? 70 : 90,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#346beb",

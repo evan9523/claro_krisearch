@@ -9,7 +9,9 @@
     {
         "id":1,
         "name":"Banana",
-        "type":"fruit"
+        "type":"fruit",
+        "image":"../../../cropimages/Banana.jpg"
+
        
     },
 
@@ -184,35 +186,35 @@
     {
         "id":28,
         "name":"Cotton",
-        "type":""
+        "type":"crop"
        
 
     },
     {
         "id":29,
         "name":"Jowar",
-        "type":""
+        "type":"crop"
        
 
     },
     {
         "id":30,
         "name":"Bajra",
-        "type":""
+        "type":"crop"
        
 
     },
     {
         "id":31,
         "name":"Gram",
-        "type":""
+        "type":"crop"
        
 
     },
     {
         "id":32,
         "name":"Groundnut",
-        "type":""
+        "type":"nuts"
        
 
     },
@@ -226,21 +228,21 @@
     {
         "id":34,
         "name":"Betel",
-        "type":""
+        "type":"nuts"
        
 
     },
     {
         "id":35,
         "name":"Jute",
-        "type":""
+        "type":"crop"
        
 
     },
     {
         "id":36,
         "name":"Dates",
-        "type":""
+        "type":"fruit"
        
 
     },

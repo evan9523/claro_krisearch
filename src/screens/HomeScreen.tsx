@@ -23,6 +23,7 @@ import {
   SimpleLineIcons,
   Feather,
   Entypo,
+  AntDesign,
   FontAwesome5,
   FontAwesome,
 } from "@expo/vector-icons";
@@ -30,6 +31,9 @@ import hideNumber from "../utils/hideNumber";
 import getSmallString from "../utils/getSmallString";
 import States from "../data/states.json";
 import Data from "../data/items.json";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { render } from "react-dom";
 
 const Home = ({ navigation }) => {
   const [farmer, setfarmer] = useState(0);
@@ -43,6 +47,17 @@ const Home = ({ navigation }) => {
     modalizeRef.current?.close();
   };
 
+  const genderData = [
+    {
+      key: "m",
+      text: "Men",
+    },
+    {
+      key: "f",
+      text: "Women",
+    },
+  ];
+
   const [isLoading, setLoading] = useState(true);
   const [sata, setSata] = useState([]);
 
@@ -54,6 +69,15 @@ const Home = ({ navigation }) => {
   const [firstScroll, setfirstScroll] = useState(0);
   const [selectedState, setselectedState] = useState("");
   const [cats, setcats] = useState(false);
+  const [val, setval] = useState("");
+  const [addr, setaddr] = useState("");
+  const [term, setterm] = useState("");
+  const [filteractive, setfilteractive] = useState(false);
+  const [addrToggle, setaddrToggle] = useState(false);
+  const [merge, setmerge] = useState(false);
+  const [dater, setdater] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
   // useEffect(() => {
   //   fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
@@ -147,6 +171,61 @@ const Home = ({ navigation }) => {
     />
   );
 
+  const filteredCrops = Data.filter((item) => {
+    return item.name.toLocaleLowerCase().includes(term.toLowerCase());
+  });
+
+  const filteredParents = Data.filter((item) => {
+    return item.type.toLocaleLowerCase().includes(term.toLowerCase());
+  });
+
+  const filteredFarmers = farmers.filter((item) => {
+    let a = item.crops.map((i) => i.cropName);
+    return a.toString().toLocaleLowerCase().includes(term.toLowerCase());
+  });
+
+  const genderFilter = filteredFarmers.filter((item) => {
+    if (val) {
+      return item.gender.toLocaleLowerCase() === val.toLowerCase();
+    }
+  });
+
+  const addrFilter = filteredFarmers.filter((item) => {
+    if (addr) {
+      return item.state.toLocaleLowerCase() === addr.toLowerCase();
+    }
+  });
+
+  const harvestResult = filteredFarmers.filter((item) => {
+    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    return dt >= startDate && dt <= endDate;
+  });
+
+  const mergeResult = filteredFarmers.filter((item) => {
+    // if (val && addr) {
+    // }
+    // if (addr && !val) {
+    //   return item.address.toLocaleLowerCase() === addr.toLowerCase();
+    // }
+    // if (val && !addr) {
+    //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
+    // }
+    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    return (
+      item.gender.toLowerCase() === val.toLowerCase() &&
+      item.state.toLowerCase() === addr.toLowerCase()
+    );
+  });
+
+  const modalizeFilterRef = useRef<Modalize>(null);
+  const onOpenfilter = () => {
+    modalizeFilterRef.current?.open();
+  };
+
+  const onCloseFilter = () => {
+    modalizeFilterRef.current?.close();
+  };
+
   return (
     <View style={styles.container}>
       {/* <View
@@ -178,7 +257,7 @@ const Home = ({ navigation }) => {
           <Header
             onTap={() => navigation.navigate("Search")}
             onLogoTap={() => console.log("Home active")}
-            catTap={() => setcats(!cats)}
+            onFilter={() => onOpenfilter()}
           />
 
           {/* <Button
@@ -243,34 +322,239 @@ const Home = ({ navigation }) => {
           <View style={{ width: "100%", height: 25, backgroundColor: "red" }}>
             <Text>See by category</Text>
           </View> */}
-          <View
-            style={{
-              width: "100%",
-              height: winHeight * 0.88,
-            }}
-          >
-            {farmers.length > 10 ? (
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                data={farmers}
-                renderItem={renderItems}
-                ListEmptyComponent={() => (
-                  <View style={styles.container}>
-                    <ActivityIndicator size="large" />
-                  </View>
-                )}
-                contentContainerStyle={{
-                  flexDirection: "row",
+          {filteractive ? (
+            merge ? (
+              // <View
+              //   style={{
+              //     flexDirection: "row",
+              //     width: "100%",
+              //     flexWrap: "wrap",
+              //     alignItems: "flex-start",
+              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+              //     padding: winWidth > 767 ? 10 : 2,
+              //   }}
+              // >
+              //   {mergeResult.map((item, cIndex) => {
+              //     return (
+              //       <Card
+              //         key={item.id}
+              //         name={item.farmerName}
+              //         avatar={item.farmerImage}
+              //         phone={item.phone}
+              //         address={item.state}
+              //         crop={item.crops.map((i) => i.cropName)}
+              //         onPress={() => {
+              //           setfarmer(item.id), onOpen(), sethideFAB(true);
+              //         }}
+              //         cropAvatar={item.image}
+              //       />
+              //     );
+              //   })}
+              // </View>
+              <View
+                style={{
                   width: "100%",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  justifyContent: winWidth > 767 ? "center" : "center",
-                  padding: winWidth > 767 ? 10 : 2,
+                  height: winHeight * 0.89,
                 }}
-                onEndReached={handleLoad}
-              />
-            ) : null}
-          </View>
+              >
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={mergeResult}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            ) : val && !addr && !dater ? (
+              // <View
+              //   style={{
+              //     flexDirection: "row",
+              //     width: "100%",
+              //     flexWrap: "wrap",
+              //     alignItems: "flex-start",
+              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+              //     padding: winWidth > 767 ? 10 : 2,
+              //   }}
+              // >
+              //   {genderFilter.map((item, cIndex) => {
+              //     return (
+              //       <Card
+              //         key={item.id}
+              //         name={item.farmerName}
+              //         avatar={item.farmerImage}
+              //         phone={item.phone}
+              //         address={item.state}
+              //         crop={item.crops.map((i) => i.cropName)}
+              //         onPress={() => {
+              //           setfarmer(item.id), onOpen(), sethideFAB(true);
+              //         }}
+              //       />
+              //     );
+              //   })}
+              // </View>
+              <View
+                style={{
+                  width: "100%",
+                  height: winHeight * 0.89,
+                }}
+              >
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={genderFilter}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            ) : !val && addr && !dater ? (
+              // <View
+              //   style={{
+              //     flexDirection: "row",
+              //     width: "100%",
+              //     flexWrap: "wrap",
+              //     alignItems: "flex-start",
+              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+              //     padding: winWidth > 767 ? 10 : 2,
+              //   }}
+              // >
+              //   {addrFilter.map((item, cIndex) => {
+              //     return (
+              //       <Card
+              //         key={item.id}
+              //         name={item.farmerName}
+              //         avatar={item.farmerImage}
+              //         phone={item.phone}
+              //         address={item.state}
+              //         crop={item.crops.map((i) => i.cropName)}
+              //         onPress={() => {
+              //           setfarmer(item.id), onOpen();
+              //         }}
+              //         cropAvatar={item.image}
+              //       />
+              //     );
+              //   })}
+              // </View>
+              <View
+                style={{
+                  width: "100%",
+                  height: winHeight * 0.89,
+                }}
+              >
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={addrFilter}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            ) : !val && !addr && startDate && endDate ? (
+              <View
+                style={{
+                  width: "100%",
+                  height: winHeight * 0.89,
+                }}
+              >
+                {" "}
+                <Text>Dater</Text>
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={harvestResult}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            ) : (
+              <Text>No result found</Text>
+            )
+          ) : (
+            <View
+              style={{
+                width: "100%",
+                height: winHeight * 0.915,
+              }}
+            >
+              {farmers.length > 10 ? (
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={farmers}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <ActivityIndicator size="large" />
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: winWidth > 767 ? "center" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                  onEndReached={handleLoad}
+                />
+              ) : null}
+            </View>
+          )}
+
           {/* <ScrollView
             showsVerticalScrollIndicator={false}
             onScrollEndDrag={() => setfirstScroll(firstScroll + 5)}
@@ -319,7 +603,7 @@ const Home = ({ navigation }) => {
       </View>
       <Modalize
         ref={modalizeRef}
-        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.95}
+        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
         threshold={100}
         modalStyle={winWidth > 767 ? { width: 500, alignSelf: "center" } : null}
         // modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
@@ -783,6 +1067,461 @@ const Home = ({ navigation }) => {
           }
         })}
       </Modalize>
+      <Modalize
+        ref={modalizeFilterRef}
+        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
+        modalStyle={winWidth > 767 ? { width: 500, alignSelf: "center" } : null}
+        threshold={100}
+        closeOnOverlayTap={true}
+        mod
+      >
+        <View
+          style={{
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            padding: 5,
+            top: 5,
+          }}
+        >
+          {/* <TouchableOpacity onPress={() => onCloseFilter()}>
+                Close Filter
+              </TouchableOpacity> */}
+          <Text style={{ fontSize: 16, marginLeft: 7, fontWeight: "600" }}>
+            Filter Results
+          </Text>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+
+              width: "40%",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                width: 60,
+                height: 30,
+                backgroundColor: "#fff",
+                alignItems: "center",
+                justifyContent: "center",
+
+                borderRadius: 10,
+                borderColor: "#3A48ED",
+                borderWidth: 2,
+              }}
+              onPress={() => {
+                setmerge(false),
+                  setfilteractive(false),
+                  onCloseFilter(),
+                  setval(""),
+                  setaddr("");
+                setdater(false);
+                setStartDate(new Date());
+                setEndDate(new Date());
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "#3A48ED",
+                }}
+              >
+                Reset
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                width: 60,
+                height: 30,
+                backgroundColor: "#3ECF8E",
+                alignItems: "center",
+                justifyContent: "center",
+
+                borderRadius: 10,
+                borderColor: "#3ECF8E",
+                borderWidth: 2,
+              }}
+              onPress={() => {
+                // !merge && filteractive ? setmerge(false) : setmerge(true);
+                (!val && addr && !dater && !merge) ||
+                (val && !addr && !dater && !merge) ||
+                (!val && !addr && dater && !merge)
+                  ? setfilteractive(true)
+                  : !val && !addr && merge
+                  ? (setmerge(true), setfilteractive(false))
+                  : setmerge(true);
+                onCloseFilter();
+
+                setdater(true);
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "#fff",
+                }}
+              >
+                Apply
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                onCloseFilter();
+              }}
+            >
+              <View
+                style={{
+                  width: 25,
+                  height: 25,
+                  borderWidth: 2,
+                  borderColor: "#A1C7FF",
+                  alignItems: "center",
+                  alignSelf: "flex-end",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  backgroundColor: "#A1C7FF",
+                  borderRadius: 25,
+                }}
+              >
+                <AntDesign name="close" size={20} color="#3A48ED" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text
+          style={{
+            color: "#6F6F6F",
+            fontSize: 15,
+            marginTop: 3,
+            marginLeft: 7,
+            padding: 5,
+          }}
+        >
+          By Gender
+        </Text>
+        <View
+          style={{
+            width: "32%",
+            marginTop: 10,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: 5,
+            marginLeft: 7,
+            alignSelf: "flex-start",
+          }}
+        >
+          {genderData.map((item) => {
+            return (
+              <View key={item.key} style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.circle}
+                  onPress={() => {
+                    setfilteractive(true);
+                    setval(item.key);
+                    // toggler(item.key);
+                    // let a = item.text;
+                    // let b = filteredFarmers.filter((i) => {
+                    //   return i.gender.toLowerCase() === a.toLowerCase();
+                    // });
+                    // console.log(item.text);
+                    // console.log(a);
+                    // console.log(b);
+                  }}
+                >
+                  {val === item.key && <View style={styles.checkedCircle} />}
+                </TouchableOpacity>
+                <Text style={{ fontSize: 16, marginLeft: 5 }}>{item.text}</Text>
+              </View>
+            );
+          })}
+        </View>
+        <View
+          style={{
+            width: "100%",
+            marginTop: 10,
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "space-evenly",
+            padding: 5,
+            alignSelf: "flex-start",
+          }}
+        >
+          <View
+            style={{
+              width: "95%",
+              alignSelf: "center",
+              height: 1,
+              backgroundColor: "#C0C0C0",
+              marginTop: 10,
+              alignItems: "center",
+            }}
+          ></View>
+          <Text
+            style={{
+              color: "#6F6F6F",
+              fontSize: 15,
+              marginTop: 10,
+              marginLeft: 0,
+              marginBottom: 5,
+              padding: 5,
+            }}
+          >
+            By States
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => setaddrToggle(!addrToggle)}
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#d6d9ff",
+              borderWidth: 2,
+              borderColor: "#7b42ff",
+              borderRadius: 5,
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: 5,
+              minWidth: "30%",
+
+              marginLeft: 7,
+            }}
+          >
+            <Text style={{ fontSize: 15 }}>{addr ? addr : "All States"}</Text>
+            <AntDesign name="down" size={12} />
+          </TouchableOpacity>
+          {addrToggle ? (
+            <View style={{ marginTop: 10 }}>
+              {States.map((item) => {
+                return (
+                  <View key={item.code} style={styles.buttonnewContainer}>
+                    <TouchableOpacity
+                      style={styles.circle}
+                      onPress={() => {
+                        setfilteractive(true);
+                        setaddr(item.name);
+                        setaddrToggle(false);
+                        // toggler(item.key);
+                        // let a = item.text;
+                        // let b = filteredFarmers.filter((i) => {
+                        //   return i.gender.toLowerCase() === a.toLowerCase();
+                        // });
+                        // console.log(item.text);
+                        // console.log(a);
+                        // console.log(b);
+                      }}
+                    >
+                      {addr === item.name && (
+                        <View style={styles.checkedCircle} />
+                      )}
+                    </TouchableOpacity>
+                    <Text style={{ fontSize: 16, marginLeft: 5 }}>
+                      {item.name}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
+        </View>
+        <View
+          style={{
+            width: "100%",
+            marginTop: 10,
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "space-evenly",
+            padding: 5,
+            alignSelf: "flex-start",
+          }}
+        >
+          <View
+            style={{
+              width: "95%",
+              alignSelf: "center",
+              height: 1,
+              backgroundColor: "#C0C0C0",
+              marginTop: 10,
+              alignItems: "center",
+            }}
+          ></View>
+          <View>
+            <Text
+              style={{
+                color: "#6F6F6F",
+                fontSize: 15,
+                marginTop: 10,
+                marginLeft: 0,
+                marginBottom: 5,
+                zIndex: 1000,
+                padding: 5,
+              }}
+            >
+              By Harvest Date
+            </Text>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                height: 150,
+                padding: 5,
+              }}
+            >
+              <View>
+                <Text style={{ marginBottom: 10 }}>From</Text>
+                <DatePicker
+                  dateFormat="dd/MM/yyyy"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  customInput={
+                    <TextInput
+                      style={{
+                        backgroundColor: "#d6d9ff",
+                        borderRadius: 5,
+                        borderColor: "#7b42ff",
+                        height: 35,
+                        borderWidth: 2,
+                        padding: 5,
+                        fontSize: 15,
+                      }}
+                    />
+                  }
+                />
+              </View>
+              <View style={{ marginLeft: 20 }}>
+                <Text style={{ marginBottom: 10 }}>To</Text>
+                <DatePicker
+                  dateFormat="dd/MM/yyyy"
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  customInput={
+                    <TextInput
+                      style={{
+                        height: 35,
+                        borderWidth: 2,
+                        backgroundColor: "#d6d9ff",
+                        borderRadius: 5,
+                        borderColor: "#7b42ff",
+                        padding: 5,
+                        fontSize: 15,
+                      }}
+                    />
+                  }
+                />
+              </View>
+            </View>
+
+            {/* <TouchableOpacity onPress={() => showHarvests()}>
+                    This week
+                  </TouchableOpacity>
+                  <TouchableOpacity>This month</TouchableOpacity>
+                  <TouchableOpacity>3 months from now</TouchableOpacity>
+                  <TouchableOpacity>6 months from now</TouchableOpacity>
+                  <TouchableOpacity>1 year from now</TouchableOpacity> */}
+          </View>
+          <View
+            style={{
+              width: "95%",
+              alignSelf: "center",
+              height: 1,
+
+              marginTop: 100,
+              alignItems: "center",
+            }}
+          ></View>
+        </View>
+        <View
+          style={{
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            alignSelf: "flex-end",
+
+            marginTop: "30%",
+          }}
+        >
+          {/* <TouchableOpacity
+                  style={{
+                    width: 80,
+                    height: 40,
+                    backgroundColor: "#fff",
+                    alignItems: "center",
+                    justifyContent: "center",
+
+                    borderRadius: 10,
+                    borderColor: "#3A48ED",
+                    borderWidth: 2,
+                  }}
+                  onPress={() => {
+                    setmerge(false),
+                      setfilteractive(false),
+                      onCloseFilter(),
+                      setval(""),
+                      setaddr("");
+                    setdater(!dater);
+                    sethideFAB(!hideFAB);
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: "#3A48ED",
+                    }}
+                  >
+                    Reset
+                  </Text>
+                </TouchableOpacity> */}
+          {/* <TouchableOpacity
+                  style={{
+                    width: 80,
+                    height: 40,
+                    backgroundColor: "#3ECF8E",
+                    alignItems: "center",
+                    justifyContent: "center",
+
+                    borderRadius: 10,
+                    borderColor: "#3ECF8E",
+                    borderWidth: 2,
+                  }}
+                  onPress={() => {
+                    // !merge && filteractive ? setmerge(false) : setmerge(true);
+                    (!val && addr && !merge) || (val && !addr && !merge)
+                      ? setfilteractive(true)
+                      : !val && !addr && merge
+                      ? (setmerge(true), setfilteractive(false))
+                      : setmerge(true);
+                    onCloseFilter();
+                    sethideFAB(false);
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: "#fff",
+                    }}
+                  >
+                    Apply
+                  </Text>
+                </TouchableOpacity> */}
+        </View>
+        {/* <View
+                style={{
+                  height: 60,
+                  width: "100%",
+                  backgroundColor: "#fff",
+                  marginTop: 10,
+                }}
+              ></View> */}
+      </Modalize>
     </View>
   );
 };
@@ -796,5 +1535,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: winHeight,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginRight: 5,
+  },
+  buttonnewContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginRight: 5,
+    padding: 5,
+  },
+
+  circle: {
+    height: 15,
+    width: 15,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#3A48ED",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  checkedCircle: {
+    width: 15,
+    height: 15,
+    borderRadius: 7,
+    backgroundColor: "#3A48ED",
   },
 });
