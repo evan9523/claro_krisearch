@@ -247,10 +247,18 @@ const Home = ({ navigation }) => {
     // if (val && !addr) {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
-    let dt = new Date(item.crops.map((i) => i.harvestDate));
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], temp[1], temp[0]);
+    console.log(dt);
     return (
       item.gender.toLowerCase() === val.toLowerCase() &&
-      item.state.toLowerCase() === addr.toLowerCase()
+      item.state.toLowerCase() === addr.toLowerCase() &&
+      dt >= startDate &&
+      dt <= endDate
     );
   });
 

@@ -153,7 +153,7 @@ const Search = ({ navigation }) => {
 
   const filteredFarmers = farmers.filter((item) => {
     let a = item.crops.map((i) => i.cropName);
-    return a.toString().toLocaleLowerCase().includes(term.toLowerCase());
+    return a.toString().toLocaleLowerCase() === term.toLowerCase();
   });
 
   const genderFilter = filteredFarmers.filter((item) => {
@@ -219,7 +219,14 @@ const Search = ({ navigation }) => {
     // if (val && !addr) {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
-    let dt = new Date(item.crops.map((i) => i.harvestDate));
+
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], temp[1], temp[0]);
+    console.log(dt);
 
     return (
       item.gender.toLowerCase() === val.toLowerCase() &&
@@ -299,10 +306,10 @@ const Search = ({ navigation }) => {
               fontSize: 15,
               alignSelf: "center",
               color: "#989898",
+              margin: 5,
             }}
           >
-            {" "}
-            in{" "}
+            in
           </Text>
           <TouchableOpacity
             onPress={() => {
@@ -312,7 +319,7 @@ const Search = ({ navigation }) => {
                 setblur(!blur);
             }}
           >
-            <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 10 }}>
+            <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
               {item.type}
             </Text>
           </TouchableOpacity>
@@ -359,11 +366,7 @@ const Search = ({ navigation }) => {
           >
             <Header
               onTap={() => {
-                setblur(true),
-                  (filteredCrops.length = 0),
-                  setparent(false),
-                  setplacer(false);
-                setterm("");
+                setblur(true);
               }}
               onLogoTap={() => navigation.navigate("Home")}
               onFilter={() => onOpenfilter()}
@@ -581,7 +584,7 @@ const Search = ({ navigation }) => {
                         backgroundColor: addr ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        width: 80,
+                        width: 120,
                         borderRadius: 20,
                       }}
                     >
@@ -670,16 +673,18 @@ const Search = ({ navigation }) => {
                   }}
                 >
                   {filteredParents.map((item, cIndex) => {
-                    return (
-                      <Card
-                        key={item.id}
-                        name={item.name}
-                        avatar={item.image}
-                        isCrop={true}
-                        onPress={() => {
-                          setparent(false), setterm(item.name);
-                        }}
-                      />
+                    return Data.map((i) =>
+                      i.name === item.name ? (
+                        <Card
+                          key={item.id}
+                          name={item.name}
+                          avatar={i.image}
+                          isCrop={true}
+                          onPress={() => {
+                            setparent(false), setterm(item.name);
+                          }}
+                        />
+                      ) : null
                     );
                   })}
                 </View>
@@ -1559,54 +1564,46 @@ const Search = ({ navigation }) => {
                       Reset
                     </Text>
                   </TouchableOpacity>
-                  {(val && addr && !dater && !merge) ||
-                  (!val && addr && dater && !merge) ||
-                  (val && !addr && dater && !merge) ||
-                  (!val && addr && !dater && !merge) ||
-                  (!val && !addr && dater && !merge) ||
-                  (val && !addr && !dater && !merge) ||
-                  (!val && !addr && !dater && !merge) ? null : (
-                    <TouchableOpacity
-                      style={{
-                        width: 60,
-                        height: 30,
-                        backgroundColor: "#3ECF8E",
-                        alignItems: "center",
-                        justifyContent: "center",
+                  <TouchableOpacity
+                    style={{
+                      width: 60,
+                      height: 30,
+                      backgroundColor: "#3ECF8E",
+                      alignItems: "center",
+                      justifyContent: "center",
 
-                        borderRadius: 10,
-                        borderColor: "#3ECF8E",
-                        borderWidth: 2,
-                      }}
-                      onPress={() => {
-                        // !merge && filteractive ? setmerge(false) : setmerge(true);
-                        // (!val && addr && !dater && !merge) ||
-                        // (val && !addr && !dater && !merge) ||
-                        // (!val && !addr && dater && !merge)
-                        //   ? (setfilteractive(true), setmerge(false))
-                        //   : !val && !addr && !dater && merge
-                        //   ?
-                        //   : setmerge(true);
-                        // onCloseFilter();
-                        // sethideFAB(false);
-                        // setdater(true);
-                        (!val && addr && !dater && !merge) ||
-                        (val && !addr && !dater && !merge) ||
-                        (!val && !addr && dater && !merge)
-                          ? (setfilteractive(true), setmerge(false))
-                          : (setfilteractive(false), setmerge(true));
+                      borderRadius: 10,
+                      borderColor: "#3ECF8E",
+                      borderWidth: 2,
+                    }}
+                    onPress={() => {
+                      // !merge && filteractive ? setmerge(false) : setmerge(true);
+                      (!val && addr && !dater && !merge) ||
+                      (val && !addr && !dater && !merge) ||
+                      (!val && !addr && dater && !merge)
+                        ? (setfilteractive(true), setmerge(false))
+                        : !val && !addr && !dater && merge
+                        ? (setfilteractive(false), setmerge(true))
+                        : setmerge(true);
+                      onCloseFilter();
+                      sethideFAB(false);
+                      setdater(true);
+                      // (!val && addr && !dater && !merge) ||
+                      // (val && !addr && !dater && !merge) ||
+                      // (!val && !addr && dater && !merge)
+                      //   ? (setfilteractive(true), setmerge(false))
+                      //   : (setfilteractive(false), setmerge(true));
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: "#fff",
                       }}
                     >
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          color: "#fff",
-                        }}
-                      >
-                        Apply
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+                      Apply
+                    </Text>
+                  </TouchableOpacity>
 
                   <TouchableOpacity
                     onPress={() => {
@@ -2074,7 +2071,13 @@ const Search = ({ navigation }) => {
                     </TouchableOpacity>
                   ) : null} */}
                 </View>
-                <TouchableOpacity onPress={() => setblur(false)}>
+                <TouchableOpacity
+                  onPress={() => {
+                    filteredFarmers.length > 0
+                      ? setblur(false)
+                      : navigation.navigate("Home");
+                  }}
+                >
                   <View
                     style={{
                       width: 25,
