@@ -1986,8 +1986,8 @@ const Home = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={{
-                          width: winWidth < 400 ? 70 : 90,
-                          height: winWidth < 400 ? 30 : 40,
+                          width: winWidth < 400 ? 90 : 120,
+                          height: winWidth < 400 ? 35 : 40,
                           backgroundColor: "#fff",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1995,6 +1995,7 @@ const Home = ({ navigation }) => {
                           borderRadius: 10,
                           borderColor: "#A9A9A9",
                           borderWidth: 2,
+                          padding: 5,
                         }}
                         onPress={() =>
                           alert(
