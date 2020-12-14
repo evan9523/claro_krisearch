@@ -388,19 +388,19 @@ const Home = ({ navigation }) => {
       if (val && dater) {
         return (
           item.gender.toLowerCase() === val.toLowerCase() &&
-          dt > startDate &&
-          dt < endDate
+          dt >= startDate &&
+          dt <= endDate
         );
       }
 
       if (addr && dater) {
         return (
           item.state.toLowerCase() === addr.toLowerCase() &&
-          dt > startDate &&
-          dt < endDate
+          dt >= startDate &&
+          dt <= endDate
         );
       }
-      if (val && addr && endDate !== null) {
+      if (val && addr && dater) {
         return (
           item.gender.toLowerCase() === val.toLowerCase() &&
           item.state.toLowerCase() === addr.toLowerCase() &&
