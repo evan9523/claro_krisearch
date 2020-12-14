@@ -39,7 +39,18 @@ export default function Card(props: CardProps) {
   const windowWidth = Dimensions.get("window").width;
   const cardWidth = windowWidth / 2 - 30;
 
-  const toTitleCase = (phrase) => {
+  const toTitleCase = (phrase: string) => {
+    // if(str.length>20){
+    //     str =str.substring(0,19)+"...";
+    //     return str;
+    // }
+    // else{
+    //     return str
+    // }
+
+    if (phrase.length > 15) {
+      phrase = phrase.substring(0, 14) + "...";
+    }
     return phrase
       .toLowerCase()
       .split(" ")
@@ -84,8 +95,8 @@ export default function Card(props: CardProps) {
 
                 shadowColor: "#98A0FF",
                 shadowOffset: {
-                  width: 0,
-                  height: 3,
+                  width: -2,
+                  height: 4,
                 },
                 shadowOpacity: 0.15,
                 shadowRadius: 2.22,

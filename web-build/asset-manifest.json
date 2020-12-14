@@ -1,7 +1,7 @@
 {
   "files": {
-    "app.js": "/kri/static/js/app.9220b56f.chunk.js",
-    "app.js.map": "/kri/static/js/app.9220b56f.chunk.js.map",
+    "app.js": "/kri/static/js/app.656f1477.chunk.js",
+    "app.js.map": "/kri/static/js/app.656f1477.chunk.js.map",
     "runtime~app.js": "/kri/static/js/runtime~app.7eb1301c.js",
     "runtime~app.js.map": "/kri/static/js/runtime~app.7eb1301c.js.map",
     "static/js/2.b223672f.chunk.js": "/kri/static/js/2.b223672f.chunk.js",
@@ -30,6 +30,6 @@
   "entrypoints": [
     "static/js/runtime~app.7eb1301c.js",
     "static/js/2.b223672f.chunk.js",
-    "static/js/app.9220b56f.chunk.js"
+    "static/js/app.656f1477.chunk.js"
   ]
 }

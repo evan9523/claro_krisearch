@@ -69,6 +69,7 @@ const Header = (props: HeaderProps) => {
             alignItems: winWidth > 767 ? "flex-start" : "flex-end",
             width: "69%",
             justifyContent: winWidth > 767 ? "flex-start" : "flex-end",
+            left: -15,
           }}
         >
           <View

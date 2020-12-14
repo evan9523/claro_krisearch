@@ -345,19 +345,19 @@ const Home = ({ navigation }) => {
     // if (val && !addr) {
     //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
     // }
-    let str = item.crops.map((i) => i.harvestDate).toString();
-    console.log(str);
-    var temp = new Array();
-    temp = str.split("/");
-    console.log(temp);
-    let dt = new Date(temp[2], temp[1], temp[0]);
-    console.log(dt);
-    return (
-      item.gender.toLowerCase() === val.toLowerCase() &&
-      item.state.toLowerCase() === addr.toLowerCase() &&
-      dt >= startDate &&
-      dt <= endDate
-    );
+    // let str = item.crops.map((i) => i.harvestDate).toString();
+    // console.log(str);
+    // var temp = new Array();
+    // temp = str.split("/");
+    // console.log(temp);
+    // let dt = new Date(temp[2], temp[1], temp[0]);
+    // console.log(dt);
+    // return (
+    //   item.gender.toLowerCase() === val.toLowerCase() &&
+    //   item.state.toLowerCase() === addr.toLowerCase() &&
+    //   dt >= startDate &&
+    //   dt <= endDate
+    // );
   });
 
   const multiTo = filteredFarmers.filter((item) => {
@@ -366,8 +366,9 @@ const Home = ({ navigation }) => {
     var temp = new Array();
     temp = str.split("/");
     console.log(temp);
-    let dt = new Date(temp[2], temp[1], temp[0]);
+    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
     console.log(dt);
+    console.log(startDate);
     if (applied) {
       if (val && addr === "") {
         return item.gender.toLowerCase() === val.toLowerCase();
@@ -376,7 +377,7 @@ const Home = ({ navigation }) => {
         return item.state.toLowerCase() === addr.toLowerCase();
       }
       if (dater && addr === "" && val === "") {
-        return dt >= startDate && dt <= endDate;
+        return dt > startDate && dt < endDate;
       }
       if (val && addr) {
         return (
@@ -387,16 +388,16 @@ const Home = ({ navigation }) => {
       if (val && dater) {
         return (
           item.gender.toLowerCase() === val.toLowerCase() &&
-          dt >= startDate &&
-          dt <= endDate
+          dt > startDate &&
+          dt < endDate
         );
       }
 
       if (addr && dater) {
         return (
           item.state.toLowerCase() === addr.toLowerCase() &&
-          dt >= startDate &&
-          dt <= endDate
+          dt > startDate &&
+          dt < endDate
         );
       }
       if (val && addr && endDate !== null) {
@@ -488,7 +489,7 @@ const Home = ({ navigation }) => {
       >
         <View
           style={{
-            backgroundColor: "#deebff",
+            backgroundColor: "#f2f7ff",
             width: winWidth > 767 ? "100%" : "100%",
             height: "100%",
             alignItems: "center",
@@ -500,7 +501,8 @@ const Home = ({ navigation }) => {
               setblur(true), setshow("");
             }}
             onLogoTap={() => {
-              setfilteractive(false), setterm("");
+              // setfilteractive(false), setterm("");
+              console.log("hello");
             }}
             onFilter={() => onOpenfilter()}
           />
@@ -680,10 +682,11 @@ const Home = ({ navigation }) => {
                         Filter Results
                       </Text>
                     </TouchableOpacity> */}
-                  {val === "" ||
-                  (val === null && addr === "") ||
-                  (addr === null && term === "") ||
-                  (term === null && dater === false) ? (
+                  {(val === "" &&
+                    addr === "" &&
+                    dater === false &&
+                    term === "") ||
+                  term === null ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -710,7 +713,7 @@ const Home = ({ navigation }) => {
                         backgroundColor: term ? "#87edbf" : "#deebff",
                         padding: 5,
                         height: 30,
-                        width: 100,
+
                         borderRadius: 20,
                         justifyContent: "space-between",
                         flexDirection: "row",
@@ -736,6 +739,7 @@ const Home = ({ navigation }) => {
                           top: 2,
                           backgroundColor: "#009150",
                           padding: 2,
+                          marginLeft: 5,
                           borderRadius: 15,
                         }}
                         onPress={() => setterm("")}
@@ -743,7 +747,7 @@ const Home = ({ navigation }) => {
                     </View>
                   ) : null}
 
-                  {val ? (
+                  {val && applied ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -751,7 +755,7 @@ const Home = ({ navigation }) => {
                         backgroundColor: val ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
-                        width: 80,
+
                         borderRadius: 20,
                         justifyContent: "space-between",
                         flexDirection: "row",
@@ -777,12 +781,13 @@ const Home = ({ navigation }) => {
                           backgroundColor: "#A1C7FF",
                           padding: 2,
                           borderRadius: 15,
+                          marginLeft: 5,
                         }}
                         onPress={() => setval("")}
                       />
                     </View>
                   ) : null}
-                  {addr ? (
+                  {addr && applied ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -817,12 +822,12 @@ const Home = ({ navigation }) => {
                     </View>
                   ) : null}
 
-                  {dater ? (
+                  {dater && applied ? (
                     <View
                       style={{
                         alignItems: "center",
                         marginRight: 5,
-                        backgroundColor: dater ? "#fff" : "#deebff",
+                        backgroundColor: dater && applied ? "#fff" : "#deebff",
                         padding: 5,
                         height: 30,
 
@@ -834,7 +839,7 @@ const Home = ({ navigation }) => {
                       }}
                     >
                       <Text style={{ color: "#000" }}>
-                        {dater
+                        {dater && applied
                           ? startDate.toDateString() +
                             " - " +
                             endDate.toDateString()
@@ -962,9 +967,18 @@ const Home = ({ navigation }) => {
                     showsVerticalScrollIndicator={false}
                     data={filteredFarmers}
                     renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container} ref={container} />
-                    )}
+                    ListEmptyComponent={() =>
+                      term && filteredFarmers.length == 0 ? (
+                        <View style={styles.container}>
+                          <Text style={{ fontSize: 30 }}>
+                            {" "}
+                            Oops ! Didnt find that
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.container} ref={container} />
+                      )
+                    }
                     contentContainerStyle={{
                       flexDirection: "row",
                       width: "100%",
@@ -2043,7 +2057,7 @@ const Home = ({ navigation }) => {
               flexDirection: "row",
               alignItems: "center",
 
-              width: "40%",
+              width: "50%",
               justifyContent: "space-between",
             }}
           >
@@ -2362,7 +2376,8 @@ const Home = ({ navigation }) => {
                 <Text style={{ marginBottom: 10 }}>To</Text>
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
-                  selected={endDate}
+                  popperPlacement="bottom-right"
+                  selected={dater ? endDate : null}
                   onChange={(date) => {
                     setEndDate(date), setdater(true);
                   }}
@@ -2795,7 +2810,7 @@ const Home = ({ navigation }) => {
                     <Text style={{ fontSize: 18, margin: 15 }}>Suggested </Text>
                     <FlatList
                       showsVerticalScrollIndicator={false}
-                      data={filteredBlur.slice(2, 5)}
+                      data={filteredBlur.sort().slice(1, 5)}
                       renderItem={renderMatch}
                       contentContainerStyle={{
                         // flexDirection: "row",
@@ -2832,7 +2847,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#deebff",
+    backgroundColor: "#f2f7ff",
     alignItems: "center",
     justifyContent: "center",
     height: winHeight,
@@ -2852,9 +2867,9 @@ const styles = StyleSheet.create({
   },
 
   circle: {
-    height: 15,
-    width: 15,
-    borderRadius: 15,
+    height: 25,
+    width: 25,
+    borderRadius: 25,
     borderWidth: 1,
     borderColor: "#3A48ED",
     alignItems: "center",
@@ -2862,9 +2877,9 @@ const styles = StyleSheet.create({
   },
 
   checkedCircle: {
-    width: 15,
-    height: 15,
-    borderRadius: 7,
+    width: 25,
+    height: 25,
+    borderRadius: 25,
     backgroundColor: "#3A48ED",
   },
 });
