@@ -195,52 +195,39 @@ function MyTabBar({ state, descriptors, navigation }) {
 const App = () => {
   return (
     <NavigationContainer>
-      {winWidth > 767 ? (
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: "#346beb",
-            },
-            headerTintColor: "#fff",
-            headerTitleStyle: {
-              fontWeight: "bold",
-            },
-            headerShown: false,
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#346beb",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen
+          name="Welcome"
+          component={Welcome}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{
+            title: "Krisearch",
           }}
-        >
-          <Stack.Screen
-            name="Welcome"
-            component={Welcome}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{
-              title: "Krisearch",
-            }}
-          />
-          <Stack.Screen name="Search" component={Search} />
-          <Stack.Screen
-            name="Profile"
-            component={Profile}
-            options={{
-              title: "Profile",
-            }}
-          />
-        </Stack.Navigator>
-      ) : (
-        <Tab.Navigator
-          tabBar={(props) => <MyTabBar {...props} />}
-          tabBarOptions={{
-            keyboardHidesTabBar: true,
+        />
+        <Stack.Screen name="Search" component={Search} />
+        <Stack.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            title: "Profile",
           }}
-        >
-          <Tab.Screen name="Home" component={Home} />
-          <Tab.Screen name="Search" component={Search} />
-          <Tab.Screen name="Profile" component={Profile} />
-        </Tab.Navigator>
-      )}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

@@ -11,6 +11,7 @@ import {
   View,
   ActivityIndicator,
   FlatList,
+  Platform,
 } from "react-native";
 import Header, { HeaderProps } from "../components/header";
 import { winWidth, winHeight } from "../utils/window";
@@ -34,6 +35,9 @@ import Data from "../data/items.json";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { render } from "react-dom";
+import lottie from "lottie-web";
+import { BlurView } from "expo-blur";
+import { add } from "date-fns";
 
 const Home = ({ navigation }) => {
   const [farmer, setfarmer] = useState(0);
@@ -62,8 +66,10 @@ const Home = ({ navigation }) => {
   const [sata, setSata] = useState([]);
 
   const cropper = "";
-
+  const [blur, setblur] = useState(false);
+  const [placer, setplacer] = useState(false);
   const [crop, setcrop] = useState([]);
+  const [parent, setparent] = useState(false);
   const [farmers, setfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
   const [firstScroll, setfirstScroll] = useState(0);
@@ -80,6 +86,8 @@ const Home = ({ navigation }) => {
   const [dater, setdater] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [show, setshow] = useState("");
+  const [applied, setapplied] = useState(false);
 
   // useEffect(() => {
   //   fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
@@ -97,6 +105,17 @@ const Home = ({ navigation }) => {
   //     .catch((error) => console.error(error));
   // }, []);
   console.log("REACHING HOME");
+  const container = useRef(null);
+
+  useEffect(() => {
+    lottie.loadAnimation({
+      container: container.current,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      animationData: require("../../assets/wheat.json"),
+    });
+  });
 
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
@@ -112,9 +131,9 @@ const Home = ({ navigation }) => {
       }),
     })
       .then((response) => response.json())
-      .then((data) => setfarmers(data.data.list.slice(0, firstScroll + 24)))
+      .then((data) => setfarmers(data.data.list))
       .catch((error) => console.error(error));
-  }, [firstScroll]);
+  }, []);
 
   useEffect(() => {
     fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
@@ -153,9 +172,79 @@ const Home = ({ navigation }) => {
 
   const selectCrop = () => {};
 
-  const handleLoad = () => {
-    setfirstScroll(firstScroll + 18);
-  };
+  // const handleLoad = () => {
+  //   setfirstScroll(firstScroll + 18);
+  // };
+
+  const renderMatch = ({ item }) => (
+    <View
+      style={{
+        height: 55,
+        width: winWidth > 767 ? winWidth * 0.49 : winWidth * 0.95,
+        padding: 2,
+      }}
+    >
+      <TouchableOpacity
+        onPress={() => {
+          setplacer(true), setblur(!blur), setterm(item.name);
+        }}
+        style={{
+          marginBottom: 2,
+          width: "100%",
+          backgroundColor: "#fff",
+          height: "100%",
+          padding: 5,
+          borderRadius: 10,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          {Data.map((i) =>
+            i.name.toLowerCase() === item.name.toLowerCase() ? (
+              <Image
+                source={{ uri: i.image }}
+                style={{
+                  height: 35,
+                  width: 35,
+                  borderColor: "green",
+                  borderWidth: 1,
+                  borderRadius: 35,
+                }}
+              />
+            ) : null
+          )}
+
+          <Text style={{ fontSize: 20 }}> {item.name}</Text>
+          <Text
+            style={{
+              fontSize: 15,
+              alignSelf: "center",
+              color: "#989898",
+              margin: 5,
+            }}
+          >
+            in
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setparent(true),
+                setterm(item.type),
+                setplacer(true),
+                setblur(!blur);
+            }}
+          >
+            <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
+              {item.type}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
 
   const renderItems = ({ item }) => (
     <Card
@@ -174,6 +263,8 @@ const Home = ({ navigation }) => {
     />
   );
 
+  const showFilter = [val, addr, dater];
+
   const bgdata = crop.filter((item) => {
     console.log(item.farmers);
   });
@@ -183,33 +274,27 @@ const Home = ({ navigation }) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());
   });
 
-  const filteredParents = [
-    {
-      id: 1,
-      type: "Crop",
-    },
-    {
-      id: 2,
-      type: "Fruits",
-    },
-    {
-      id: 3,
-      type: "Vegetable",
-    },
-    {
-      id: 4,
-      type: "Pulses",
-    },
-    {
-      id: 5,
-      type: "Spices",
-    },
-  ];
+  const filteredParents = crop.filter((item) => {
+    return item.type.toLocaleLowerCase().includes(term.toLowerCase());
+  });
 
   const filteredFarmers = farmers.filter((item) => {
     let a = item.crops.map((i) => i.cropName);
     return a.toString().toLocaleLowerCase().includes(term.toLowerCase());
   });
+
+  const filteredBlur = crop.filter((item) => {
+    return item.name.toLocaleLowerCase().includes(show.toLowerCase());
+  });
+
+  const suggested = [];
+  const showSugg = () => {
+    for (let i = 0; i <= 3; i++) {
+      filteredBlur.map((item) => {
+        suggested.push(item.name);
+      });
+    }
+  };
 
   const genderFilter = filteredFarmers.filter((item) => {
     if (val) {
@@ -221,6 +306,19 @@ const Home = ({ navigation }) => {
     let a = item.crops.map((i) => i.cropType);
     return a.toString().toLocaleLowerCase() === parenter.toLowerCase();
   });
+
+  // const addrFilter = crop.filter((item) => {
+  //   console.log(item.farmers);
+  //   let resultaddr = item.farmers.map((i) => {
+  //     console.log(i.state);
+  //     if (addr) {
+  //       return i.state.toLocaleLowerCase() === addr.toLowerCase();
+  //     }
+  //   });
+  //   // if (addr) {
+  //   //   return item.state.toLocaleLowerCase() === addr.toLowerCase();
+  //   // }
+  // });
 
   const addrFilter = filteredFarmers.filter((item) => {
     if (addr) {
@@ -262,6 +360,104 @@ const Home = ({ navigation }) => {
     );
   });
 
+  const multiTo = filteredFarmers.filter((item) => {
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], temp[1], temp[0]);
+    console.log(dt);
+    if (applied) {
+      if (val && addr === "") {
+        return item.gender.toLowerCase() === val.toLowerCase();
+      }
+      if (addr && val === "") {
+        return item.state.toLowerCase() === addr.toLowerCase();
+      }
+      if (dater && addr === "" && val === "") {
+        return dt >= startDate && dt <= endDate;
+      }
+      if (val && addr) {
+        return (
+          item.gender.toLowerCase() === val.toLowerCase() &&
+          item.state.toLowerCase() === addr.toLowerCase()
+        );
+      }
+      if (val && dater) {
+        return (
+          item.gender.toLowerCase() === val.toLowerCase() &&
+          dt >= startDate &&
+          dt <= endDate
+        );
+      }
+
+      if (addr && dater) {
+        return (
+          item.state.toLowerCase() === addr.toLowerCase() &&
+          dt >= startDate &&
+          dt <= endDate
+        );
+      }
+      if (val && addr && endDate !== null) {
+        return (
+          item.gender.toLowerCase() === val.toLowerCase() &&
+          item.state.toLowerCase() === addr.toLowerCase() &&
+          dt >= startDate &&
+          dt <= endDate
+        );
+      } else {
+        return filteredFarmers;
+      }
+    }
+  });
+  // const multiFilter = filteredFarmers.filter((item) => {
+  //   let str = item.crops.map((i) => i.harvestDate).toString();
+  //   console.log(str);
+  //   var temp = new Array();
+  //   temp = str.split("/");
+  //   console.log(temp);
+  //   let dt = new Date(temp[2], temp[1], temp[0]);
+  //   console.log(dt);
+  //   if (val) {
+  //     return item.gender.toLocaleLowerCase() === val.toLowerCase();
+  //   }
+  //   if (addr) {
+  //     return item.state.toLocaleLowerCase() === addr.toLowerCase();
+  //   }
+  //   if (dater) {
+  //     return dt >= startDate && dt <= endDate;
+  //   }
+  //   if (val && addr && !dater) {
+  //     return (
+  //       item.gender.toLowerCase() === val.toLowerCase() &&
+  //       item.state.toLowerCase() === addr.toLowerCase()
+  //     );
+  //   }
+  //   if (!val && addr && dater) {
+  //     return (
+  //       item.state.toLowerCase() === addr.toLowerCase() &&
+  //       dt >= startDate &&
+  //       dt <= endDate
+  //     );
+  //   }
+  //   if (val && !addr && dater) {
+  //     return (
+  //       item.gender.toLowerCase() === val.toLowerCase() &&
+  //       dt >= startDate &&
+  //       dt <= endDate
+  //     );
+  //   }
+  //   if (val && addr && dater) {
+  //     return (
+  //       item.gender.toLowerCase() === val.toLowerCase() &&
+  //       item.state.toLowerCase() === addr.toLowerCase() &&
+  //       dt >= startDate &&
+  //       dt <= endDate
+  //     );
+  //   }
+  // });
+
   const modalizeFilterRef = useRef<Modalize>(null);
   const onOpenfilter = () => {
     modalizeFilterRef.current?.open();
@@ -300,9 +496,11 @@ const Home = ({ navigation }) => {
           }}
         >
           <Header
-            onTap={() => navigation.navigate("Search")}
+            onTap={() => {
+              setblur(true), setshow("");
+            }}
             onLogoTap={() => {
-              setfilteractive(false);
+              setfilteractive(false), setterm("");
             }}
             onFilter={() => onOpenfilter()}
           />
@@ -369,7 +567,702 @@ const Home = ({ navigation }) => {
           <View style={{ width: "100%", height: 25, backgroundColor: "red" }}>
             <Text>See by category</Text>
           </View> */}
-          {filteractive ? (
+
+          {!parent ? (
+            <View
+              style={{
+                width: "98%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                alignSelf: "center",
+                borderBottomWidth: 1,
+                borderBottomColor: "#bfd8ff",
+
+                padding: 5,
+              }}
+            >
+              {/* <Text
+                    style={{
+                      marginTop: 60,
+                      padding: 5,
+                      fontWeight: "500",
+                      color: "#6F6F6F",
+                      fontSize: 20,
+                    }}
+                  >
+                    {term}
+                  </Text> */}
+              <View style={{ marginRight: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#346beb",
+                    height: 30,
+                    width: 80,
+                    padding: 3,
+                    borderRadius: 5,
+                  }}
+                  onPress={() => {
+                    onOpenfilter();
+                  }}
+                >
+                  <AntDesign name="filter" size={15} color="#fff" />
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      marginLeft: 2,
+                      color: "#fff",
+                    }}
+                  >
+                    {" "}
+                    Filter
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView
+                horizontal={true}
+                contentContainerStyle={{
+                  marginLeft: 10,
+                }}
+                showsHorizontalScrollIndicator={false}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    alignSelf: "center",
+
+                    alignItems: "flex-start",
+
+                    justifyContent: "flex-start",
+
+                    padding: 5,
+                  }}
+                >
+                  {/* <Button
+                      title="GO Home"
+                      onPress={() => navigation.navigate("Home")}
+                    /> */}
+                  {/* <TouchableOpacity
+                      style={{
+                        top: 10,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        backgroundColor: "#949cff",
+                        height: 30,
+                        padding: 3,
+                        borderRadius: 5,
+                        marginBottom: 20,
+                        marginRight: 20,
+                      }}
+                      onPress={() => {
+                        console.log("Biharma"),
+                          sethideFAB(true),
+                          onOpenfilter();
+                      }}
+                    >
+                      <AntDesign name="filter" size={15} color="#3A48ED" />
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          marginLeft: 2,
+                          color: "#fff",
+                        }}
+                      >
+                        {" "}
+                        Filter Results
+                      </Text>
+                    </TouchableOpacity> */}
+                  {val === "" ||
+                  (val === null && addr === "") ||
+                  (addr === null && term === "") ||
+                  (term === null && dater === false) ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: "#fff",
+                        padding: 5,
+                        height: 30,
+                        width: 50,
+                        borderRadius: 20,
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        borderWidth: 1,
+                        borderColor: "#346beb",
+                      }}
+                    >
+                      <Text style={{ color: "#000" }}>All</Text>
+                    </View>
+                  ) : null}
+                  {term ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: term ? "#87edbf" : "#deebff",
+                        padding: 5,
+                        height: 30,
+                        width: 100,
+                        borderRadius: 20,
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        borderWidth: 1,
+                        borderColor: "#3ECF8E",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#009150",
+                          fontWeight: "600",
+                          fontSize: 15,
+                        }}
+                      >
+                        {term ? term : null}
+                      </Text>
+
+                      <AntDesign
+                        name="close"
+                        size={15}
+                        color="#fff"
+                        style={{
+                          top: 2,
+                          backgroundColor: "#009150",
+                          padding: 2,
+                          borderRadius: 15,
+                        }}
+                        onPress={() => setterm("")}
+                      />
+                    </View>
+                  ) : null}
+
+                  {val ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: val ? "#fff" : "#deebff",
+                        padding: 5,
+                        height: 30,
+                        width: 80,
+                        borderRadius: 20,
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        borderWidth: 1,
+                        borderColor: "#346beb",
+                      }}
+                    >
+                      <Text style={{ color: "#000" }}>
+                        {val
+                          ? val === "m"
+                            ? "Men"
+                            : val === "f"
+                            ? "Women"
+                            : "Other"
+                          : null}
+                      </Text>
+                      <AntDesign
+                        name="close"
+                        size={15}
+                        color="#3A48ED"
+                        style={{
+                          top: 2,
+                          backgroundColor: "#A1C7FF",
+                          padding: 2,
+                          borderRadius: 15,
+                        }}
+                        onPress={() => setval("")}
+                      />
+                    </View>
+                  ) : null}
+                  {addr ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: addr ? "#fff" : "#deebff",
+                        padding: 5,
+                        height: 30,
+
+                        borderRadius: 20,
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        borderWidth: 1,
+                        borderColor: "#346beb",
+                      }}
+                    >
+                      <Text style={{ color: "#000" }}>
+                        {addr ? addr : null}
+                      </Text>
+                      <AntDesign
+                        name="close"
+                        size={15}
+                        color="#3A48ED"
+                        style={{
+                          top: 2,
+                          backgroundColor: "#A1C7FF",
+                          padding: 2,
+                          borderRadius: 15,
+                          marginLeft: 5,
+                        }}
+                        onPress={() => setaddr("")}
+                      />
+                    </View>
+                  ) : null}
+
+                  {dater ? (
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginRight: 5,
+                        backgroundColor: dater ? "#fff" : "#deebff",
+                        padding: 5,
+                        height: 30,
+
+                        borderRadius: 20,
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        borderWidth: 1,
+                        borderColor: "#346beb",
+                      }}
+                    >
+                      <Text style={{ color: "#000" }}>
+                        {dater
+                          ? startDate.toDateString() +
+                            " - " +
+                            endDate.toDateString()
+                          : null}
+                      </Text>
+                      <AntDesign
+                        name="close"
+                        size={15}
+                        color="#3A48ED"
+                        style={{
+                          top: 2,
+                          backgroundColor: "#A1C7FF",
+                          padding: 2,
+                          borderRadius: 15,
+                          marginLeft: 5,
+                        }}
+                        onPress={() => setdater(false)}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              </ScrollView>
+            </View>
+          ) : (
+            <View
+              style={{
+                flexDirection: "column",
+                width: "100%",
+                height: 40,
+                marginTop: 10,
+              }}
+            >
+              <View
+                style={{
+                  width: "100%",
+                  height: 30,
+                  backgroundColor: "#deebff",
+                  top: winWidth > 767 ? "20%" : "10%",
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    padding: 5,
+                    fontWeight: "500",
+                    color: "#000",
+                    alignSelf: "center",
+                    fontSize: winWidth > 767 ? 20 : 15,
+                    marginBottom: 10,
+                  }}
+                >
+                  Available {term}s
+                </Text>
+              </View>
+            </View>
+          )}
+          <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
+            {
+              parent ? (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                >
+                  {filteredParents.map((item, cIndex) => {
+                    return Data.map((i) =>
+                      i.name === item.name ? (
+                        <Card
+                          key={item.id}
+                          name={item.name}
+                          avatar={i.image}
+                          isCrop={true}
+                          onPress={() => {
+                            setparent(false), setterm(item.name);
+                          }}
+                        />
+                      ) : null
+                    );
+                  })}
+                </View>
+              ) : filteractive ? (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={multiTo}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={filteredFarmers}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container} ref={container} />
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              )
+
+              /* {parent ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  flexWrap: "wrap",
+
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  padding: winWidth > 767 ? 10 : 2,
+                }}
+              >
+                {filteredParents.map((item, cIndex) => {
+                  return Data.map((i) =>
+                    i.name === item.name ? (
+                      <Card
+                        key={item.id}
+                        name={item.name}
+                        avatar={i.image}
+                        isCrop={true}
+                        onPress={() => {
+                          setparent(false), setterm(item.name);
+                        }}
+                      />
+                    ) : null
+                  );
+                })}
+              </View>
+            ) : filteractive ? (
+              merge ? (
+                // <View
+                //   style={{
+                //     flexDirection: "row",
+                //     width: "100%",
+                //     flexWrap: "wrap",
+                //     alignItems: "flex-start",
+                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                //     padding: winWidth > 767 ? 10 : 2,
+                //   }}
+                // >
+                //   {mergeResult.map((item, cIndex) => {
+                //     return (
+                //       <Card
+                //         key={item.id}
+                //         name={item.farmerName}
+                //         avatar={item.farmerImage}
+                //         phone={item.phone}
+                //         address={item.state}
+                //         crop={item.crops.map((i) => i.cropName)}
+                //         onPress={() => {
+                //           setfarmer(item.id), onOpen(), sethideFAB(true);
+                //         }}
+                //         cropAvatar={item.image}
+                //       />
+                //     );
+                //   })}
+                // </View>
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={multiTo}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : val && !addr && !dater ? (
+                // <View
+                //   style={{
+                //     flexDirection: "row",
+                //     width: "100%",
+                //     flexWrap: "wrap",
+                //     alignItems: "flex-start",
+                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                //     padding: winWidth > 767 ? 10 : 2,
+                //   }}
+                // >
+                //   {genderFilter.map((item, cIndex) => {
+                //     return (
+                //       <Card
+                //         key={item.id}
+                //         name={item.farmerName}
+                //         avatar={item.farmerImage}
+                //         phone={item.phone}
+                //         address={item.state}
+                //         crop={item.crops.map((i) => i.cropName)}
+                //         onPress={() => {
+                //           setfarmer(item.id), onOpen(), sethideFAB(true);
+                //         }}
+                //       />
+                //     );
+                //   })}
+                // </View>
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={genderFilter}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : !val && addr && !dater ? (
+                // <View
+                //   style={{
+                //     flexDirection: "row",
+                //     width: "100%",
+                //     flexWrap: "wrap",
+                //     alignItems: "flex-start",
+                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+                //     padding: winWidth > 767 ? 10 : 2,
+                //   }}
+                // >
+                //   {addrFilter.map((item, cIndex) => {
+                //     return (
+                //       <Card
+                //         key={item.id}
+                //         name={item.farmerName}
+                //         avatar={item.farmerImage}
+                //         phone={item.phone}
+                //         address={item.state}
+                //         crop={item.crops.map((i) => i.cropName)}
+                //         onPress={() => {
+                //           setfarmer(item.id), onOpen();
+                //         }}
+                //         cropAvatar={item.image}
+                //       />
+                //     );
+                //   })}
+                // </View>
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={addrFilter}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : !val && !addr && dater ? (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  {" "}
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={harvestResult}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : (
+                <Text>No result found</Text>
+              )
+            ) : (
+              // <View
+              //   style={{
+              //     flexDirection: "row",
+              //     width: "100%",
+              //     flexWrap: "wrap",
+              //     alignItems: "flex-start",
+              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
+              //     padding: winWidth > 767 ? 10 : 2,
+              //   }}
+              // >
+              //   {filteredFarmers.map((item, cIndex) => {
+              //     return (
+              //       <Card
+              //         key={item.id}
+              //         name={item.name}
+              //         avatar={item.avatar}
+              //         phone={item.phone}
+              //         address={item.address}
+              //         crop={item.crop}
+              //         onPress={() => {
+              //           setfarmer(item.id), onOpen(), sethideFAB(true);
+              //         }}
+              //         cropAvatar={item.image}
+              //       />
+              //     );
+              //   })}
+              // </View>
+              <View
+                style={{
+                  width: "100%",
+                  height: winHeight * 0.89,
+                }}
+              >
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={filteredFarmers}
+                  renderItem={renderItems}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}> laodieeng</Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "flex-start",
+                    justifyContent: winWidth > 767 ? "flex-start" : "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            )} */
+            }
+          </ScrollView>
+          {/* {filteractive ? (
             merge ? (
               // <View
               //   style={{
@@ -409,12 +1302,7 @@ const Home = ({ navigation }) => {
                   data={mergeResult}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
+                    <View style={styles.container} ref={container} />
                   )}
                   contentContainerStyle={{
                     flexDirection: "row",
@@ -464,12 +1352,7 @@ const Home = ({ navigation }) => {
                   data={genderFilter}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
+                    <View style={styles.container} ref={container} />
                   )}
                   contentContainerStyle={{
                     flexDirection: "row",
@@ -520,12 +1403,7 @@ const Home = ({ navigation }) => {
                   data={addrFilter}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
+                    <View style={styles.container} ref={container} />
                   )}
                   contentContainerStyle={{
                     flexDirection: "row",
@@ -550,12 +1428,7 @@ const Home = ({ navigation }) => {
                   data={harvestResult}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
+                    <View style={styles.container} ref={container} />
                   )}
                   contentContainerStyle={{
                     flexDirection: "row",
@@ -580,12 +1453,7 @@ const Home = ({ navigation }) => {
                   data={parentFilter}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
+                    <View style={styles.container} ref={container} />
                   )}
                   contentContainerStyle={{
                     flexDirection: "row",
@@ -607,29 +1475,31 @@ const Home = ({ navigation }) => {
                 height: winHeight * 0.915,
               }}
             >
-              {farmers.length > 10 ? (
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={farmers}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <ActivityIndicator size="large" />
-                    </View>
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                  onEndReached={handleLoad}
-                />
-              ) : null}
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={farmers}
+                renderItem={renderItems}
+                ListEmptyComponent={
+                  () => <View style={styles.container} ref={container} /> //  lottie.loadAnimation({
+                  //    container:container.current,
+                  //    renderer:'svg',
+                  //    loop:true,
+                  //    autoplay:true,
+                  //   animationData:require('../../assets/loader.json')
+
+                  //  })
+                }
+                contentContainerStyle={{
+                  flexDirection: "row",
+                  width: "100%",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: winWidth > 767 ? "center" : "center",
+                  padding: winWidth > 767 ? 10 : 2,
+                }}
+              />
             </View>
-          )}
+          )} */}
 
           {/* <ScrollView
             showsVerticalScrollIndicator={false}
@@ -681,7 +1551,7 @@ const Home = ({ navigation }) => {
         ref={modalizeRef}
         modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
         threshold={100}
-        modalStyle={winWidth > 767 ? { width: 500, alignSelf: "center" } : null}
+        modalStyle={winWidth > 767 ? { width: 400, alignSelf: "center" } : null}
         // modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
         // modalStyle={
         //   winWidth > 767 ? { width: 500, alignSelf: "center" } : null
@@ -806,7 +1676,7 @@ const Home = ({ navigation }) => {
                               marginLeft: 5,
                             }}
                           >
-                            {getSmallString(item.farmerName)}
+                            {item.farmerName}
                           </Text>
                         </View>
                         <View style={{ flexDirection: "row" }}>
@@ -1053,8 +1923,8 @@ const Home = ({ navigation }) => {
                     >
                       <TouchableOpacity
                         style={{
-                          width: winWidth < 400 ? 90 : 120,
-                          height: winWidth < 400 ? 30 : 50,
+                          width: winWidth < 400 ? 70 : 90,
+                          height: winWidth < 400 ? 30 : 40,
                           backgroundColor: "#A9A9A9",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1080,8 +1950,8 @@ const Home = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={{
-                          width: winWidth < 400 ? 90 : 120,
-                          height: winWidth < 400 ? 30 : 50,
+                          width: winWidth < 400 ? 70 : 90,
+                          height: winWidth < 400 ? 30 : 40,
                           backgroundColor: "#A9A9A9",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1102,8 +1972,8 @@ const Home = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={{
-                          width: winWidth < 400 ? 90 : 120,
-                          height: winWidth < 400 ? 40 : 50,
+                          width: winWidth < 400 ? 70 : 90,
+                          height: winWidth < 400 ? 30 : 40,
                           backgroundColor: "#fff",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1146,7 +2016,7 @@ const Home = ({ navigation }) => {
       <Modalize
         ref={modalizeFilterRef}
         modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
-        modalStyle={winWidth > 767 ? { width: 500, alignSelf: "center" } : null}
+        modalStyle={winWidth > 767 ? { width: 400, alignSelf: "center" } : null}
         threshold={100}
         closeOnOverlayTap={true}
         mod
@@ -1222,20 +2092,24 @@ const Home = ({ navigation }) => {
                 borderColor: "#3ECF8E",
                 borderWidth: 2,
               }}
-              onPress={() => {
+              onPress={() =>
                 // !merge && filteractive ? setmerge(false) : setmerge(true);
-                (!val && addr && !dater && !parenter && !merge) ||
-                (val && !addr && !dater && !parenter && !merge) ||
-                (!val && !addr && dater && !parenter && !merge) ||
-                (!val && !addr && !dater && parenter && !merge)
-                  ? (setfilteractive(true), setmerge(false))
-                  : !val && !addr && !dater && !parenter && merge
-                  ? (setmerge(true), setfilteractive(false))
-                  : setmerge(true);
-                onCloseFilter();
+                //   (!val && addr && !dater && !parenter && !merge) ||
+                //   (val && !addr && !dater && !parenter && !merge) ||
+                //   (!val && !addr && dater && !parenter && !merge) ||
+                //   (!val && !addr && !dater && parenter && !merge)
+                //     ? (setfilteractive(true), setmerge(false))
+                //     : !val && !addr && !dater && !parenter && merge
+                //     ? (setmerge(true), setfilteractive(false))
+                //     : setmerge(true);
+                //   onCloseFilter();
 
-                setdater(true);
-              }}
+                //   setdater(true);
+                // }}
+                {
+                  setfilteractive(true), onCloseFilter(), setapplied(true);
+                }
+              }
             >
               <Text
                 style={{
@@ -1270,57 +2144,6 @@ const Home = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-        </View>
-        <Text
-          style={{
-            color: "#6F6F6F",
-            fontSize: 15,
-            marginTop: 10,
-            marginLeft: 7,
-            marginBottom: 5,
-            padding: 5,
-          }}
-        >
-          By Category
-        </Text>
-        <View
-          style={{
-            width: "32%",
-            marginTop: 10,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: 5,
-            marginLeft: 7,
-            alignSelf: "flex-start",
-          }}
-        >
-          {filteredParents.map((item) => {
-            return (
-              <View key={item.id} style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.circle}
-                  onPress={() => {
-                    setfilteractive(true);
-                    setparenter(item.type);
-                    // toggler(item.key);
-                    // let a = item.text;
-                    // let b = filteredFarmers.filter((i) => {
-                    //   return i.gender.toLowerCase() === a.toLowerCase();
-                    // });
-                    // console.log(item.text);
-                    // console.log(a);
-                    // console.log(b);
-                  }}
-                >
-                  {parenter === item.type && (
-                    <View style={styles.checkedCircle} />
-                  )}
-                </TouchableOpacity>
-                <Text style={{ fontSize: 16, marginLeft: 5 }}>{item.type}</Text>
-              </View>
-            );
-          })}
         </View>
         <View
           style={{
@@ -1361,8 +2184,8 @@ const Home = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.circle}
                   onPress={() => {
-                    setfilteractive(true);
                     setval(item.key);
+                    setapplied(false);
                     // toggler(item.key);
                     // let a = item.text;
                     // let b = filteredFarmers.filter((i) => {
@@ -1441,9 +2264,9 @@ const Home = ({ navigation }) => {
                     <TouchableOpacity
                       style={styles.circle}
                       onPress={() => {
-                        setfilteractive(true);
                         setaddr(item.name);
                         setaddrToggle(false);
+                        setapplied(false);
                         // toggler(item.key);
                         // let a = item.text;
                         // let b = filteredFarmers.filter((i) => {
@@ -1529,6 +2352,7 @@ const Home = ({ navigation }) => {
                         borderWidth: 2,
                         padding: 5,
                         fontSize: 15,
+                        width: 100,
                       }}
                     />
                   }
@@ -1540,18 +2364,19 @@ const Home = ({ navigation }) => {
                   dateFormat="dd/MM/yyyy"
                   selected={endDate}
                   onChange={(date) => {
-                    setEndDate(date), setdater(true), setfilteractive(true);
+                    setEndDate(date), setdater(true);
                   }}
                   customInput={
                     <TextInput
                       style={{
-                        height: 35,
-                        borderWidth: 2,
                         backgroundColor: "#d6d9ff",
                         borderRadius: 5,
                         borderColor: "#7b42ff",
+                        height: 35,
+                        borderWidth: 2,
                         padding: 5,
                         fontSize: 15,
+                        width: 100,
                       }}
                     />
                   }
@@ -1662,6 +2487,342 @@ const Home = ({ navigation }) => {
                 }}
               ></View> */}
       </Modalize>
+      {blur ? (
+        <View
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            position: "absolute",
+          }}
+        >
+          <BlurView
+            tint="dark"
+            intensity={40}
+            style={[StyleSheet.absoluteFill, styles.nonBlurredContent]}
+          >
+            <View
+              style={{
+                marginTop: 20,
+                padding: 5,
+                height: "100%",
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  height: 55,
+                  width: winWidth > 767 ? "50%" : "97%",
+                  alignSelf: "center",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderRadius: 8,
+                  padding: 20,
+                  shadowColor: "#98A0FF",
+                  shadowOffset: {
+                    width: 0,
+                    height: 4,
+                  },
+                  shadowOpacity: 0.32,
+                  shadowRadius: 5.46,
+
+                  elevation: 9,
+                }}
+              >
+                {/* <TextInput style={{height:40, backgroundColor:"white", width:"75%", padding:5, outline}} placeholder="Search for crops..." autoFocus={true}/> */}
+                <TextInput
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#fff",
+                      height: 40,
+                      backgroundColor: "white",
+                      width: "95%",
+                      padding: 5,
+                      fontSize: 20,
+                    }
+                  }
+                  placeholder="Search for Crops"
+                  autoFocus={true}
+                  editable={blur}
+                  onChangeText={(text) => {
+                    console.log(text), setshow(text);
+                  }}
+                />
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* {term ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setterm("");
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 50,
+                          height: 35,
+                          borderWidth: 2,
+                          borderColor: "#3d3f40",
+                          alignItems: "center",
+                          alignSelf: "flex-end",
+                          justifyContent: "center",
+                          marginRight: 5,
+                          backgroundColor: "#3d3f40",
+                          borderRadius: 5,
+                        }}
+                      >
+                        <Text style={{ fontSize: 15, color: "#fff" }}>
+                          Clear
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ) : null} */}
+                </View>
+                <TouchableOpacity onPress={() => setblur(false)}>
+                  <View
+                    style={{
+                      width: 25,
+                      height: 25,
+                      borderWidth: 2,
+                      borderColor: "#A1C7FF",
+                      alignItems: "center",
+                      alignSelf: "flex-end",
+                      justifyContent: "center",
+                      right: -10,
+                      backgroundColor: "#A1C7FF",
+                      borderRadius: 25,
+                    }}
+                  >
+                    <AntDesign name="close" size={20} color="#3A48ED" />
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={{ flex: 1, alignItems: "center", width: "100%" }}>
+                {/* <TouchableOpacity style={{width:"100%", height:30, alignItems:"center", justifyContent:"center", backgroundColor:"transparent"}} onPress={()=>{setplacer(true),setblur(!blur)}}>
+<Text>{term}</Text>
+</TouchableOpacity> */}
+                {show !== "" ? (
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={filteredBlur}
+                    renderItem={renderMatch}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      // flexDirection: "row",
+                      // width: "100%",
+                      // flexWrap: "wrap",
+                      // alignItems: "center",
+                      // justifyContent:
+                      //   winWidth > 767 ? "center" : "center",
+                      // padding: winWidth > 767 ? 10 : 2,
+                      width: "100%",
+                    }}
+                  />
+                ) : (
+                  // <View
+                  //   style={{
+                  //     width: winWidth > 767 ? "50%" : "97%",
+                  //     alignItems: "center",
+                  //     backgroundColor: "#fff",
+                  //     borderRadius: 10,
+                  //     margin: 5,
+                  //   }}
+                  // >
+                  //   <View
+                  //     style={{
+                  //       width: "100%",
+                  //       alignItems: "flex-start",
+                  //       padding: 10,
+                  //       marginBottom: 10,
+                  //       marginTop: 5,
+                  //     }}
+                  //   >
+                  //     {filteredCrops.length > 0 ? (
+                  //       <Text
+                  //         style={{
+                  //           marginLeft: 20,
+                  //           fontSize: 15,
+                  //           fontWeight: "600",
+                  //         }}
+                  //       >
+                  //         Available Crops
+                  //       </Text>
+                  //     ) : (
+                  //       <Text
+                  //         style={{
+                  //           marginLeft: 20,
+                  //           fontSize: 15,
+                  //           fontWeight: "600",
+                  //           alignSelf: "center",
+                  //         }}
+                  //       >
+                  //         🤔 ....That seems to be missing...
+                  //       </Text>
+                  //     )}
+                  //   </View>
+
+                  //   <View
+                  //     style={{
+                  //       width: "100%",
+                  //       height: winHeight * 0.5,
+                  //     }}
+                  //   >
+                  //     <FlatList
+                  //       showsVerticalScrollIndicator={false}
+                  //       data={filteredCrops}
+                  //       renderItem={renderItems}
+                  //       ListEmptyComponent={() => (
+                  //         <View style={styles.container}>
+                  //           <Text style={{ fontSize: 30 }}>
+                  //             {" "}
+                  //             Oops ! Didnt find that
+                  //           </Text>
+                  //         </View>
+                  //       )}
+                  //       contentContainerStyle={{
+                  //         // flexDirection: "row",
+                  //         // width: "100%",
+                  //         // flexWrap: "wrap",
+                  //         // alignItems: "center",
+                  //         // justifyContent:
+                  //         //   winWidth > 767 ? "center" : "center",
+                  //         // padding: winWidth > 767 ? 10 : 2,
+                  //         width: "100%",
+                  //       }}
+                  //     />
+                  //   </View>
+
+                  //   {/*
+                  //   {filteredCrops.map((item, cIndex) => {
+                  //     return (
+                  //       <View
+                  //         style={{
+                  //           width:
+                  //             winWidth > 768 ? winWidth - 80 : winWidth - 50,
+                  //           height: 45,
+                  //           padding: 5,
+                  //           borderRadius: 8,
+                  //           flexDirection: "row",
+                  //           alignItems: "center",
+                  //           justifyContent: "space-between",
+                  //           backgroundColor: "#fff",
+                  //           margin: 2,
+                  //         }}
+                  //       >
+                  //         <TouchableOpacity
+                  //           onPress={() => {
+                  //             setplacer(true),
+                  //               setblur(!blur),
+                  //               setterm(item.name);
+                  //           }}
+                  //         >
+                  //           <View
+                  //             style={{
+                  //               flexDirection: "row",
+                  //               alignItems: "center",
+                  //             }}
+                  //           >
+                  //             <Image
+                  //               source={{ uri: item.image }}
+                  //               style={{
+                  //                 height: 35,
+                  //                 width: 35,
+                  //                 borderColor: "green",
+                  //                 borderWidth: 1,
+                  //                 borderRadius: 35,
+                  //               }}
+                  //             />
+                  //             <Text style={{ fontSize: 20 }}> {item.name}</Text>
+                  //             <Text
+                  //               style={{
+                  //                 fontSize: 15,
+                  //                 alignSelf: "center",
+                  //                 color: "#989898",
+                  //               }}
+                  //             >
+                  //               {" "}
+                  //               in{" "}
+                  //             </Text>
+                  //             <Text style={{ fontSize: 15 }}>{item.type}</Text>
+                  //           </View>
+                  //         </TouchableOpacity>
+                  //         <TouchableOpacity
+                  //           style={{
+                  //             backgroundColor: "#3ECF8E",
+                  //             height: "100%",
+                  //             alignItems: "center",
+                  //             justifyContent: "center",
+                  //             padding: 5,
+                  //             borderRadius: 5,
+                  //             alignSelf: "flex-end",
+                  //           }}
+                  //           onPress={() => {
+                  //             setparent(!parent),
+                  //               setterm(item.type),
+                  //               setplacer(!placer),
+                  //               setblur(!blur);
+                  //           }} //true
+                  //         >
+                  //           <Text style={{ fontSize: 15, color: "#fff" }}>
+                  //             View {item.type}s
+                  //           </Text>
+                  //         </TouchableOpacity>
+                  //       </View>
+                  //     );
+                  //   })} */}
+                  // </View>
+                  <View
+                    style={{
+                      width: winWidth > 767 ? winWidth * 0.49 : winWidth * 0.95,
+                      marginTop: 5,
+                      backgroundColor: "#fff",
+                      borderRadius: 10,
+                      padding: 5,
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, margin: 15 }}>Suggested </Text>
+                    <FlatList
+                      showsVerticalScrollIndicator={false}
+                      data={filteredBlur.slice(2, 5)}
+                      renderItem={renderMatch}
+                      contentContainerStyle={{
+                        // flexDirection: "row",
+                        // width: "100%",
+                        // flexWrap: "wrap",
+                        // alignItems: "center",
+                        // justifyContent:
+                        //   winWidth > 767 ? "center" : "center",
+                        // padding: winWidth > 767 ? 10 : 2,
+                        width: "100%",
+                      }}
+                    />
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={{
+                    width: "100%",
+                    flex: 1,
+                    backgroundColor: "transparent",
+                  }}
+                  onPress={() => setblur(false)}
+                ></TouchableOpacity>
+              </View>
+            </View>
+          </BlurView>
+        </View>
+      ) : null}
     </View>
   );
 };

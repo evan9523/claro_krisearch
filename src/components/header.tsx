@@ -38,7 +38,7 @@ const Header = (props: HeaderProps) => {
       <View
         style={{
           width: "100%",
-          top: winWidth > 767 ? 0 : 10,
+          top: 0,
           height: "100%",
           flexDirection: "row",
           alignSelf: "flex-start",
@@ -58,7 +58,7 @@ const Header = (props: HeaderProps) => {
         >
           <Image
             source={{ uri: require("../../assets/newicon4.png") }}
-            style={{ width: 35, height: 35, top: -2 }}
+            style={{ width: 35, height: 35, top: winWidth > 767 ? -2 : -5 }}
           />
           <Text style={styles.headerText}>Krisearch</Text>
         </TouchableOpacity>
@@ -93,7 +93,6 @@ const Header = (props: HeaderProps) => {
                 outlineColor: "#fff",
                 borderRadius: 10,
                 padding: 5,
-                marginTop: winWidth < 767 ? 0 : 0,
               }}
               placeholder="Search for Crops"
               placeholderTextColor="	#808080"
@@ -101,25 +100,6 @@ const Header = (props: HeaderProps) => {
             />
             <AntDesign name="search1" size={20} color="#808080" />
           </View>
-
-          <AntDesign
-            name="filter"
-            size={25}
-            style={{
-              alignSelf: "center",
-              borderColor: "#deebff",
-              width: 40,
-              height: 40,
-              marginLeft: 10,
-              alignItems: "center",
-              marginTop: winWidth < 767 ? 10 : -5,
-              justifyContent: "center",
-              padding: 11,
-              borderRadius: 40,
-            }}
-            color="#deebff"
-            onPress={onFilter}
-          />
         </View>
       </View>
     </View>
@@ -131,7 +111,7 @@ export default Header;
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    height: winWidth > 767 ? 70 : 90,
+    height: 70,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#346beb",
@@ -143,6 +123,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 2,
     alignSelf: "flex-start",
-    marginTop: winWidth < 767 ? 5 : 0,
+    marginTop: winWidth < 767 ? 0 : 0,
   },
 });

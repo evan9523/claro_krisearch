@@ -39,13 +39,21 @@ export default function Card(props: CardProps) {
   const windowWidth = Dimensions.get("window").width;
   const cardWidth = windowWidth / 2 - 30;
 
+  const toTitleCase = (phrase) => {
+    return phrase
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <TouchableOpacity onPress={() => onPress()}>
       <View
         style={
           windowWidth > 767
             ? {
-                width: 200,
+                width: 190,
                 height: 185,
                 backgroundColor: "#fff",
                 borderWidth: 1,
@@ -98,16 +106,16 @@ export default function Card(props: CardProps) {
                   borderRadius: 105,
                 }
               : {
-                  width: 140,
-                  height: 140,
+                  width: 105,
+                  height: 105,
+                  resizeMode: "contain",
                   borderWidth: 1,
                   borderColor: "#fff",
-                  borderRadius: 100,
                 }
           }
         />
         <Text style={{ fontWeight: "500", fontSize: 16, marginTop: 10 }}>
-          {name}
+          {toTitleCase(name)}
         </Text>
 
         {!isCrop ? (
