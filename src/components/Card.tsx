@@ -135,7 +135,7 @@ export default function Card(props: CardProps) {
               flexDirection: "row",
               justifyContent: "space-evenly",
               alignItems: "center",
-              marginTop: 5,
+
               padding: 5,
             }}
           >

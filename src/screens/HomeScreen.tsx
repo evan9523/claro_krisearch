@@ -414,8 +414,8 @@ const Home = ({ navigation }) => {
         return (
           item.gender.toLowerCase() === val.toLowerCase() &&
           item.state.toLowerCase() === addr.toLowerCase() &&
-          dt >= startDate &&
-          dt <= endDate
+          dt > startDate &&
+          dt < endDate
         );
       } else {
         return filteredFarmers;
