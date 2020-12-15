@@ -581,10 +581,10 @@ const Home = ({ navigation }) => {
           {!parent ? (
             <View
               style={{
-                width: "98%",
+                width: "96%",
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "center",
                 alignSelf: "center",
                 borderBottomWidth: 1,
                 borderBottomColor: "#bfd8ff",
