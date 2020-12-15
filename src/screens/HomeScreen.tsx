@@ -187,6 +187,7 @@ const Home = ({ navigation }) => {
       <TouchableOpacity
         onPress={() => {
           setplacer(true), setblur(!blur), setterm(item.name);
+          setapplied(true);
         }}
         style={{
           marginBottom: 2,
@@ -253,7 +254,7 @@ const Home = ({ navigation }) => {
       avatar={item.farmerImage}
       phone={item.phone}
       address={item.state}
-      crop={item.crops.map((i) => i.cropName)}
+      crop={item.crops.map((i) => i.cropName).slice(0, 1)}
       onPress={() => {
         console.log(item.farmerName),
           setfarmer(item.id),
@@ -694,7 +695,8 @@ const Home = ({ navigation }) => {
                     addr === "" &&
                     dater === false &&
                     term === "") ||
-                  term === null ? (
+                  term === null ||
+                  !applied ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -1789,7 +1791,7 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20 }}>
-                              {item.crops.map((i) => i.cropName)}
+                              {item.crops.map((i) => i.cropName).slice(0, 1)}
                             </Text>
                           </View>
                         </View>
@@ -1825,7 +1827,7 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20 }}>
-                              {item.crops.map((i) => i.harvestDate)}
+                              {item.crops.map((i) => i.harvestDate).slice(0, 1)}
                             </Text>
                           </View>
                         </View>
@@ -1900,7 +1902,9 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                              {item.crops.map((i) => i.quantity) / 100} q
+                              {item.crops.map((i) => i.quantity).slice(0, 1) /
+                                100}{" "}
+                              q
                             </Text>
                           </View>
                         </View>
@@ -2091,6 +2095,7 @@ const Home = ({ navigation }) => {
                 setparenter("");
                 setdater(false);
                 setStartDate(new Date());
+                setapplied(false);
                 setEndDate(new Date());
               }}
             >

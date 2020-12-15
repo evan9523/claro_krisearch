@@ -65,7 +65,7 @@ export default function Card(props: CardProps) {
           windowWidth > 767
             ? {
                 width: 190,
-                height: 185,
+                height: 190,
                 backgroundColor: "#fff",
                 borderWidth: 1,
                 borderColor: "#fff",
@@ -136,6 +136,7 @@ export default function Card(props: CardProps) {
               justifyContent: "space-evenly",
               alignItems: "center",
               marginTop: 5,
+              padding: 5,
             }}
           >
             <View
