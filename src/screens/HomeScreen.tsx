@@ -959,7 +959,7 @@ const Home = ({ navigation }) => {
                       width: "100%",
                       flexWrap: "wrap",
                       alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      justifyContent: "center",
                       padding: winWidth > 767 ? 10 : 2,
                     }}
                   />
@@ -992,7 +992,7 @@ const Home = ({ navigation }) => {
                       width: "100%",
                       flexWrap: "wrap",
                       alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
+                      justifyContent: "center",
                       padding: winWidth > 767 ? 10 : 2,
                     }}
                   />
