@@ -263,6 +263,14 @@ const Home = ({ navigation }) => {
     />
   );
 
+  const toTitleCase = (phrase: string) => {
+    return phrase
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const showFilter = [val, addr, dater];
 
   const bgdata = crop.filter((item) => {
@@ -1690,7 +1698,7 @@ const Home = ({ navigation }) => {
                               marginLeft: 5,
                             }}
                           >
-                            {item.farmerName}
+                            {toTitleCase(item.farmerName)}
                           </Text>
                         </View>
                         <View style={{ flexDirection: "row" }}>
