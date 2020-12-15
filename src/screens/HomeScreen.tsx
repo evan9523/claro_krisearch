@@ -692,12 +692,12 @@ const Home = ({ navigation }) => {
                         Filter Results
                       </Text>
                     </TouchableOpacity> */}
-                  {(val === "" &&
+                  {!applied ||
+                  (val === "" &&
                     addr === "" &&
                     dater === false &&
                     term === "") ||
-                  term === null ||
-                  !applied ? (
+                  term === null ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -715,7 +715,19 @@ const Home = ({ navigation }) => {
                     >
                       <Text style={{ color: "#000" }}>All</Text>
                     </View>
-                  ) : null}
+                  ) : (
+                    <Button
+                      title="clear"
+                      onPress={() => {
+                        setfilteractive(false);
+                        setapplied(false);
+                        setval("");
+                        setaddr("");
+                        setdater(false);
+                        setterm("");
+                      }}
+                    />
+                  )}
                   {term ? (
                     <View
                       style={{

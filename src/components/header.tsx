@@ -47,21 +47,21 @@ const Header = (props: HeaderProps) => {
           padding: winWidth > 767 ? 5 : 1,
         }}
       >
-        <TouchableOpacity
+        <View
           style={{
             flexDirection: "row",
             alignItems: "flex-start",
             justifyContent: "flex-start",
             top: winWidth > 767 ? 5 : 10,
           }}
-          onFocus={onLogoTap}
+          // onFocus={onLogoTap}
         >
           <Image
             source={{ uri: require("../../assets/newicon4.png") }}
             style={{ width: 35, height: 35, top: winWidth > 767 ? -2 : -5 }}
           />
           <Text style={styles.headerText}>Krisearch</Text>
-        </TouchableOpacity>
+        </View>
 
         <View
           style={{
