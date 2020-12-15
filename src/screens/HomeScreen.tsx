@@ -27,6 +27,7 @@ import {
   AntDesign,
   FontAwesome5,
   FontAwesome,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import hideNumber from "../utils/hideNumber";
 import getSmallString from "../utils/getSmallString";
@@ -716,17 +717,56 @@ const Home = ({ navigation }) => {
                       <Text style={{ color: "#000" }}>All</Text>
                     </View>
                   ) : (
-                    <Button
-                      title="clear"
-                      onPress={() => {
-                        setfilteractive(false);
-                        setapplied(false);
-                        setval("");
-                        setaddr("");
-                        setdater(false);
-                        setterm("");
-                      }}
-                    />
+                    <View style={{ marginRight: 10 }}>
+                      <TouchableOpacity
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#000",
+                          height: 30,
+                          width: 80,
+                          padding: 3,
+                          borderRadius: 5,
+                        }}
+                        onPress={() => {
+                          setfilteractive(false);
+                          setapplied(false);
+                          setval("");
+                          setaddr("");
+                          setdater(false);
+                          setterm("");
+                        }}
+                      >
+                        <MaterialIcons
+                          name="clear-all"
+                          size={15}
+                          color="#fff"
+                        />
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "300",
+                            marginLeft: 2,
+                            color: "#fff",
+                          }}
+                        >
+                          {" "}
+                          Clear
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    // <Button
+                    //   title="clear"
+                    //   onPress={() => {
+                    //     setfilteractive(false);
+                    //     setapplied(false);
+                    //     setval("");
+                    //     setaddr("");
+                    //     setdater(false);
+                    //     setterm("");
+                    //   }}
+                    // />
                   )}
                   {term ? (
                     <View
