@@ -235,7 +235,8 @@ const Home = ({ navigation }) => {
               setparent(true),
                 setterm(item.type),
                 setplacer(true),
-                setblur(!blur);
+                setapplied(false);
+              setblur(!blur);
             }}
           >
             <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
