@@ -154,7 +154,7 @@ const Home = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setdispfarmers(data.data.list.slice(0, firstScroll + 20));
+        setdispfarmers(data.data.list.slice(0, firstScroll + 21));
       })
       .catch((error) => console.error(error));
   }, [firstScroll]);
@@ -180,7 +180,7 @@ const Home = ({ navigation }) => {
   const selectCrop = () => {};
 
   const handleLoad = () => {
-    setfirstScroll(firstScroll + 18);
+    setfirstScroll(firstScroll + 21);
   };
 
   const renderMatch = ({ item }) => (
@@ -354,15 +354,43 @@ const Home = ({ navigation }) => {
     }
   });
 
-  const harvestResult = filteredFarmers.filter((item) => {
+  const harvestResultmulti = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
     console.log(str);
     var temp = new Array();
     temp = str.split("/");
     console.log(temp);
-    let dt = new Date(temp[2], temp[1], temp[0]);
+    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
     console.log(dt);
-    return dt >= startDate && dt <= endDate;
+    if (
+      item.gender.toLowerCase() === val.toLowerCase() &&
+      item.state.toLowerCase() === addr.toLowerCase()
+    )
+      return dt >= startDate && dt <= endDate;
+  });
+
+  const harvestResultaddr = filteredFarmers.filter((item) => {
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
+    console.log(dt);
+    if (item.state.toLowerCase() === addr.toLowerCase())
+      return dt >= startDate && dt <= endDate;
+  });
+
+  const harvestResultval = filteredFarmers.filter((item) => {
+    let str = item.crops.map((i) => i.harvestDate).toString();
+    console.log(str);
+    var temp = new Array();
+    temp = str.split("/");
+    console.log(temp);
+    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
+    console.log(dt);
+    if (item.gender.toLowerCase() === val.toLowerCase())
+      return dt >= startDate && dt <= endDate;
   });
 
   const multiTo = filteredFarmers.filter((item) => {
@@ -809,34 +837,123 @@ const Home = ({ navigation }) => {
                 })}
               </View>
             ) : filteractive ? (
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.89,
-                }}
-              >
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={multiTo}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}>
-                        {" "}
-                        Oops ! Didnt find that
-                      </Text>
-                    </View>
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
+              dater && addr && val === "" ? (
+                <View
+                  style={{
                     width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    padding: winWidth > 767 ? 10 : 2,
+                    height: winHeight * 0.89,
                   }}
-                />
-              </View>
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={harvestResultaddr}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : dater && addr === "" && val ? (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={harvestResultval}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : dater && addr && val ? (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={harvestResultmulti}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    height: winHeight * 0.89,
+                  }}
+                >
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={multiTo}
+                    renderItem={renderItems}
+                    ListEmptyComponent={() => (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      flexDirection: "row",
+                      width: "100%",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      padding: winWidth > 767 ? 10 : 2,
+                    }}
+                  />
+                </View>
+              )
             ) : (
               <View
                 style={{
