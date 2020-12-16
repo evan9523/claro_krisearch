@@ -5,7 +5,7 @@ import { Button, StyleSheet, Text, View, Image } from "react-native";
 const Welcome = ({ navigation }) => {
   setTimeout(() => {
     navigation.replace("Home");
-  }, 2000);
+  }, 1200);
 
   return (
     <View style={[styles.container, { backgroundColor: "#346beb" }]}>
@@ -19,7 +19,7 @@ const Welcome = ({ navigation }) => {
             color: "#fff",
             marginLeft: 10,
             fontSize: 50,
-            fontWeight: "bold",
+            fontWeight: "400",
           }}
         >
           Krisearch

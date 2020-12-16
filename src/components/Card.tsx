@@ -73,15 +73,15 @@ export default function Card(props: CardProps) {
                 alignItems: "center",
                 margin: 5,
                 marginBottom: 5,
-                shadowColor: "#98A0FF",
+                shadowColor: "#346beb",
                 shadowOffset: {
-                  width: 0,
+                  width: 1,
                   height: 3,
                 },
-                shadowOpacity: 0.15,
+                shadowOpacity: 0.2,
                 shadowRadius: 2.22,
 
-                elevation: 3,
+                elevation: 5,
               }
             : {
                 width: windowWidth * 0.45,

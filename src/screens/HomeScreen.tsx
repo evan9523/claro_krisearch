@@ -72,6 +72,7 @@ const Home = ({ navigation }) => {
   const [crop, setcrop] = useState([]);
   const [parent, setparent] = useState(false);
   const [farmers, setfarmers] = useState([]);
+  const [dispfarmers, setdispfarmers] = useState([]);
   const [modalName, setmodalName] = useState("");
   const [firstScroll, setfirstScroll] = useState(0);
   const [selectedState, setselectedState] = useState("");
@@ -90,21 +91,6 @@ const Home = ({ navigation }) => {
   const [show, setshow] = useState("");
   const [applied, setapplied] = useState(false);
 
-  // useEffect(() => {
-  //   fetch("http://staging.clarolabs.in:7050/b2bRequirement/fetch/crops", {
-  //     method: "post",
-  //     headers: {
-  //       Accept: "application/json",
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       name: cropper,
-  //     }),
-  //   })
-  //     .then((response) => console.log(response.json()))
-  //     .then((data) => console.log(data))
-  //     .catch((error) => console.error(error));
-  // }, []);
   console.log("REACHING HOME");
   const container = useRef(null);
 
@@ -153,6 +139,26 @@ const Home = ({ navigation }) => {
       .catch((error) => console.error(error));
   }, []);
 
+  useEffect(() => {
+    fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gender: null,
+        harvestDate: null,
+        state: selectedState,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setdispfarmers(data.data.list.slice(0, firstScroll + 20));
+      })
+      .catch((error) => console.error(error));
+  }, [firstScroll]);
+
   console.log(crop);
   console.log(farmers);
 
@@ -173,9 +179,9 @@ const Home = ({ navigation }) => {
 
   const selectCrop = () => {};
 
-  // const handleLoad = () => {
-  //   setfirstScroll(firstScroll + 18);
-  // };
+  const handleLoad = () => {
+    setfirstScroll(firstScroll + 18);
+  };
 
   const renderMatch = ({ item }) => (
     <View
@@ -221,29 +227,33 @@ const Home = ({ navigation }) => {
           )}
 
           <Text style={{ fontSize: 20 }}> {item.name}</Text>
-          <Text
-            style={{
-              fontSize: 15,
-              alignSelf: "center",
-              color: "#989898",
-              margin: 5,
-            }}
-          >
-            in
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setparent(true),
-                setterm(item.type),
-                setplacer(true),
-                setapplied(false);
-              setblur(!blur);
-            }}
-          >
-            <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
-              {item.type}
+          {item.type !== "0" || "" ? (
+            <Text
+              style={{
+                fontSize: 15,
+                alignSelf: "center",
+                color: "#989898",
+                margin: 5,
+              }}
+            >
+              in
             </Text>
-          </TouchableOpacity>
+          ) : null}
+          {item.type !== "0" || "" ? (
+            <TouchableOpacity
+              onPress={() => {
+                setparent(true),
+                  setterm(item.type),
+                  setplacer(true),
+                  setapplied(false);
+                setblur(!blur);
+              }}
+            >
+              <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
+                {item.type}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </TouchableOpacity>
     </View>
@@ -298,6 +308,13 @@ const Home = ({ navigation }) => {
     return item.name.toLocaleLowerCase().includes(show.toLowerCase());
   });
 
+  const suggestions = filteredBlur.filter((item) => {
+    console.log(item.id, item.name);
+    if (item.id == 548 || item.id == 5918 || item.id == 47 || item.id == 4807) {
+      return item;
+    }
+  });
+
   const suggested = [];
   const showSugg = () => {
     for (let i = 0; i <= 3; i++) {
@@ -347,29 +364,6 @@ const Home = ({ navigation }) => {
     console.log(dt);
     return dt >= startDate && dt <= endDate;
   });
-  const mergeResult = filteredFarmers.filter((item) => {
-    // if (val && addr) {
-    // }
-    // if (addr && !val) {
-    //   return item.address.toLocaleLowerCase() === addr.toLowerCase();
-    // }
-    // if (val && !addr) {
-    //   return item.gender.toLocaleLowerCase() === val.toLowerCase();
-    // }
-    // let str = item.crops.map((i) => i.harvestDate).toString();
-    // console.log(str);
-    // var temp = new Array();
-    // temp = str.split("/");
-    // console.log(temp);
-    // let dt = new Date(temp[2], temp[1], temp[0]);
-    // console.log(dt);
-    // return (
-    //   item.gender.toLowerCase() === val.toLowerCase() &&
-    //   item.state.toLowerCase() === addr.toLowerCase() &&
-    //   dt >= startDate &&
-    //   dt <= endDate
-    // );
-  });
 
   const multiTo = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
@@ -388,7 +382,7 @@ const Home = ({ navigation }) => {
         return item.state.toLowerCase() === addr.toLowerCase();
       }
       if (dater && addr === "" && val === "") {
-        return dt > startDate && dt < endDate;
+        return dt >= startDate && dt <= endDate;
       }
       if (val && addr) {
         return (
@@ -405,11 +399,9 @@ const Home = ({ navigation }) => {
       }
 
       if (addr && dater) {
-        return (
-          item.state.toLowerCase() === addr.toLowerCase() &&
-          dt >= startDate &&
-          dt <= endDate
-        );
+        return dt > startDate && dt < endDate
+          ? item.state.toLowerCase() === addr.toLowerCase()
+          : null;
       }
       if (val && addr && dater) {
         return (
@@ -423,52 +415,6 @@ const Home = ({ navigation }) => {
       }
     }
   });
-  // const multiFilter = filteredFarmers.filter((item) => {
-  //   let str = item.crops.map((i) => i.harvestDate).toString();
-  //   console.log(str);
-  //   var temp = new Array();
-  //   temp = str.split("/");
-  //   console.log(temp);
-  //   let dt = new Date(temp[2], temp[1], temp[0]);
-  //   console.log(dt);
-  //   if (val) {
-  //     return item.gender.toLocaleLowerCase() === val.toLowerCase();
-  //   }
-  //   if (addr) {
-  //     return item.state.toLocaleLowerCase() === addr.toLowerCase();
-  //   }
-  //   if (dater) {
-  //     return dt >= startDate && dt <= endDate;
-  //   }
-  //   if (val && addr && !dater) {
-  //     return (
-  //       item.gender.toLowerCase() === val.toLowerCase() &&
-  //       item.state.toLowerCase() === addr.toLowerCase()
-  //     );
-  //   }
-  //   if (!val && addr && dater) {
-  //     return (
-  //       item.state.toLowerCase() === addr.toLowerCase() &&
-  //       dt >= startDate &&
-  //       dt <= endDate
-  //     );
-  //   }
-  //   if (val && !addr && dater) {
-  //     return (
-  //       item.gender.toLowerCase() === val.toLowerCase() &&
-  //       dt >= startDate &&
-  //       dt <= endDate
-  //     );
-  //   }
-  //   if (val && addr && dater) {
-  //     return (
-  //       item.gender.toLowerCase() === val.toLowerCase() &&
-  //       item.state.toLowerCase() === addr.toLowerCase() &&
-  //       dt >= startDate &&
-  //       dt <= endDate
-  //     );
-  //   }
-  // });
 
   const modalizeFilterRef = useRef<Modalize>(null);
   const onOpenfilter = () => {
@@ -481,16 +427,6 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* <View
-        style={{
-          marginTop: 40,
-          width: "100%",
-          elevation: 1000,
-        }}
-      >
-        <Header onTap={() => navigation.navigate("Search")} />
-      </View> */}
-
       <View
         style={{
           flexDirection: winWidth > 767 ? "row" : "column",
@@ -518,73 +454,11 @@ const Home = ({ navigation }) => {
             onFilter={() => onOpenfilter()}
           />
 
-          {/* <Button
-            title="GO to Search"
-            onPress={() => navigation.navigate("Search")}
-          /> */}
-          {/* {winWidth < 767 ? (
-            <View
-              style={{
-                width: "100%",
-                height: 50,
-                backgroundColor: "#346beb",
-                padding: 7,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                shadowColor: "#98A0FF",
-                shadowOffset: {
-                  width: 0,
-                  height: 4,
-                },
-                shadowOpacity: 0.32,
-                shadowRadius: 5.46,
-
-                elevation: 9,
-              }}
-            >
-              <TextInput
-                style={{
-                  width: "60%",
-                  height: 40,
-                  fontSize: 20,
-                  backgroundColor: "#fff",
-                  outlineColor: "#346beb",
-                  borderRadius: 10,
-                  padding: 5,
-                }}
-                placeholder="Search for Crops"
-                onFocus={() => navigation.navigate("Search")}
-              />
-              <View
-                style={{
-                  width: 35,
-                  height: 35,
-                  borderColor: "#fff",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#deebff",
-                  borderRadius: 35,
-                }}
-              >
-                <SimpleLineIcons name="magnifier" size={20} color="#346beb" />
-              </View>
-            </View>
-          ) : null} */}
-
-          {/* <Button
-            title="Loadmore"
-            onPress={() => setfirstScroll(firstScroll + 5)}
-          /> */}
-          {/* 
-          <View style={{ width: "100%", height: 25, backgroundColor: "red" }}>
-            <Text>See by category</Text>
-          </View> */}
-
           {!parent ? (
             <View
               style={{
-                width: "96%",
+                width: winWidth > 767 ? "93.5%" : "96%",
+
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
@@ -595,17 +469,6 @@ const Home = ({ navigation }) => {
                 padding: 5,
               }}
             >
-              {/* <Text
-                    style={{
-                      marginTop: 60,
-                      padding: 5,
-                      fontWeight: "500",
-                      color: "#6F6F6F",
-                      fontSize: 20,
-                    }}
-                  >
-                    {term}
-                  </Text> */}
               <View style={{ marginRight: 10 }}>
                 <TouchableOpacity
                   style={{
@@ -657,42 +520,6 @@ const Home = ({ navigation }) => {
                     padding: 5,
                   }}
                 >
-                  {/* <Button
-                      title="GO Home"
-                      onPress={() => navigation.navigate("Home")}
-                    /> */}
-                  {/* <TouchableOpacity
-                      style={{
-                        top: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        backgroundColor: "#949cff",
-                        height: 30,
-                        padding: 3,
-                        borderRadius: 5,
-                        marginBottom: 20,
-                        marginRight: 20,
-                      }}
-                      onPress={() => {
-                        console.log("Biharma"),
-                          sethideFAB(true),
-                          onOpenfilter();
-                      }}
-                    >
-                      <AntDesign name="filter" size={15} color="#3A48ED" />
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          marginLeft: 2,
-                          color: "#fff",
-                        }}
-                      >
-                        {" "}
-                        Filter Results
-                      </Text>
-                    </TouchableOpacity> */}
                   {!applied ||
                   (val === "" &&
                     addr === "" &&
@@ -723,11 +550,13 @@ const Home = ({ navigation }) => {
                           flexDirection: "row",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: "#000",
+                          backgroundColor: "#f2f7ff",
                           height: 30,
-                          width: 80,
+                          width: 90,
                           padding: 3,
                           borderRadius: 5,
+                          borderWidth: 2,
+                          borderColor: "#3A48ED",
                         }}
                         onPress={() => {
                           setfilteractive(false);
@@ -741,32 +570,21 @@ const Home = ({ navigation }) => {
                         <MaterialIcons
                           name="clear-all"
                           size={15}
-                          color="#fff"
+                          color="#3A48ED"
                         />
                         <Text
                           style={{
                             fontSize: 15,
-                            fontWeight: "300",
+                            fontWeight: "500",
                             marginLeft: 2,
-                            color: "#fff",
+                            color: "#3A48ED",
                           }}
                         >
                           {" "}
-                          Clear
+                          Clear All
                         </Text>
                       </TouchableOpacity>
                     </View>
-                    // <Button
-                    //   title="clear"
-                    //   onPress={() => {
-                    //     setfilteractive(false);
-                    //     setapplied(false);
-                    //     setval("");
-                    //     setaddr("");
-                    //     setdater(false);
-                    //     setterm("");
-                    //   }}
-                    // />
                   )}
                   {term ? (
                     <View
@@ -885,7 +703,7 @@ const Home = ({ navigation }) => {
                     </View>
                   ) : null}
 
-                  {dater && applied ? (
+                  {dater && applied && val === "" && addr === "" ? (
                     <View
                       style={{
                         alignItems: "center",
@@ -939,7 +757,7 @@ const Home = ({ navigation }) => {
                 style={{
                   width: "100%",
                   height: 30,
-                  backgroundColor: "#deebff",
+                  backgroundColor: "#f2f7ff",
                   top: winWidth > 767 ? "20%" : "10%",
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
@@ -955,106 +773,13 @@ const Home = ({ navigation }) => {
                     marginBottom: 10,
                   }}
                 >
-                  Available {term}s
+                  Available {term.split("s")}s
                 </Text>
               </View>
             </View>
           )}
           <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
-            {
-              parent ? (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                >
-                  {filteredParents.map((item, cIndex) => {
-                    return Data.map((i) =>
-                      i.name === item.name ? (
-                        <Card
-                          key={item.id}
-                          name={item.name}
-                          avatar={i.image}
-                          isCrop={true}
-                          onPress={() => {
-                            setparent(false), setterm(item.name);
-                          }}
-                        />
-                      ) : null
-                    );
-                  })}
-                </View>
-              ) : filteractive ? (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={multiTo}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={filteredFarmers}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() =>
-                      term && filteredFarmers.length == 0 ? (
-                        <View style={styles.container}>
-                          <Text style={{ fontSize: 30 }}>
-                            {" "}
-                            Oops ! Didnt find that
-                          </Text>
-                        </View>
-                      ) : (
-                        <View style={styles.container} ref={container} />
-                      )
-                    }
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              )
-
-              /* {parent ? (
+            {parent ? (
               <View
                 style={{
                   flexDirection: "row",
@@ -1076,6 +801,7 @@ const Home = ({ navigation }) => {
                         isCrop={true}
                         onPress={() => {
                           setparent(false), setterm(item.name);
+                          setapplied(true);
                         }}
                       />
                     ) : null
@@ -1083,234 +809,6 @@ const Home = ({ navigation }) => {
                 })}
               </View>
             ) : filteractive ? (
-              merge ? (
-                // <View
-                //   style={{
-                //     flexDirection: "row",
-                //     width: "100%",
-                //     flexWrap: "wrap",
-                //     alignItems: "flex-start",
-                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-                //     padding: winWidth > 767 ? 10 : 2,
-                //   }}
-                // >
-                //   {mergeResult.map((item, cIndex) => {
-                //     return (
-                //       <Card
-                //         key={item.id}
-                //         name={item.farmerName}
-                //         avatar={item.farmerImage}
-                //         phone={item.phone}
-                //         address={item.state}
-                //         crop={item.crops.map((i) => i.cropName)}
-                //         onPress={() => {
-                //           setfarmer(item.id), onOpen(), sethideFAB(true);
-                //         }}
-                //         cropAvatar={item.image}
-                //       />
-                //     );
-                //   })}
-                // </View>
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={multiTo}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : val && !addr && !dater ? (
-                // <View
-                //   style={{
-                //     flexDirection: "row",
-                //     width: "100%",
-                //     flexWrap: "wrap",
-                //     alignItems: "flex-start",
-                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-                //     padding: winWidth > 767 ? 10 : 2,
-                //   }}
-                // >
-                //   {genderFilter.map((item, cIndex) => {
-                //     return (
-                //       <Card
-                //         key={item.id}
-                //         name={item.farmerName}
-                //         avatar={item.farmerImage}
-                //         phone={item.phone}
-                //         address={item.state}
-                //         crop={item.crops.map((i) => i.cropName)}
-                //         onPress={() => {
-                //           setfarmer(item.id), onOpen(), sethideFAB(true);
-                //         }}
-                //       />
-                //     );
-                //   })}
-                // </View>
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={genderFilter}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : !val && addr && !dater ? (
-                // <View
-                //   style={{
-                //     flexDirection: "row",
-                //     width: "100%",
-                //     flexWrap: "wrap",
-                //     alignItems: "flex-start",
-                //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-                //     padding: winWidth > 767 ? 10 : 2,
-                //   }}
-                // >
-                //   {addrFilter.map((item, cIndex) => {
-                //     return (
-                //       <Card
-                //         key={item.id}
-                //         name={item.farmerName}
-                //         avatar={item.farmerImage}
-                //         phone={item.phone}
-                //         address={item.state}
-                //         crop={item.crops.map((i) => i.cropName)}
-                //         onPress={() => {
-                //           setfarmer(item.id), onOpen();
-                //         }}
-                //         cropAvatar={item.image}
-                //       />
-                //     );
-                //   })}
-                // </View>
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={addrFilter}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : !val && !addr && dater ? (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  {" "}
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={harvestResult}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: winWidth > 767 ? "flex-start" : "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : (
-                <Text>No result found</Text>
-              )
-            ) : (
-              // <View
-              //   style={{
-              //     flexDirection: "row",
-              //     width: "100%",
-              //     flexWrap: "wrap",
-              //     alignItems: "flex-start",
-              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-              //     padding: winWidth > 767 ? 10 : 2,
-              //   }}
-              // >
-              //   {filteredFarmers.map((item, cIndex) => {
-              //     return (
-              //       <Card
-              //         key={item.id}
-              //         name={item.name}
-              //         avatar={item.avatar}
-              //         phone={item.phone}
-              //         address={item.address}
-              //         crop={item.crop}
-              //         onPress={() => {
-              //           setfarmer(item.id), onOpen(), sethideFAB(true);
-              //         }}
-              //         cropAvatar={item.image}
-              //       />
-              //     );
-              //   })}
-              // </View>
               <View
                 style={{
                   width: "100%",
@@ -1319,11 +817,14 @@ const Home = ({ navigation }) => {
               >
                 <FlatList
                   showsVerticalScrollIndicator={false}
-                  data={filteredFarmers}
+                  data={multiTo}
                   renderItem={renderItems}
                   ListEmptyComponent={() => (
                     <View style={styles.container}>
-                      <Text style={{ fontSize: 30 }}> laodieeng</Text>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
                     </View>
                   )}
                   contentContainerStyle={{
@@ -1331,297 +832,47 @@ const Home = ({ navigation }) => {
                     width: "100%",
                     flexWrap: "wrap",
                     alignItems: "flex-start",
-                    justifyContent: winWidth > 767 ? "flex-start" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            )} */
-            }
-          </ScrollView>
-          {/* {filteractive ? (
-            merge ? (
-              // <View
-              //   style={{
-              //     flexDirection: "row",
-              //     width: "100%",
-              //     flexWrap: "wrap",
-              //     alignItems: "flex-start",
-              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-              //     padding: winWidth > 767 ? 10 : 2,
-              //   }}
-              // >
-              //   {mergeResult.map((item, cIndex) => {
-              //     return (
-              //       <Card
-              //         key={item.id}
-              //         name={item.farmerName}
-              //         avatar={item.farmerImage}
-              //         phone={item.phone}
-              //         address={item.state}
-              //         crop={item.crops.map((i) => i.cropName)}
-              //         onPress={() => {
-              //           setfarmer(item.id), onOpen(), sethideFAB(true);
-              //         }}
-              //         cropAvatar={item.image}
-              //       />
-              //     );
-              //   })}
-              // </View>
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.915,
-                }}
-              >
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={mergeResult}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container} ref={container} />
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            ) : val && !addr && !dater && !parenter ? (
-              // <View
-              //   style={{
-              //     flexDirection: "row",
-              //     width: "100%",
-              //     flexWrap: "wrap",
-              //     alignItems: "flex-start",
-              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-              //     padding: winWidth > 767 ? 10 : 2,
-              //   }}
-              // >
-              //   {genderFilter.map((item, cIndex) => {
-              //     return (
-              //       <Card
-              //         key={item.id}
-              //         name={item.farmerName}
-              //         avatar={item.farmerImage}
-              //         phone={item.phone}
-              //         address={item.state}
-              //         crop={item.crops.map((i) => i.cropName)}
-              //         onPress={() => {
-              //           setfarmer(item.id), onOpen(), sethideFAB(true);
-              //         }}
-              //       />
-              //     );
-              //   })}
-              // </View>
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.915,
-                }}
-              >
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={genderFilter}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container} ref={container} />
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            ) : !val && addr && !dater && !parenter ? (
-              // <View
-              //   style={{
-              //     flexDirection: "row",
-              //     width: "100%",
-              //     flexWrap: "wrap",
-              //     alignItems: "flex-start",
-              //     justifyContent: winWidth > 767 ? "flex-start" : "center",
-              //     padding: winWidth > 767 ? 10 : 2,
-              //   }}
-              // >
-              //   {addrFilter.map((item, cIndex) => {
-              //     return (
-              //       <Card
-              //         key={item.id}
-              //         name={item.farmerName}
-              //         avatar={item.farmerImage}
-              //         phone={item.phone}
-              //         address={item.state}
-              //         crop={item.crops.map((i) => i.cropName)}
-              //         onPress={() => {
-              //           setfarmer(item.id), onOpen();
-              //         }}
-              //         cropAvatar={item.image}
-              //       />
-              //     );
-              //   })}
-              // </View>
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.915,
-                }}
-              >
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={addrFilter}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container} ref={container} />
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            ) : !val && !addr && dater && !parenter ? (
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.915,
-                }}
-              >
-                {" "}
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={harvestResult}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container} ref={container} />
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            ) : !val && !addr && !dater && parenter ? (
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.915,
-                }}
-              >
-                {" "}
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={parentFilter}
-                  renderItem={renderItems}
-                  ListEmptyComponent={() => (
-                    <View style={styles.container} ref={container} />
-                  )}
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    justifyContent: winWidth > 767 ? "center" : "center",
+                    justifyContent: "center",
                     padding: winWidth > 767 ? 10 : 2,
                   }}
                 />
               </View>
             ) : (
-              <Text>No result found</Text>
-            )
-          ) : (
-            <View
-              style={{
-                width: "100%",
-                height: winHeight * 0.915,
-              }}
-            >
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                data={farmers}
-                renderItem={renderItems}
-                ListEmptyComponent={
-                  () => <View style={styles.container} ref={container} /> //  lottie.loadAnimation({
-                  //    container:container.current,
-                  //    renderer:'svg',
-                  //    loop:true,
-                  //    autoplay:true,
-                  //   animationData:require('../../assets/loader.json')
-
-                  //  })
-                }
-                contentContainerStyle={{
-                  flexDirection: "row",
-                  width: "100%",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  justifyContent: winWidth > 767 ? "center" : "center",
-                  padding: winWidth > 767 ? 10 : 2,
-                }}
-              />
-            </View>
-          )} */}
-
-          {/* <ScrollView
-            showsVerticalScrollIndicator={false}
-            onScrollEndDrag={() => setfirstScroll(firstScroll + 5)}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                flexWrap: "wrap",
-                alignItems: "center",
-                justifyContent: winWidth > 767 ? "center" : "center",
-                padding: winWidth > 767 ? 10 : 2,
-              }}
-            >
-              {farmers.map((item, cIndex) => {
-                return (
-                  <Card
-                    key={item.id}
-                    name={item.farmerName}
-                    avatar={item.farmerImage}
-                    phone={item.phone}
-                    address={item.state}
-                    crop={item.crops.map((i) => i.cropName)}
-                    onPress={() => {
-                      console.log(item.farmerName),
-                        setfarmer(item.id),
-                        console.log(item.crops.map((i) => i.quantity));
-                      onOpen(), setmodalName(item.farmerName);
-                    }}
-                  />
-                );
-              })}
-            </View>
-            {winWidth < 767 ? (
               <View
                 style={{
-                  height: 60,
                   width: "100%",
-                  backgroundColor: "transparent",
-                  marginTop: 10,
+                  height: winHeight * 0.89,
                 }}
-              ></View>
-            ) : null}
-          </ScrollView> */}
+              >
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={dispfarmers}
+                  renderItem={renderItems}
+                  onEndReached={handleLoad}
+                  ListEmptyComponent={() =>
+                    term && dispfarmers.length == 0 ? (
+                      <View style={styles.container}>
+                        <Text style={{ fontSize: 30 }}>
+                          {" "}
+                          Oops ! Didnt find that
+                        </Text>
+                      </View>
+                    ) : (
+                      <View style={styles.container} ref={container} />
+                    )
+                  }
+                  contentContainerStyle={{
+                    flexDirection: "row",
+                    width: "100%",
+                    flexWrap: "wrap",
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    padding: winWidth > 767 ? 10 : 2,
+                  }}
+                />
+              </View>
+            )}
+          </ScrollView>
         </View>
       </View>
       <Modalize
@@ -1629,10 +880,6 @@ const Home = ({ navigation }) => {
         modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
         threshold={100}
         modalStyle={winWidth > 767 ? { width: 400, alignSelf: "center" } : null}
-        // modalStyle={{ position: "absolute", width: "100%", zIndex: 999 }}
-        // modalStyle={
-        //   winWidth > 767 ? { width: 500, alignSelf: "center" } : null
-        // }
         closeOnOverlayTap={true}
         mod
       >
@@ -1660,10 +907,6 @@ const Home = ({ navigation }) => {
                     elevation: 9,
                   }}
                 >
-                  {/* <Text>{item.name}</Text>
-                        <Text>{item.address}</Text>
-                        <Image source={item.avatar} style={{height:50, width:50}}/>
-                   <Text>{farmer}</Text> */}
                   <TouchableOpacity
                     onPress={() => onClose()}
                     style={{
@@ -2173,24 +1416,12 @@ const Home = ({ navigation }) => {
                 borderColor: "#3ECF8E",
                 borderWidth: 2,
               }}
-              onPress={() =>
-                // !merge && filteractive ? setmerge(false) : setmerge(true);
-                //   (!val && addr && !dater && !parenter && !merge) ||
-                //   (val && !addr && !dater && !parenter && !merge) ||
-                //   (!val && !addr && dater && !parenter && !merge) ||
-                //   (!val && !addr && !dater && parenter && !merge)
-                //     ? (setfilteractive(true), setmerge(false))
-                //     : !val && !addr && !dater && !parenter && merge
-                //     ? (setmerge(true), setfilteractive(false))
-                //     : setmerge(true);
-                //   onCloseFilter();
-
-                //   setdater(true);
-                // }}
-                {
-                  setfilteractive(true), onCloseFilter(), setapplied(true);
-                }
-              }
+              onPress={() => {
+                setfilteractive(true),
+                  onCloseFilter(),
+                  setapplied(true),
+                  setdater(true);
+              }}
             >
               <Text
                 style={{
@@ -2267,14 +1498,6 @@ const Home = ({ navigation }) => {
                   onPress={() => {
                     setval(item.key);
                     setapplied(false);
-                    // toggler(item.key);
-                    // let a = item.text;
-                    // let b = filteredFarmers.filter((i) => {
-                    //   return i.gender.toLowerCase() === a.toLowerCase();
-                    // });
-                    // console.log(item.text);
-                    // console.log(a);
-                    // console.log(b);
                   }}
                 >
                   {val === item.key && <View style={styles.checkedCircle} />}
@@ -2348,14 +1571,6 @@ const Home = ({ navigation }) => {
                         setaddr(item.name);
                         setaddrToggle(false);
                         setapplied(false);
-                        // toggler(item.key);
-                        // let a = item.text;
-                        // let b = filteredFarmers.filter((i) => {
-                        //   return i.gender.toLowerCase() === a.toLowerCase();
-                        // });
-                        // console.log(item.text);
-                        // console.log(a);
-                        // console.log(b);
                       }}
                     >
                       {addr === item.name && (
@@ -2446,7 +1661,7 @@ const Home = ({ navigation }) => {
                   popperPlacement="bottom-right"
                   selected={dater ? endDate : null}
                   onChange={(date) => {
-                    setEndDate(date), setdater(true);
+                    setEndDate(date), setdater(true), setapplied(false);
                   }}
                   customInput={
                     <TextInput
@@ -2465,14 +1680,6 @@ const Home = ({ navigation }) => {
                 />
               </View>
             </View>
-
-            {/* <TouchableOpacity onPress={() => showHarvests()}>
-                    This week
-                  </TouchableOpacity>
-                  <TouchableOpacity>This month</TouchableOpacity>
-                  <TouchableOpacity>3 months from now</TouchableOpacity>
-                  <TouchableOpacity>6 months from now</TouchableOpacity>
-                  <TouchableOpacity>1 year from now</TouchableOpacity> */}
           </View>
           <View
             style={{
@@ -2495,79 +1702,7 @@ const Home = ({ navigation }) => {
 
             marginTop: "30%",
           }}
-        >
-          {/* <TouchableOpacity
-                  style={{
-                    width: 80,
-                    height: 40,
-                    backgroundColor: "#fff",
-                    alignItems: "center",
-                    justifyContent: "center",
-
-                    borderRadius: 10,
-                    borderColor: "#3A48ED",
-                    borderWidth: 2,
-                  }}
-                  onPress={() => {
-                    setmerge(false),
-                      setfilteractive(false),
-                      onCloseFilter(),
-                      setval(""),
-                      setaddr("");
-                    setdater(!dater);
-                    sethideFAB(!hideFAB);
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: "#3A48ED",
-                    }}
-                  >
-                    Reset
-                  </Text>
-                </TouchableOpacity> */}
-          {/* <TouchableOpacity
-                  style={{
-                    width: 80,
-                    height: 40,
-                    backgroundColor: "#3ECF8E",
-                    alignItems: "center",
-                    justifyContent: "center",
-
-                    borderRadius: 10,
-                    borderColor: "#3ECF8E",
-                    borderWidth: 2,
-                  }}
-                  onPress={() => {
-                    // !merge && filteractive ? setmerge(false) : setmerge(true);
-                    (!val && addr && !merge) || (val && !addr && !merge)
-                      ? setfilteractive(true)
-                      : !val && !addr && merge
-                      ? (setmerge(true), setfilteractive(false))
-                      : setmerge(true);
-                    onCloseFilter();
-                    sethideFAB(false);
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: "#fff",
-                    }}
-                  >
-                    Apply
-                  </Text>
-                </TouchableOpacity> */}
-        </View>
-        {/* <View
-                style={{
-                  height: 60,
-                  width: "100%",
-                  backgroundColor: "#fff",
-                  marginTop: 10,
-                }}
-              ></View> */}
+        ></View>
       </Modalize>
       {blur ? (
         <View
@@ -2702,169 +1837,10 @@ const Home = ({ navigation }) => {
                       </View>
                     )}
                     contentContainerStyle={{
-                      // flexDirection: "row",
-                      // width: "100%",
-                      // flexWrap: "wrap",
-                      // alignItems: "center",
-                      // justifyContent:
-                      //   winWidth > 767 ? "center" : "center",
-                      // padding: winWidth > 767 ? 10 : 2,
                       width: "100%",
                     }}
                   />
                 ) : (
-                  // <View
-                  //   style={{
-                  //     width: winWidth > 767 ? "50%" : "97%",
-                  //     alignItems: "center",
-                  //     backgroundColor: "#fff",
-                  //     borderRadius: 10,
-                  //     margin: 5,
-                  //   }}
-                  // >
-                  //   <View
-                  //     style={{
-                  //       width: "100%",
-                  //       alignItems: "flex-start",
-                  //       padding: 10,
-                  //       marginBottom: 10,
-                  //       marginTop: 5,
-                  //     }}
-                  //   >
-                  //     {filteredCrops.length > 0 ? (
-                  //       <Text
-                  //         style={{
-                  //           marginLeft: 20,
-                  //           fontSize: 15,
-                  //           fontWeight: "600",
-                  //         }}
-                  //       >
-                  //         Available Crops
-                  //       </Text>
-                  //     ) : (
-                  //       <Text
-                  //         style={{
-                  //           marginLeft: 20,
-                  //           fontSize: 15,
-                  //           fontWeight: "600",
-                  //           alignSelf: "center",
-                  //         }}
-                  //       >
-                  //         🤔 ....That seems to be missing...
-                  //       </Text>
-                  //     )}
-                  //   </View>
-
-                  //   <View
-                  //     style={{
-                  //       width: "100%",
-                  //       height: winHeight * 0.5,
-                  //     }}
-                  //   >
-                  //     <FlatList
-                  //       showsVerticalScrollIndicator={false}
-                  //       data={filteredCrops}
-                  //       renderItem={renderItems}
-                  //       ListEmptyComponent={() => (
-                  //         <View style={styles.container}>
-                  //           <Text style={{ fontSize: 30 }}>
-                  //             {" "}
-                  //             Oops ! Didnt find that
-                  //           </Text>
-                  //         </View>
-                  //       )}
-                  //       contentContainerStyle={{
-                  //         // flexDirection: "row",
-                  //         // width: "100%",
-                  //         // flexWrap: "wrap",
-                  //         // alignItems: "center",
-                  //         // justifyContent:
-                  //         //   winWidth > 767 ? "center" : "center",
-                  //         // padding: winWidth > 767 ? 10 : 2,
-                  //         width: "100%",
-                  //       }}
-                  //     />
-                  //   </View>
-
-                  //   {/*
-                  //   {filteredCrops.map((item, cIndex) => {
-                  //     return (
-                  //       <View
-                  //         style={{
-                  //           width:
-                  //             winWidth > 768 ? winWidth - 80 : winWidth - 50,
-                  //           height: 45,
-                  //           padding: 5,
-                  //           borderRadius: 8,
-                  //           flexDirection: "row",
-                  //           alignItems: "center",
-                  //           justifyContent: "space-between",
-                  //           backgroundColor: "#fff",
-                  //           margin: 2,
-                  //         }}
-                  //       >
-                  //         <TouchableOpacity
-                  //           onPress={() => {
-                  //             setplacer(true),
-                  //               setblur(!blur),
-                  //               setterm(item.name);
-                  //           }}
-                  //         >
-                  //           <View
-                  //             style={{
-                  //               flexDirection: "row",
-                  //               alignItems: "center",
-                  //             }}
-                  //           >
-                  //             <Image
-                  //               source={{ uri: item.image }}
-                  //               style={{
-                  //                 height: 35,
-                  //                 width: 35,
-                  //                 borderColor: "green",
-                  //                 borderWidth: 1,
-                  //                 borderRadius: 35,
-                  //               }}
-                  //             />
-                  //             <Text style={{ fontSize: 20 }}> {item.name}</Text>
-                  //             <Text
-                  //               style={{
-                  //                 fontSize: 15,
-                  //                 alignSelf: "center",
-                  //                 color: "#989898",
-                  //               }}
-                  //             >
-                  //               {" "}
-                  //               in{" "}
-                  //             </Text>
-                  //             <Text style={{ fontSize: 15 }}>{item.type}</Text>
-                  //           </View>
-                  //         </TouchableOpacity>
-                  //         <TouchableOpacity
-                  //           style={{
-                  //             backgroundColor: "#3ECF8E",
-                  //             height: "100%",
-                  //             alignItems: "center",
-                  //             justifyContent: "center",
-                  //             padding: 5,
-                  //             borderRadius: 5,
-                  //             alignSelf: "flex-end",
-                  //           }}
-                  //           onPress={() => {
-                  //             setparent(!parent),
-                  //               setterm(item.type),
-                  //               setplacer(!placer),
-                  //               setblur(!blur);
-                  //           }} //true
-                  //         >
-                  //           <Text style={{ fontSize: 15, color: "#fff" }}>
-                  //             View {item.type}s
-                  //           </Text>
-                  //         </TouchableOpacity>
-                  //       </View>
-                  //     );
-                  //   })} */}
-                  // </View>
                   <View
                     style={{
                       width: winWidth > 767 ? winWidth * 0.49 : winWidth * 0.95,
@@ -2877,16 +1853,9 @@ const Home = ({ navigation }) => {
                     <Text style={{ fontSize: 18, margin: 15 }}>Suggested </Text>
                     <FlatList
                       showsVerticalScrollIndicator={false}
-                      data={filteredBlur.sort().slice(1, 5)}
+                      data={suggestions}
                       renderItem={renderMatch}
                       contentContainerStyle={{
-                        // flexDirection: "row",
-                        // width: "100%",
-                        // flexWrap: "wrap",
-                        // alignItems: "center",
-                        // justifyContent:
-                        //   winWidth > 767 ? "center" : "center",
-                        // padding: winWidth > 767 ? 10 : 2,
                         width: "100%",
                       }}
                     />
