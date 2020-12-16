@@ -837,7 +837,7 @@ const Home = ({ navigation }) => {
                 })}
               </View>
             ) : filteractive ? (
-              dater && addr && val === "" ? (
+              dater && addr && val === "" && applied ? (
                 <View
                   style={{
                     width: "100%",
@@ -866,7 +866,7 @@ const Home = ({ navigation }) => {
                     }}
                   />
                 </View>
-              ) : dater && addr === "" && val ? (
+              ) : dater && addr === "" && val && applied ? (
                 <View
                   style={{
                     width: "100%",
@@ -895,7 +895,7 @@ const Home = ({ navigation }) => {
                     }}
                   />
                 </View>
-              ) : dater && addr && val ? (
+              ) : dater && addr && val && applied ? (
                 <View
                   style={{
                     width: "100%",
@@ -1534,10 +1534,7 @@ const Home = ({ navigation }) => {
                 borderWidth: 2,
               }}
               onPress={() => {
-                setfilteractive(true),
-                  onCloseFilter(),
-                  setapplied(true),
-                  setdater(true);
+                setfilteractive(true), onCloseFilter(), setapplied(true);
               }}
             >
               <Text
