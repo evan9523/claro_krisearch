@@ -703,7 +703,7 @@ const Home = ({ navigation }) => {
                     </View>
                   ) : null}
 
-                  {dater && applied && val === "" && addr === "" ? (
+                  {dater && applied ? (
                     <View
                       style={{
                         alignItems: "center",
