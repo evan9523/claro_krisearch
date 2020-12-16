@@ -963,7 +963,7 @@ const Home = ({ navigation }) => {
               >
                 <FlatList
                   showsVerticalScrollIndicator={false}
-                  data={dispfarmers}
+                  data={filteredFarmers}
                   renderItem={renderItems}
                   onEndReached={handleLoad}
                   ListEmptyComponent={() =>
