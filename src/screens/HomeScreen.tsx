@@ -1812,7 +1812,7 @@ const Home = ({ navigation }) => {
                     tempStartDate < new Date() ? new Date() : tempStartDate
                   }
                   onChange={(date) => {
-                    date.toLocaleDateString() < new Date().toLocaleDateString()
+                    date < new Date()
                       ? alert("Start Date cannot be less than today")
                       : date.toLocaleDateString() ===
                         new Date().toLocaleDateString()
