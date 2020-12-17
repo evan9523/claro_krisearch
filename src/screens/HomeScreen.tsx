@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  TextInput,
 } from "react-native";
 import Header, { HeaderProps } from "../components/header";
 import { winWidth, winHeight } from "../utils/window";
@@ -19,7 +20,7 @@ import Farmers from "../data/farmers.json";
 import Crops from "../data/items.json";
 import { Modalize } from "react-native-modalize";
 import Card from "../components/Card";
-import { TextInput } from "react-native-gesture-handler";
+
 import {
   SimpleLineIcons,
   Feather,
@@ -804,6 +805,7 @@ const Home = ({ navigation }) => {
                         }}
                         onPress={() => {
                           settempDater(false), setdater(false);
+                          settempStartDate(new Date());
                         }}
                       />
                     </View>
@@ -1551,6 +1553,7 @@ const Home = ({ navigation }) => {
                 setval(""), setaddr("");
                 setparenter("");
                 setdater(false);
+                settempStartDate(new Date());
               }}
             >
               <Text
@@ -1812,11 +1815,8 @@ const Home = ({ navigation }) => {
                     tempStartDate < new Date() ? new Date() : tempStartDate
                   }
                   onChange={(date) => {
-                    date < new Date()
+                    date < new Date().toLocaleDateString()
                       ? alert("Start Date cannot be less than today")
-                      : date.toLocaleDateString() ===
-                        new Date().toLocaleDateString()
-                      ? settempStartDate(date)
                       : settempStartDate(date);
                   }}
                   customInput={
@@ -1842,10 +1842,11 @@ const Home = ({ navigation }) => {
                   popperPlacement="bottom-right"
                   selected={tempDater ? tempEndDate : null}
                   onChange={(date) => {
-                    date < tempStartDate
-                      ? alert(
+                    date <= tempStartDate
+                      ? (alert(
                           "End Date cannot be less than or equal to Start Date"
-                        )
+                        ),
+                        settempEndDate(null))
                       : settempEndDate(date);
                     settempDater(true);
                   }}
@@ -1947,7 +1948,7 @@ const Home = ({ navigation }) => {
                   }
                   placeholder="Search for Crops"
                   autoFocus={true}
-                  editable={blur}
+                  editable={true}
                   onChangeText={(text) => {
                     setshow(text);
                   }}
