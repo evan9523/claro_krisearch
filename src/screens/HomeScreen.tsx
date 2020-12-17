@@ -78,7 +78,9 @@ const Home = ({ navigation }) => {
   const [selectedState, setselectedState] = useState("");
   const [cats, setcats] = useState(false);
   const [val, setval] = useState("");
+  const [tempVal, settempVal] = useState("");
   const [addr, setaddr] = useState("");
+  const [tempAddr, settempAddr] = useState("");
   const [parenter, setparenter] = useState("");
   const [term, setterm] = useState("");
   const [filteractive, setfilteractive] = useState(false);
@@ -86,8 +88,11 @@ const Home = ({ navigation }) => {
   const [cropToggle, setcropToggle] = useState(false);
   const [merge, setmerge] = useState(false);
   const [dater, setdater] = useState(false);
+  const [tempDater, settempDater] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
+  const [tempStartDate, settempStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [tempEndDate, settempEndDate] = useState(new Date());
   const [show, setshow] = useState("");
   const [applied, setapplied] = useState(false);
 
@@ -138,26 +143,6 @@ const Home = ({ navigation }) => {
       .then((data) => setcrop(data.data.list))
       .catch((error) => console.error(error));
   }, []);
-
-  useEffect(() => {
-    fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        gender: null,
-        harvestDate: null,
-        state: selectedState,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setdispfarmers(data.data.list.slice(0, firstScroll + 21));
-      })
-      .catch((error) => console.error(error));
-  }, [firstScroll]);
 
   console.log(crop);
   console.log(farmers);
@@ -548,29 +533,72 @@ const Home = ({ navigation }) => {
                     padding: 5,
                   }}
                 >
-                  {!applied ||
-                  (val === "" &&
-                    addr === "" &&
-                    dater === false &&
-                    term === "") ||
-                  term === null ? (
-                    <View
-                      style={{
-                        alignItems: "center",
-                        marginRight: 5,
-                        backgroundColor: "#fff",
-                        padding: 5,
-                        height: 30,
-                        width: 50,
-                        borderRadius: 20,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        borderWidth: 1,
-                        borderColor: "#346beb",
-                      }}
-                    >
-                      <Text style={{ color: "#000" }}>All</Text>
-                    </View>
+                  {applied === false ||
+                  // val === "" ||
+                  // addr === "" ||
+                  // dater === false ||
+                  term === "" ? (
+                    val === "" && addr === "" && dater === false ? (
+                      <View
+                        style={{
+                          alignItems: "center",
+                          marginRight: 5,
+                          backgroundColor: "#fff",
+                          padding: 5,
+                          height: 30,
+                          width: 50,
+                          borderRadius: 20,
+                          justifyContent: "center",
+                          flexDirection: "row",
+                          borderWidth: 1,
+                          borderColor: "#346beb",
+                        }}
+                      >
+                        <Text style={{ color: "#000" }}>All</Text>
+                      </View>
+                    ) : (
+                      <View style={{ marginRight: 10 }}>
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#f2f7ff",
+                            height: 30,
+                            width: 90,
+                            padding: 3,
+                            borderRadius: 5,
+                            borderWidth: 2,
+                            borderColor: "#3A48ED",
+                          }}
+                          onPress={() => {
+                            setfilteractive(false);
+                            setapplied(false);
+                            setval("");
+                            setaddr("");
+                            setdater(false);
+                            setterm("");
+                          }}
+                        >
+                          <MaterialIcons
+                            name="clear-all"
+                            size={15}
+                            color="#3A48ED"
+                          />
+                          <Text
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              marginLeft: 2,
+                              color: "#3A48ED",
+                            }}
+                          >
+                            {" "}
+                            Clear All
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )
                   ) : (
                     <View style={{ marginRight: 10 }}>
                       <TouchableOpacity
@@ -692,7 +720,9 @@ const Home = ({ navigation }) => {
                           borderRadius: 15,
                           marginLeft: 5,
                         }}
-                        onPress={() => setval("")}
+                        onPress={() => {
+                          setval(""), settempVal("");
+                        }}
                       />
                     </View>
                   ) : null}
@@ -726,7 +756,9 @@ const Home = ({ navigation }) => {
                           borderRadius: 15,
                           marginLeft: 5,
                         }}
-                        onPress={() => setaddr("")}
+                        onPress={() => {
+                          settempAddr(""), setaddr("");
+                        }}
                       />
                     </View>
                   ) : null}
@@ -765,7 +797,9 @@ const Home = ({ navigation }) => {
                           borderRadius: 15,
                           marginLeft: 5,
                         }}
-                        onPress={() => setdater(false)}
+                        onPress={() => {
+                          settempDater(false), setdater(false);
+                        }}
                       />
                     </View>
                   ) : null}
@@ -967,7 +1001,7 @@ const Home = ({ navigation }) => {
                   renderItem={renderItems}
                   onEndReached={handleLoad}
                   ListEmptyComponent={() =>
-                    term && dispfarmers.length == 0 ? (
+                    term && filteredFarmers.length == 0 ? (
                       <View style={styles.container}>
                         <Text style={{ fontSize: 30 }}>
                           {" "}
@@ -1130,7 +1164,7 @@ const Home = ({ navigation }) => {
                           </Text>
                         </View>
                         <View style={{ flexDirection: "row" }}>
-                          <Feather name="user" size={20} color="#fff" />
+                          <Feather name="phone" size={20} color="#fff" />
                           <Text
                             style={{
                               fontSize: 20,
@@ -1279,7 +1313,7 @@ const Home = ({ navigation }) => {
                           </View>
                           <View>
                             <Text style={{ fontSize: 20 }}>
-                              {item.land} Kattha
+                              {item.land} Acres
                             </Text>
                           </View>
                         </View>
@@ -1500,16 +1534,12 @@ const Home = ({ navigation }) => {
                 borderWidth: 2,
               }}
               onPress={() => {
-                setmerge(false),
-                  setfilteractive(false),
-                  onCloseFilter(),
-                  setval(""),
-                  setaddr("");
+                setmerge(false), setfilteractive(false), settempAddr("");
+                settempVal("");
+                settempDater(false);
+                setval(""), setaddr("");
                 setparenter("");
                 setdater(false);
-                setStartDate(new Date());
-                setapplied(false);
-                setEndDate(new Date());
               }}
             >
               <Text
@@ -1534,7 +1564,14 @@ const Home = ({ navigation }) => {
                 borderWidth: 2,
               }}
               onPress={() => {
-                setfilteractive(true), onCloseFilter(), setapplied(true);
+                setfilteractive(true),
+                  onCloseFilter(),
+                  setapplied(true),
+                  setaddr(tempAddr);
+                setval(tempVal);
+                setStartDate(tempStartDate);
+                setEndDate(tempEndDate);
+                setdater(tempDater);
               }}
             >
               <Text
@@ -1550,6 +1587,13 @@ const Home = ({ navigation }) => {
             <TouchableOpacity
               onPress={() => {
                 onCloseFilter();
+                tempVal && !applied
+                  ? settempVal("")
+                  : tempAddr && !applied
+                  ? settempAddr("")
+                  : tempDater && !applied
+                  ? setdater(false)
+                  : null;
               }}
             >
               <View
@@ -1610,11 +1654,12 @@ const Home = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.circle}
                   onPress={() => {
-                    setval(item.key);
-                    setapplied(false);
+                    settempVal(item.key);
                   }}
                 >
-                  {val === item.key && <View style={styles.checkedCircle} />}
+                  {tempVal === item.key && (
+                    <View style={styles.checkedCircle} />
+                  )}
                 </TouchableOpacity>
                 <Text style={{ fontSize: 16, marginLeft: 5 }}>{item.text}</Text>
               </View>
@@ -1671,7 +1716,9 @@ const Home = ({ navigation }) => {
               marginLeft: 7,
             }}
           >
-            <Text style={{ fontSize: 15 }}>{addr ? addr : "All States"}</Text>
+            <Text style={{ fontSize: 15 }}>
+              {tempAddr ? tempAddr : "All States"}
+            </Text>
             <AntDesign name="down" size={12} />
           </TouchableOpacity>
           {addrToggle ? (
@@ -1682,12 +1729,12 @@ const Home = ({ navigation }) => {
                     <TouchableOpacity
                       style={styles.circle}
                       onPress={() => {
-                        setaddr(item.name);
+                        settempAddr(item.name);
+                        // setaddr(item.name);
                         setaddrToggle(false);
-                        setapplied(false);
                       }}
                     >
-                      {addr === item.name && (
+                      {tempAddr === item.name && (
                         <View style={styles.checkedCircle} />
                       )}
                     </TouchableOpacity>
@@ -1750,8 +1797,12 @@ const Home = ({ navigation }) => {
                 <Text style={{ marginBottom: 10 }}>From</Text>
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  selected={tempStartDate}
+                  onChange={(date) =>
+                    date < tempStartDate
+                      ? alert("Start Date cannot be less than today")
+                      : settempStartDate(date)
+                  }
                   customInput={
                     <TextInput
                       style={{
@@ -1773,9 +1824,14 @@ const Home = ({ navigation }) => {
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
                   popperPlacement="bottom-right"
-                  selected={dater ? endDate : null}
+                  selected={tempDater ? tempEndDate : null}
                   onChange={(date) => {
-                    setEndDate(date), setdater(true), setapplied(false);
+                    date < tempStartDate
+                      ? alert(
+                          "End Date cannot be less than or equal to Start Date"
+                        )
+                      : settempEndDate(date);
+                    settempDater(true);
                   }}
                   customInput={
                     <TextInput
