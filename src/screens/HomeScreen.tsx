@@ -582,6 +582,7 @@ const Home = ({ navigation }) => {
                             setaddr("");
                             setdater(false);
                             setterm("");
+                            settempDater(false);
                           }}
                         >
                           <MaterialIcons
