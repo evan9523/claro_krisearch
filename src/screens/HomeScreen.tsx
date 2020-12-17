@@ -96,7 +96,7 @@ const Home = ({ navigation }) => {
   const [show, setshow] = useState("");
   const [applied, setapplied] = useState(false);
 
-  console.log("REACHING HOME");
+  // console.log("REACHING HOME");
   const container = useRef(null);
 
   useEffect(() => {
@@ -144,14 +144,14 @@ const Home = ({ navigation }) => {
       .catch((error) => console.error(error));
   }, []);
 
-  console.log(crop);
-  console.log(farmers);
+  // console.log(crop);
+  // console.log(farmers);
 
   const selectState = () => {
     States.map((item) => {
-      console.log(item.name);
+      // console.log(item.name);
       farmers.map((i) => {
-        console.log(i.state);
+        // console.log(i.state);
         if (
           item.name.toString().toLowerCase() ===
           i.state.toString().toLowerCase()
@@ -167,6 +167,9 @@ const Home = ({ navigation }) => {
   const handleLoad = () => {
     setfirstScroll(firstScroll + 21);
   };
+
+  const today = new Date();
+  // console.log(today);
 
   const renderMatch = ({ item }) => (
     <View
@@ -253,10 +256,11 @@ const Home = ({ navigation }) => {
       address={item.state}
       crop={item.crops.map((i) => i.cropName).slice(0, 1)}
       onPress={() => {
-        console.log(item.farmerName),
-          setfarmer(item.id),
-          console.log(item.crops.map((i) => i.quantity));
-        onOpen(), setmodalName(item.farmerName);
+        // console.log(item.farmerName),
+        setfarmer(item.id),
+          // console.log(item.crops.map((i) => i.quantity));
+          onOpen(),
+          setmodalName(item.farmerName);
       }}
     />
   );
@@ -272,10 +276,10 @@ const Home = ({ navigation }) => {
   const showFilter = [val, addr, dater];
 
   const bgdata = crop.filter((item) => {
-    console.log(item.farmers);
+    // console.log(item.farmers);
   });
 
-  console.log(bgdata);
+  // console.log(bgdata);
   const filteredCrops = Data.filter((item) => {
     return item.name.toLocaleLowerCase().includes(term.toLowerCase());
   });
@@ -294,7 +298,7 @@ const Home = ({ navigation }) => {
   });
 
   const suggestions = filteredBlur.filter((item) => {
-    console.log(item.id, item.name);
+    // console.log(item.id, item.name);
     if (item.id == 548 || item.id == 5918 || item.id == 47 || item.id == 4807) {
       return item;
     }
@@ -341,12 +345,12 @@ const Home = ({ navigation }) => {
 
   const harvestResultmulti = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
-    console.log(str);
+    // console.log(str);
     var temp = new Array();
     temp = str.split("/");
-    console.log(temp);
+    // console.log(temp);
     let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    console.log(dt);
+    // console.log(dt);
     if (
       item.gender.toLowerCase() === val.toLowerCase() &&
       item.state.toLowerCase() === addr.toLowerCase()
@@ -356,37 +360,37 @@ const Home = ({ navigation }) => {
 
   const harvestResultaddr = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
-    console.log(str);
+    // console.log(str);
     var temp = new Array();
     temp = str.split("/");
-    console.log(temp);
+    // console.log(temp);
     let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    console.log(dt);
+    // console.log(dt);
     if (item.state.toLowerCase() === addr.toLowerCase())
       return dt >= startDate && dt <= endDate;
   });
 
   const harvestResultval = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
-    console.log(str);
+    // console.log(str);
     var temp = new Array();
     temp = str.split("/");
-    console.log(temp);
+    // console.log(temp);
     let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    console.log(dt);
+    // console.log(dt);
     if (item.gender.toLowerCase() === val.toLowerCase())
       return dt >= startDate && dt <= endDate;
   });
 
   const multiTo = filteredFarmers.filter((item) => {
     let str = item.crops.map((i) => i.harvestDate).toString();
-    console.log(str);
+    // console.log(str);
     var temp = new Array();
     temp = str.split("/");
-    console.log(temp);
+    // console.log(temp);
     let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    console.log(dt);
-    console.log(startDate);
+    // console.log(dt);
+    // console.log(startDate);
     if (applied) {
       if (val && addr === "") {
         return item.gender.toLowerCase() === val.toLowerCase();
@@ -462,7 +466,7 @@ const Home = ({ navigation }) => {
             }}
             onLogoTap={() => {
               // setfilteractive(false), setterm("");
-              console.log("hello");
+              // console.log("hello");
             }}
             onFilter={() => onOpenfilter()}
           />
@@ -1137,7 +1141,9 @@ const Home = ({ navigation }) => {
                           justifyContent: "space-evenly",
                         }}
                       >
-                        <View style={{ flexDirection: "row" }}>
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
                           <Feather name="user" size={20} color="#fff" />
                           <Text
                             style={{
@@ -1150,7 +1156,9 @@ const Home = ({ navigation }) => {
                             {toTitleCase(item.farmerName)}
                           </Text>
                         </View>
-                        <View style={{ flexDirection: "row" }}>
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
                           <Feather name="map-pin" size={20} color="#fff" />
                           <Text
                             style={{
@@ -1163,7 +1171,9 @@ const Home = ({ navigation }) => {
                             {item.state}
                           </Text>
                         </View>
-                        <View style={{ flexDirection: "row" }}>
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
                           <Feather name="phone" size={20} color="#fff" />
                           <Text
                             style={{
@@ -1797,12 +1807,17 @@ const Home = ({ navigation }) => {
                 <Text style={{ marginBottom: 10 }}>From</Text>
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
-                  selected={tempStartDate}
-                  onChange={(date) =>
-                    date < tempStartDate
-                      ? alert("Start Date cannot be less than today")
-                      : settempStartDate(date)
+                  selected={
+                    tempStartDate < new Date() ? new Date() : tempStartDate
                   }
+                  onChange={(date) => {
+                    date.toLocaleDateString() < new Date().toLocaleDateString()
+                      ? alert("Start Date cannot be less than today")
+                      : date.toLocaleDateString() ===
+                        new Date().toLocaleDateString()
+                      ? settempStartDate(date)
+                      : settempStartDate(date);
+                  }}
                   customInput={
                     <TextInput
                       style={{
@@ -1933,7 +1948,7 @@ const Home = ({ navigation }) => {
                   autoFocus={true}
                   editable={blur}
                   onChangeText={(text) => {
-                    console.log(text), setshow(text);
+                    setshow(text);
                   }}
                 />
 
