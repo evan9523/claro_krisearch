@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -17,9 +17,16 @@ import Welcome from "./src/screens/SplashScreen";
 import Header from "../claro_krisearch/src/components/header";
 import Profile from "./src/screens/ProfileScreen";
 import { Feather } from "@expo/vector-icons";
+import Landing from "./src/screens/LandingScreen";
+import Login from "./src/screens/Login";
+import { auth } from "firebase";
+import SignUp from "./src/screens/SignUp";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Test from "./src/screens/testScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
 function MyTabBar({ state, descriptors, navigation }) {
   const focusedOptions = descriptors[state.routes[state.index].key].options;
@@ -61,42 +68,42 @@ function MyTabBar({ state, descriptors, navigation }) {
             });
           };
 
-          if (index === 1) {
-            return (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={options.tabBarAccessibilityLabel}
-                testID={options.tabBarTestID}
-                onPress={onPress}
-                onLongPress={onLongPress}
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: 65,
-                  width: 65,
-                  backgroundColor: isFocused ? "#346beb" : "#fff",
-                  position: "absolute",
-                  left: winWidth / 2 - 30,
-                  bottom: 15,
-                  margin: 5,
-                  borderRadius: 35,
-                  borderWidth: 2,
-                  borderColor: isFocused ? "#fff" : "#deebff",
-                }}
-              >
-                {/* <Text style={{ color: isFocused ? "#673ab7" : "#222" }}>
-                {label}
-              </Text> */}
-                <Feather
-                  name="search"
-                  size={30}
-                  color={isFocused ? "#fff" : "#346beb"}
-                />
-              </TouchableOpacity>
-            );
-          }
+          // if (index === 1) {
+          //   return (
+          //     <TouchableOpacity
+          //       accessibilityRole="button"
+          //       accessibilityState={isFocused ? { selected: true } : {}}
+          //       accessibilityLabel={options.tabBarAccessibilityLabel}
+          //       testID={options.tabBarTestID}
+          //       onPress={onPress}
+          //       onLongPress={onLongPress}
+          //       style={{
+          //         flex: 1,
+          //         justifyContent: "center",
+          //         alignItems: "center",
+          //         height: 65,
+          //         width: 65,
+          //         backgroundColor: isFocused ? "#346beb" : "#fff",
+          //         position: "absolute",
+          //         left: winWidth / 2 - 30,
+          //         bottom: 15,
+          //         margin: 5,
+          //         borderRadius: 35,
+          //         borderWidth: 2,
+          //         borderColor: isFocused ? "#fff" : "#deebff",
+          //       }}
+          //     >
+          //       {/* <Text style={{ color: isFocused ? "#673ab7" : "#222" }}>
+          //       {label}
+          //     </Text> */}
+          //       <Feather
+          //         name="search"
+          //         size={30}
+          //         color={isFocused ? "#fff" : "#346beb"}
+          //       />
+          //     </TouchableOpacity>
+          //   );
+          // }
 
           return (
             <TouchableOpacity
@@ -110,7 +117,9 @@ function MyTabBar({ state, descriptors, navigation }) {
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
-                height: 56,
+                height: 45,
+                padding: 5,
+                backgroundColor: "#fff",
               }}
             >
               {/* <Text style={{ color: isFocused ? "#673ab7" : "#222" }}>
@@ -172,7 +181,7 @@ function MyTabBar({ state, descriptors, navigation }) {
                       {isFocused ? (
                         <Text
                           style={{
-                            fontSize: 16,
+                            fontSize: 14,
                             marginLeft: 15,
                             color: "#346beb",
                           }}
@@ -192,7 +201,26 @@ function MyTabBar({ state, descriptors, navigation }) {
   );
 }
 
+function Homely() {
+  return (
+    <Tab.Navigator tabBar={MyTabBar}>
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Profile" component={Profile} />
+    </Tab.Navigator>
+  );
+}
+
+function MyDrawer() {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Home" component={Home} />
+      <Drawer.Screen name="Profile" component={Profile} />
+    </Drawer.Navigator>
+  );
+}
+
 const App = () => {
+  const [user, setuser] = useState(null);
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -207,26 +235,62 @@ const App = () => {
           headerShown: false,
         }}
       >
-        <Stack.Screen
+        {/* <Stack.Screen
           name="Welcome"
           component={Welcome}
           options={{ headerShown: false }}
+        /> */}
+
+        <Stack.Screen
+          name="Landing"
+          component={Landing}
+          options={{
+            title: "Krisearch",
+          }}
         />
         <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{
+            title: "Krisearch",
+          }}
+        />
+        <Stack.Screen
+          name="Test"
+          component={Test}
+          options={{
+            title: "Krisearch",
+          }}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignUp}
+          options={{
+            title: "SignUp",
+          }}
+        />
+        {/* {winWidth > 768 ? (
+          <Drawer.Screen name="MyDrawer" component={MyDrawer} />
+        ) : (
+          <Stack.Screen name="Homely" component={Homely} />
+        )} */}
+        <Stack.Screen name="Homely" component={Homely} />
+        {/* <Stack.Screen
           name="Home"
           component={Home}
           options={{
             title: "Krisearch",
           }}
-        />
-        <Stack.Screen name="Search" component={Search} />
-        <Stack.Screen
+        /> */}
+        {/* <Stack.Screen name="Search" component={Search} /> */}
+
+        {/* <Stack.Screen
           name="Profile"
           component={Profile}
           options={{
             title: "Profile",
           }}
-        />
+        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

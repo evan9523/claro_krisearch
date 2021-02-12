@@ -40,33 +40,12 @@ import { render } from "react-dom";
 import lottie from "lottie-web";
 import { BlurView } from "expo-blur";
 import { add } from "date-fns";
+import * as Location from "expo-location";
+import firebase from "../firebase/firebase";
 
 const Home = ({ navigation }) => {
-  const [farmer, setfarmer] = useState(0);
-  const modalizeRef = useRef<Modalize>(null);
-
-  const onOpen = () => {
-    modalizeRef.current?.open();
-  };
-
-  const onClose = () => {
-    modalizeRef.current?.close();
-  };
-
-  const genderData = [
-    {
-      key: "m",
-      text: "Men",
-    },
-    {
-      key: "f",
-      text: "Women",
-    },
-  ];
-
-  const [isLoading, setLoading] = useState(true);
-  const [sata, setSata] = useState([]);
-
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const cropper = "";
   const [blur, setblur] = useState(false);
   const [placer, setplacer] = useState(false);
@@ -96,343 +75,174 @@ const Home = ({ navigation }) => {
   const [tempEndDate, settempEndDate] = useState(new Date());
   const [show, setshow] = useState("");
   const [applied, setapplied] = useState(false);
+  const [focused, setfocused] = useState([]);
+  const [cropFinal, setcropFinal] = useState("");
+  const [filter, setfilter] = useState([
+    {
+      gender: "",
+      state: "",
+      harvestDate: "",
+    },
+  ]);
 
-  // console.log("REACHING HOME");
-  const container = useRef(null);
+  const [tempGen, settempGen] = useState("");
+  const [tempState, settempState] = useState("");
+  const [tempDate, settempDate] = useState("");
+  const [sendVal, setsendVal] = useState(0);
+  const [filteredBlur, setfilteredBlur] = useState([]);
+  const [selectedCrop, setselectedCrop] = useState(false);
+  const [mapCroptoFarmer, setmapCroptoFarmer] = useState([]);
+
+  const tempValues = () => {
+    console.log(tempGen, tempState, tempDate);
+  };
 
   useEffect(() => {
-    lottie.loadAnimation({
-      container: container.current,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      animationData: require("../../assets/wheat.json"),
-    });
-  });
-
-  useEffect(() => {
-    fetch("https://maps.claroenergy.in/Ksearch/fetch/farmers", {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/farmers", {
       method: "post",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        gender: null,
-        harvestDate: null,
-        state: selectedState,
+        farmerName: true,
+        farmingArea: true,
+        gender: tempGen,
+        harvestDate: tempEndDate.toLocaleDateString(),
+        orderBy: "",
+        cropName: cropFinal,
+        pageNo: 0,
+        quantity: true,
+        state: tempState,
       }),
     })
       .then((response) => response.json())
-      .then((data) => setfarmers(data.data.list))
+      .then((data) => {
+        console.log(data.data.list), setfarmers(data.data.list);
+      })
       .catch((error) => console.error(error));
-  }, []);
+  }, [sendVal, firstScroll]);
+
+  console.log(farmers);
 
   useEffect(() => {
-    fetch("https://maps.claroenergy.in/Ksearch/fetch/crops", {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/crops", {
       method: "post",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: cropper,
-        farmerData: true,
+        cropName: show,
       }),
     })
-      .then((response) => response.json())
-      .then((data) => setcrop(data.data.list))
-      .catch((error) => console.error(error));
-  }, []);
-
-  // console.log(crop);
-  // console.log(farmers);
-
-  const selectState = () => {
-    States.map((item) => {
-      // console.log(item.name);
-      farmers.map((i) => {
-        // console.log(i.state);
-        if (
-          item.name.toString().toLowerCase() ===
-          i.state.toString().toLowerCase()
-        ) {
-          setselectedState(item.name);
-        }
-      });
-    });
-  };
-
-  const selectCrop = () => {};
-
-  const handleLoad = () => {
-    setfirstScroll(firstScroll + 21);
-  };
-
-  const today = new Date();
-  // console.log(today);
+      .then((res) => res.json())
+      .then((data) => setfilteredBlur(data.data.list));
+  }, [show]);
 
   const renderMatch = ({ item }) => (
-    <View
+    <TouchableOpacity
       style={{
-        height: 55,
-        width: winWidth > 767 ? winWidth * 0.49 : winWidth * 0.95,
-        padding: 2,
+        width: winWidth > 767 ? "50%" : "97%",
+        height: 50,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        margin: 2,
+        padding: 5,
+        borderWidth: 1,
+        borderColor: "#fff",
+        borderRadius: 10,
+        backgroundColor: "#fff",
+        alignSelf: "center",
+      }}
+      onPress={() => {
+        setcropFinal(item.name), setsendVal(sendVal + 1);
       }}
     >
-      <TouchableOpacity
-        onPress={() => {
-          setplacer(true), setblur(!blur), setterm(item.name);
-          setapplied(true);
-        }}
+      <Image
+        source={{ uri: item.cropImage }}
         style={{
-          marginBottom: 2,
-          width: "100%",
-          backgroundColor: "#fff",
-          height: "100%",
-          padding: 5,
-          borderRadius: 10,
+          width: 45,
+          height: 45,
+          borderWidth: 1,
+          borderColor: "green",
+          borderRadius: 45,
         }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          {Data.map((i) =>
-            i.name.toLowerCase() === item.name.toLowerCase() ? (
-              <Image
-                source={{ uri: i.image }}
-                style={{
-                  height: 35,
-                  width: 35,
-                  borderColor: "green",
-                  borderWidth: 1,
-                  borderRadius: 35,
-                }}
-              />
-            ) : null
-          )}
-
-          <Text style={{ fontSize: 20 }}> {item.name}</Text>
-          {item.type !== "0" || "" ? (
-            <Text
-              style={{
-                fontSize: 15,
-                alignSelf: "center",
-                color: "#989898",
-                margin: 5,
-              }}
-            >
-              in
-            </Text>
-          ) : null}
-          {item.type !== "0" || "" ? (
-            <TouchableOpacity
-              onPress={() => {
-                setparent(true),
-                  setterm(item.type),
-                  setplacer(true),
-                  setapplied(false);
-                setblur(!blur);
-              }}
-            >
-              <Text style={{ fontSize: 15, color: "#346beb", marginLeft: 0 }}>
-                {item.type}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </TouchableOpacity>
-    </View>
+      />
+      <Text style={{ fontSize: 20, marginLeft: 5 }}>{item.name}</Text>
+    </TouchableOpacity>
   );
 
-  const renderItems = ({ item }) => (
-    <Card
-      key={item.id}
-      name={item.farmerName}
-      avatar={item.farmerImage}
-      phone={item.phone}
-      address={item.state}
-      crop={item.crops.map((i) => i.cropName).slice(0, 1)}
-      onPress={() => {
-        // console.log(item.farmerName),
-        setfarmer(item.id),
-          // console.log(item.crops.map((i) => i.quantity));
-          onOpen(),
-          setmodalName(item.farmerName);
-      }}
-    />
-  );
+  const showDetails = (id) => {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/farmer/details/" + id, {
+      method: "get",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: null,
+    })
+      .then((res) => res.json())
+      .then((data) => setfocused(data.data.list))
+      .catch((err) => console.log(err));
 
-  const toTitleCase = (phrase: string) => {
-    return phrase
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    OpenProfile();
   };
 
-  const showFilter = [val, addr, dater];
+  console.log(focused);
 
-  const bgdata = crop.filter((item) => {
-    // console.log(item.farmers);
-  });
-
-  // console.log(bgdata);
-  const filteredCrops = Data.filter((item) => {
-    return item.name.toLocaleLowerCase().includes(term.toLowerCase());
-  });
-
-  const filteredParents = crop.filter((item) => {
-    return item.type.toLocaleLowerCase().includes(term.toLowerCase());
-  });
-
-  const filteredFarmers = farmers.filter((item) => {
-    let a = item.crops.map((i) => i.cropName);
-    return a.toString().toLocaleLowerCase().includes(term.toLowerCase());
-  });
-
-  const filteredBlur = crop.filter((item) => {
-    return item.name.toLocaleLowerCase().includes(show.toLowerCase());
-  });
-
-  const suggestions = filteredBlur.filter((item) => {
-    // console.log(item.id, item.name);
-    if (item.id == 548 || item.id == 5918 || item.id == 47 || item.id == 4807) {
-      return item;
-    }
-  });
-
-  const suggested = [];
-  const showSugg = () => {
-    for (let i = 0; i <= 3; i++) {
-      filteredBlur.map((item) => {
-        suggested.push(item.name);
+  const cropSearch = (item) => {
+    alert(item);
+    setselectedCrop(true);
+    {
+      farmers.map((i) => {
+        if (i.cropName == item) {
+          console.log(i.farmerName);
+        } else {
+          console.log("NO MATCH");
+        }
       });
     }
   };
 
-  const genderFilter = filteredFarmers.filter((item) => {
-    if (val) {
-      return item.gender.toLocaleLowerCase() === val.toLowerCase();
-    }
-  });
+  console.log(mapCroptoFarmer);
 
-  const parentFilter = farmers.filter((item) => {
-    let a = item.crops.map((i) => i.cropType);
-    return a.toString().toLocaleLowerCase() === parenter.toLowerCase();
-  });
-
-  // const addrFilter = crop.filter((item) => {
-  //   console.log(item.farmers);
-  //   let resultaddr = item.farmers.map((i) => {
-  //     console.log(i.state);
-  //     if (addr) {
-  //       return i.state.toLocaleLowerCase() === addr.toLowerCase();
-  //     }
-  //   });
-  //   // if (addr) {
-  //   //   return item.state.toLocaleLowerCase() === addr.toLowerCase();
-  //   // }
-  // });
-
-  const addrFilter = filteredFarmers.filter((item) => {
-    if (addr) {
-      return item.state.toLocaleLowerCase() === addr.toLowerCase();
-    }
-  });
-
-  const harvestResultmulti = filteredFarmers.filter((item) => {
-    let str = item.crops.map((i) => i.harvestDate).toString();
-    // console.log(str);
-    var temp = new Array();
-    temp = str.split("/");
-    // console.log(temp);
-    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    // console.log(dt);
-    if (
-      item.gender.toLowerCase() === val.toLowerCase() &&
-      item.state.toLowerCase() === addr.toLowerCase()
-    )
-      return dt >= startDate && dt <= endDate;
-  });
-
-  const harvestResultaddr = filteredFarmers.filter((item) => {
-    let str = item.crops.map((i) => i.harvestDate).toString();
-    // console.log(str);
-    var temp = new Array();
-    temp = str.split("/");
-    // console.log(temp);
-    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    // console.log(dt);
-    if (item.state.toLowerCase() === addr.toLowerCase())
-      return dt >= startDate && dt <= endDate;
-  });
-
-  const harvestResultval = filteredFarmers.filter((item) => {
-    let str = item.crops.map((i) => i.harvestDate).toString();
-    // console.log(str);
-    var temp = new Array();
-    temp = str.split("/");
-    // console.log(temp);
-    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    // console.log(dt);
-    if (item.gender.toLowerCase() === val.toLowerCase())
-      return dt >= startDate && dt <= endDate;
-  });
-
-  const multiTo = filteredFarmers.filter((item) => {
-    let str = item.crops.map((i) => i.harvestDate).toString();
-    // console.log(str);
-    var temp = new Array();
-    temp = str.split("/");
-    // console.log(temp);
-    let dt = new Date(temp[2], parseInt(temp[1]) - 1, temp[0]);
-    // console.log(dt);
-    // console.log(startDate);
-    if (applied) {
-      if (val && addr === "") {
-        return item.gender.toLowerCase() === val.toLowerCase();
-      }
-      if (addr && val === "") {
-        return item.state.toLowerCase() === addr.toLowerCase();
-      }
-      if (dater && addr === "" && val === "") {
-        return dt >= startDate && dt <= endDate;
-      }
-      if (val && addr) {
-        return (
-          item.gender.toLowerCase() === val.toLowerCase() &&
-          item.state.toLowerCase() === addr.toLowerCase()
-        );
-      }
-      if (val && dater) {
-        return (
-          item.gender.toLowerCase() === val.toLowerCase() &&
-          dt >= startDate &&
-          dt <= endDate
-        );
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
       }
 
-      if (addr && dater) {
-        return dt > startDate && dt < endDate
-          ? item.state.toLowerCase() === addr.toLowerCase()
-          : null;
-      }
-      if (val && addr && dater) {
-        return (
-          item.gender.toLowerCase() === val.toLowerCase() &&
-          item.state.toLowerCase() === addr.toLowerCase() &&
-          dt > startDate &&
-          dt < endDate
-        );
-      } else {
-        return filteredFarmers;
-      }
-    }
-  });
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = "Waiting..";
+  if (errorMsg) {
+    text = "errorMsg";
+  } else if (location != null) {
+    console.log(location);
+    Location.setGoogleApiKey("AIzaSyBM1KjPdMGHYcIiXTbDl4v_GAAjbOO6OPA");
+    Location.reverseGeocodeAsync({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    })
+      .then((e) => {
+        console.log(e);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  text = JSON.stringify(location);
+  console.log(text);
+
+  const handleLoad = () => {
+    setfirstScroll(firstScroll + 1);
+  };
 
   const modalizeFilterRef = useRef<Modalize>(null);
   const onOpenfilter = () => {
@@ -443,1063 +253,124 @@ const Home = ({ navigation }) => {
     modalizeFilterRef.current?.close();
   };
 
+  const modalizeRef = useRef<Modalize>(null);
+  const OpenProfile = () => {
+    modalizeRef.current?.open();
+  };
+
+  const CloseProfile = () => {
+    modalizeRef.current?.close();
+  };
+
+  const genderData = [
+    {
+      key: "m",
+      text: "Men",
+    },
+    {
+      key: "f",
+      text: "Women",
+    },
+  ];
+
+  const renderItems = ({ item }) => (
+    <Card
+      key={item.id}
+      name={item.farmerName}
+      avatar={item.farmerImage}
+      phone={item.phone}
+      address={item.state}
+      crop={
+        item.crops[0].cropName +
+        (item.crops.length - 1 == 0 ? "" : " + " + (item.crops.length - 1))
+      }
+      onPress={() => {
+        // console.log(item.farmerName),
+        // setfarmer(item.id),
+        //   // console.log(item.crops.map((i) => i.quantity));
+        //   onOpen(),
+        //   setmodalName(item.farmerName);
+        console.log("Pressed");
+        showDetails(item.id);
+      }}
+    />
+  );
+
   return (
-    <View style={styles.container}>
+    <View
+      style={{
+        width: "100%",
+        height: winHeight,
+        backgroundColor: "#deebff",
+      }}
+    >
+      <Header
+        onTap={() => {
+          setblur(true), setshow("");
+        }}
+        onLogoTap={() => {
+          console.log("Logo");
+        }}
+        onFilter={() => console.log("Filter")}
+      />
       <View
         style={{
-          flexDirection: winWidth > 767 ? "row" : "column",
           width: "100%",
-          height: "100%",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          flexDirection: "row",
+          backgroundColor: "#deebff",
+          padding: 5,
         }}
       >
-        <View
+        <TouchableOpacity
           style={{
-            backgroundColor: "#f2f7ff",
-            width: winWidth > 767 ? "100%" : "100%",
-            height: "100%",
+            flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
+            backgroundColor: "#346beb",
+            height: 30,
+            width: 80,
+            padding: 3,
+            borderRadius: 5,
           }}
+          onPress={() => onOpenfilter()}
         >
-          <Header
-            onTap={() => {
-              setblur(true), setshow("");
+          <AntDesign name="filter" size={15} color="#fff" />
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: "500",
+              marginLeft: 2,
+              color: "#fff",
             }}
-            onLogoTap={() => {
-              // setfilteractive(false), setterm("");
-              // console.log("hello");
-            }}
-            onFilter={() => onOpenfilter()}
-          />
-
-          {!parent ? (
-            <View
-              style={{
-                width: winWidth > 767 ? "93.5%" : "96%",
-
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                alignSelf: "center",
-                borderBottomWidth: 1,
-                borderBottomColor: "#bfd8ff",
-
-                padding: 5,
-              }}
-            >
-              <View style={{ marginRight: 10 }}>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#346beb",
-                    height: 30,
-                    width: 80,
-                    padding: 3,
-                    borderRadius: 5,
-                  }}
-                  onPress={() => {
-                    onOpenfilter();
-                  }}
-                >
-                  <AntDesign name="filter" size={15} color="#fff" />
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      marginLeft: 2,
-                      color: "#fff",
-                    }}
-                  >
-                    {" "}
-                    Filter
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView
-                horizontal={true}
-                contentContainerStyle={{
-                  marginLeft: 10,
-                }}
-                showsHorizontalScrollIndicator={false}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    alignSelf: "center",
-
-                    alignItems: "flex-start",
-
-                    justifyContent: "flex-start",
-
-                    padding: 5,
-                  }}
-                >
-                  {applied === false ||
-                  // val === "" ||
-                  // addr === "" ||
-                  // dater === false ||
-                  term === "" ? (
-                    val === "" && addr === "" && dater === false ? (
-                      <View
-                        style={{
-                          alignItems: "center",
-                          marginRight: 5,
-                          backgroundColor: "#fff",
-                          padding: 5,
-                          height: 30,
-                          width: 50,
-                          borderRadius: 20,
-                          justifyContent: "center",
-                          flexDirection: "row",
-                          borderWidth: 1,
-                          borderColor: "#346beb",
-                        }}
-                      >
-                        <Text style={{ color: "#000" }}>All</Text>
-                      </View>
-                    ) : (
-                      <View style={{ marginRight: 10 }}>
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            backgroundColor: "#f2f7ff",
-                            height: 30,
-                            width: 90,
-                            padding: 3,
-                            borderRadius: 5,
-                            borderWidth: 2,
-                            borderColor: "#3A48ED",
-                          }}
-                          onPress={() => {
-                            setfilteractive(false);
-                            setapplied(false);
-                            setval("");
-                            setaddr("");
-                            setdater(false);
-                            setterm("");
-                            settempDater(false);
-                          }}
-                        >
-                          <MaterialIcons
-                            name="clear-all"
-                            size={15}
-                            color="#3A48ED"
-                          />
-                          <Text
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              marginLeft: 2,
-                              color: "#3A48ED",
-                            }}
-                          >
-                            {" "}
-                            Clear All
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    )
-                  ) : (
-                    <View style={{ marginRight: 10 }}>
-                      <TouchableOpacity
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#f2f7ff",
-                          height: 30,
-                          width: 90,
-                          padding: 3,
-                          borderRadius: 5,
-                          borderWidth: 2,
-                          borderColor: "#3A48ED",
-                        }}
-                        onPress={() => {
-                          setfilteractive(false);
-                          setapplied(false);
-                          setval("");
-                          setaddr("");
-                          setdater(false);
-                          setterm("");
-                        }}
-                      >
-                        <MaterialIcons
-                          name="clear-all"
-                          size={15}
-                          color="#3A48ED"
-                        />
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            marginLeft: 2,
-                            color: "#3A48ED",
-                          }}
-                        >
-                          {" "}
-                          Clear All
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                  {term ? (
-                    <View
-                      style={{
-                        alignItems: "center",
-                        marginRight: 5,
-                        backgroundColor: term ? "#87edbf" : "#deebff",
-                        padding: 5,
-                        height: 30,
-
-                        borderRadius: 20,
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                        borderWidth: 1,
-                        borderColor: "#3ECF8E",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "#009150",
-                          fontWeight: "600",
-                          fontSize: 15,
-                        }}
-                      >
-                        {term ? term : null}
-                      </Text>
-
-                      <AntDesign
-                        name="close"
-                        size={15}
-                        color="#fff"
-                        style={{
-                          top: 2,
-                          backgroundColor: "#009150",
-                          padding: 2,
-                          marginLeft: 5,
-                          borderRadius: 15,
-                        }}
-                        onPress={() => setterm("")}
-                      />
-                    </View>
-                  ) : null}
-
-                  {val && applied ? (
-                    <View
-                      style={{
-                        alignItems: "center",
-                        marginRight: 5,
-                        backgroundColor: val ? "#fff" : "#deebff",
-                        padding: 5,
-                        height: 30,
-
-                        borderRadius: 20,
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                        borderWidth: 1,
-                        borderColor: "#346beb",
-                      }}
-                    >
-                      <Text style={{ color: "#000" }}>
-                        {val
-                          ? val === "m"
-                            ? "Men"
-                            : val === "f"
-                            ? "Women"
-                            : "Other"
-                          : null}
-                      </Text>
-                      <AntDesign
-                        name="close"
-                        size={15}
-                        color="#3A48ED"
-                        style={{
-                          top: 2,
-                          backgroundColor: "#A1C7FF",
-                          padding: 2,
-                          borderRadius: 15,
-                          marginLeft: 5,
-                        }}
-                        onPress={() => {
-                          setval(""), settempVal("");
-                        }}
-                      />
-                    </View>
-                  ) : null}
-                  {addr && applied ? (
-                    <View
-                      style={{
-                        alignItems: "center",
-                        marginRight: 5,
-                        backgroundColor: addr ? "#fff" : "#deebff",
-                        padding: 5,
-                        height: 30,
-
-                        borderRadius: 20,
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                        borderWidth: 1,
-                        borderColor: "#346beb",
-                      }}
-                    >
-                      <Text style={{ color: "#000" }}>
-                        {addr ? addr : null}
-                      </Text>
-                      <AntDesign
-                        name="close"
-                        size={15}
-                        color="#3A48ED"
-                        style={{
-                          top: 2,
-                          backgroundColor: "#A1C7FF",
-                          padding: 2,
-                          borderRadius: 15,
-                          marginLeft: 5,
-                        }}
-                        onPress={() => {
-                          settempAddr(""), setaddr("");
-                        }}
-                      />
-                    </View>
-                  ) : null}
-
-                  {dater && applied ? (
-                    <View
-                      style={{
-                        alignItems: "center",
-                        marginRight: 5,
-                        backgroundColor: dater && applied ? "#fff" : "#deebff",
-                        padding: 5,
-                        height: 30,
-
-                        borderRadius: 20,
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                        borderWidth: 1,
-                        borderColor: "#346beb",
-                      }}
-                    >
-                      <Text style={{ color: "#000" }}>
-                        {dater && applied
-                          ? startDate.toDateString() +
-                            " - " +
-                            endDate.toDateString()
-                          : null}
-                      </Text>
-                      <AntDesign
-                        name="close"
-                        size={15}
-                        color="#3A48ED"
-                        style={{
-                          top: 2,
-                          backgroundColor: "#A1C7FF",
-                          padding: 2,
-                          borderRadius: 15,
-                          marginLeft: 5,
-                        }}
-                        onPress={() => {
-                          settempDater(false), setdater(false);
-                          settempStartDate(new Date());
-                        }}
-                      />
-                    </View>
-                  ) : null}
-                </View>
-              </ScrollView>
-            </View>
-          ) : (
-            <View
-              style={{
-                flexDirection: "column",
-                width: "100%",
-                height: 40,
-                marginTop: 10,
-              }}
-            >
-              <View
-                style={{
-                  width: "100%",
-                  height: 30,
-                  backgroundColor: "#f2f7ff",
-                  top: winWidth > 767 ? "20%" : "10%",
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    padding: 5,
-                    fontWeight: "500",
-                    color: "#000",
-                    alignSelf: "center",
-                    fontSize: winWidth > 767 ? 20 : 15,
-                    marginBottom: 10,
-                  }}
-                >
-                  Available {term.split("s")}s
-                </Text>
-              </View>
-            </View>
-          )}
-          <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
-            {parent ? (
-              <View
-                style={{
-                  flexDirection: "row",
-                  width: "100%",
-                  flexWrap: "wrap",
-
-                  alignItems: "flex-start",
-                  justifyContent: "center",
-                  padding: winWidth > 767 ? 10 : 2,
-                }}
-              >
-                {filteredParents.map((item, cIndex) => {
-                  return Data.map((i) =>
-                    i.name === item.name ? (
-                      <Card
-                        key={item.id}
-                        name={item.name}
-                        avatar={i.image}
-                        isCrop={true}
-                        onPress={() => {
-                          setparent(false), setterm(item.name);
-                          setapplied(true);
-                        }}
-                      />
-                    ) : null
-                  );
-                })}
-              </View>
-            ) : filteractive ? (
-              dater && addr && val === "" && applied ? (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={harvestResultaddr}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : dater && addr === "" && val && applied ? (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={harvestResultval}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : dater && addr && val && applied ? (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={harvestResultmulti}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: winHeight * 0.89,
-                  }}
-                >
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={multiTo}
-                    renderItem={renderItems}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      flexDirection: "row",
-                      width: "100%",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: winWidth > 767 ? 10 : 2,
-                    }}
-                  />
-                </View>
-              )
-            ) : (
-              <View
-                style={{
-                  width: "100%",
-                  height: winHeight * 0.89,
-                }}
-              >
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={filteredFarmers}
-                  renderItem={renderItems}
-                  onEndReached={handleLoad}
-                  ListEmptyComponent={() =>
-                    term && filteredFarmers.length == 0 ? (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    ) : (
-                      <View style={styles.container} ref={container} />
-                    )
-                  }
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    width: "100%",
-                    flexWrap: "wrap",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    padding: winWidth > 767 ? 10 : 2,
-                  }}
-                />
-              </View>
-            )}
-          </ScrollView>
-        </View>
+          >
+            {" "}
+            Filter
+          </Text>
+        </TouchableOpacity>
       </View>
-      <Modalize
-        ref={modalizeRef}
-        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
-        threshold={100}
-        modalStyle={winWidth > 767 ? { width: 400, alignSelf: "center" } : null}
-        closeOnOverlayTap={true}
-        mod
-      >
-        {farmers.map((item, cIndex) => {
-          if (farmer == item.id) {
-            return (
-              <View>
-                <View
-                  style={{
-                    backgroundColor: "#3A48ED",
-                    width: "100%",
-                    height: 170,
-                    borderWidth: 1,
-                    top: -2,
-                    borderRadius: 15,
-                    borderColor: "#3A48ED",
-                    shadowColor: "#000",
-                    shadowOffset: {
-                      width: 0,
-                      height: 4,
-                    },
-                    shadowOpacity: 0.32,
-                    shadowRadius: 5.46,
-
-                    elevation: 9,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() => onClose()}
-                    style={{
-                      alignItems: "center",
-                      marginTop: 5,
-                      marginRight: 2,
-                      padding: 5,
-                      justifyContent: "center",
-                      alignSelf: "flex-end",
-                      backgroundColor: "rgba(0,0,0,0.2)",
-                      borderRadius: 10,
-                      height: 35,
-                      width: 70,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 500,
-                          color: "#fff",
-                          marginRight: 5,
-                        }}
-                      >
-                        Close
-                      </Text>
-                      <SimpleLineIcons
-                        name="close"
-                        size={15}
-                        color="#fff"
-                        onPress={() => onClose()}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: 2,
-                      top: -10,
-                    }}
-                  >
-                    <View style={{ width: "40%", height: "100%", padding: 5 }}>
-                      <Image
-                        source={{ uri: item.farmerImage }}
-                        style={{
-                          height: 120,
-                          width: 120,
-                          borderRadius: 120,
-                          borderColor: "#fff",
-                          borderWidth: 2,
-                        }}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "space-evenly",
-                        width: "60%",
-                        height: "100%",
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          alignItems: "flex-start",
-                          width: "100%",
-                          height: "100%",
-                          justifyContent: "space-evenly",
-                        }}
-                      >
-                        <View
-                          style={{ flexDirection: "row", alignItems: "center" }}
-                        >
-                          <Feather name="user" size={20} color="#fff" />
-                          <Text
-                            style={{
-                              fontSize: 20,
-                              color: "#fff",
-                              fontWeight: "700",
-                              marginLeft: 5,
-                            }}
-                          >
-                            {toTitleCase(item.farmerName)}
-                          </Text>
-                        </View>
-                        <View
-                          style={{ flexDirection: "row", alignItems: "center" }}
-                        >
-                          <Feather name="map-pin" size={20} color="#fff" />
-                          <Text
-                            style={{
-                              fontSize: 20,
-                              color: "#fff",
-                              fontWeight: "700",
-                              marginLeft: 5,
-                            }}
-                          >
-                            {item.state}
-                          </Text>
-                        </View>
-                        <View
-                          style={{ flexDirection: "row", alignItems: "center" }}
-                        >
-                          <Feather name="phone" size={20} color="#fff" />
-                          <Text
-                            style={{
-                              fontSize: 20,
-                              color: "#fff",
-                              fontWeight: "700",
-                              marginLeft: 5,
-                            }}
-                          >
-                            {hideNumber(item.phone)}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={{ top: -40 }}>
-                    <Text
-                      style={{
-                        marginTop: winWidth < 400 ? 40 : 60,
-                        padding: 5,
-                        fontWeight: "500",
-                        color: "#6F6F6F",
-                        fontSize: 20,
-                        marginLeft: 5,
-                      }}
-                    >
-                      Farming Details
-                    </Text>
-                    <View
-                      style={{
-                        width: "95%",
-                        alignSelf: "center",
-                        height: 1,
-                        backgroundColor: "#C0C0C0",
-                      }}
-                    ></View>
-                    <View
-                      style={{
-                        flexDirection: "column",
-                        marginTop: 10,
-                        padding: 10,
-                        height: winWidth < 400 ? 100 : 180,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          width: "100%",
-                          justifyContent: "space-between",
-                          marginBottom: 10,
-                        }}
-                      >
-                        <View style={{ flexDirection: "column", width: "50%" }}>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Entypo name="leaf" size={20} color="#9F99FF" />
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                color: "#6F6F6F",
-                                fontWeight: "600",
-                              }}
-                            >
-                              Crop
-                            </Text>
-                          </View>
-                          <View>
-                            <Text style={{ fontSize: 20 }}>
-                              {item.crops.map((i) => i.cropName).slice(0, 1)}
-                            </Text>
-                          </View>
-                        </View>
-
-                        <View
-                          style={{
-                            flexDirection: "column",
-                            width: "50%",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <SimpleLineIcons
-                              name="calendar"
-                              size={20}
-                              color="#9F99FF"
-                            />
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                color: "#6F6F6F",
-                                marginLeft: 5,
-                                fontWeight: "600",
-                              }}
-                            >
-                              Harvest Date
-                            </Text>
-                          </View>
-                          <View>
-                            <Text style={{ fontSize: 20 }}>
-                              {item.crops.map((i) => i.harvestDate).slice(0, 1)}
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          width: "100%",
-                          justifyContent: "space-between",
-                          marginTop: 5,
-                        }}
-                      >
-                        <View style={{ flexDirection: "column", width: "50%" }}>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <SimpleLineIcons
-                              name="size-fullscreen"
-                              size={20}
-                              color="#9F99FF"
-                            />
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                color: "#6F6F6F",
-                                fontWeight: "600",
-                                marginLeft: 5,
-                              }}
-                            >
-                              Farming Area
-                            </Text>
-                          </View>
-                          <View>
-                            <Text style={{ fontSize: 20 }}>
-                              {item.land} Acres
-                            </Text>
-                          </View>
-                        </View>
-
-                        <View
-                          style={{
-                            flexDirection: "column",
-                            width: "50%",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <SimpleLineIcons
-                              name="speedometer"
-                              size={20}
-                              color="#9F99FF"
-                            />
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                color: "#6F6F6F",
-                                marginLeft: 5,
-                                fontWeight: "600",
-                              }}
-                            >
-                              Quantity
-                            </Text>
-                          </View>
-                          <View>
-                            <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                              {item.crops.map((i) => i.quantity).slice(0, 1) /
-                                100}{" "}
-                              q
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                      <View></View>
-                    </View>
-                    <View
-                      style={{
-                        width: "95%",
-                        alignSelf: "center",
-                        height: 1,
-                        backgroundColor: "#C0C0C0",
-                        marginTop: winWidth < 400 ? 30 : 10,
-                      }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      width: "100%",
-                      flexDirection: "column",
-                      top: -29,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        color: "#808080",
-                        marginLeft: 5,
-                      }}
-                    >
-                      Coming soon
-                    </Text>
-                    <View
-                      style={{
-                        width: "100%",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-evenly",
-                        top: 5,
-                      }}
-                    >
-                      <TouchableOpacity
-                        style={{
-                          width: winWidth < 400 ? 70 : 90,
-                          height: winWidth < 400 ? 30 : 40,
-                          backgroundColor: "#A9A9A9",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexDirection: "row",
-                          borderRadius: 10,
-                        }}
-                        onPress={() =>
-                          alert(
-                            "Click to chat feature helps you connect directly to this farmer in one click. Feature Coming soon !"
-                          )
-                        }
-                      >
-                        <FontAwesome5 name="whatsapp" size={20} color="#fff" />
-                        <Text
-                          style={{
-                            fontSize: winWidth < 400 ? 16 : 20,
-                            color: "#fff",
-                            marginLeft: 5,
-                          }}
-                        >
-                          Chat
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: winWidth < 400 ? 70 : 90,
-                          height: winWidth < 400 ? 30 : 40,
-                          backgroundColor: "#A9A9A9",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexDirection: "row",
-                          borderRadius: 10,
-                        }}
-                        onPress={() => alert("Feature Coming soon !")}
-                      >
-                        <Text
-                          style={{
-                            fontSize: winWidth < 400 ? 16 : 20,
-                            color: "#fff",
-                            marginLeft: 5,
-                          }}
-                        >
-                          Buy
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: winWidth < 400 ? 90 : 120,
-                          height: winWidth < 400 ? 35 : 40,
-                          backgroundColor: "#fff",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexDirection: "row",
-                          borderRadius: 10,
-                          borderColor: "#A9A9A9",
-                          borderWidth: 2,
-                          padding: 5,
-                        }}
-                        onPress={() =>
-                          alert(
-                            "Support the farmer by any kind. Feature Coming Soon !"
-                          )
-                        }
-                      >
-                        <FontAwesome
-                          name="handshake-o"
-                          size={15}
-                          color="#A9A9A9"
-                        />
-                        <Text
-                          style={{
-                            fontSize: winWidth < 400 ? 16 : 20,
-                            color: "#A9A9A9",
-                            marginLeft: 5,
-                          }}
-                        >
-                          Support
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            );
-          } else {
-            null;
-          }
-        })}
-      </Modalize>
+      {farmers !== null ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={farmers}
+          renderItem={renderItems}
+          ListEmptyComponent={() => (
+            <Text style={{ fontSize: 30 }}> Oops ! Didnt find that</Text>
+          )}
+          contentContainerStyle={{
+            flexDirection: "row",
+            width: "100%",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            backgroundColor: "#deebff",
+            padding: winWidth > 767 ? 10 : 2,
+          }}
+          onEndReached={() => handleLoad()}
+        />
+      ) : null}
+      <View style={{ width: "100%", height: 40 }} />
       <Modalize
         ref={modalizeFilterRef}
         modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
@@ -1547,13 +418,10 @@ const Home = ({ navigation }) => {
                 borderWidth: 2,
               }}
               onPress={() => {
-                setmerge(false), setfilteractive(false), settempAddr("");
-                settempVal("");
-                settempDater(false);
-                setval(""), setaddr("");
-                setparenter("");
-                setdater(false);
-                settempStartDate(new Date());
+                settempGen("");
+                settempState("");
+                settempDate("");
+                setsendVal(0);
               }}
             >
               <Text
@@ -1578,14 +446,9 @@ const Home = ({ navigation }) => {
                 borderWidth: 2,
               }}
               onPress={() => {
-                setfilteractive(true),
-                  onCloseFilter(),
-                  setapplied(true),
-                  setaddr(tempAddr);
-                setval(tempVal);
-                setStartDate(tempStartDate);
-                setEndDate(tempEndDate);
-                setdater(tempDater);
+                tempValues();
+                setsendVal(sendVal + 1);
+                onCloseFilter();
               }}
             >
               <Text
@@ -1601,13 +464,6 @@ const Home = ({ navigation }) => {
             <TouchableOpacity
               onPress={() => {
                 onCloseFilter();
-                tempVal && !applied
-                  ? settempVal("")
-                  : tempAddr && !applied
-                  ? settempAddr("")
-                  : tempDater && !applied
-                  ? setdater(false)
-                  : null;
               }}
             >
               <View
@@ -1668,10 +524,10 @@ const Home = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.circle}
                   onPress={() => {
-                    settempVal(item.key);
+                    settempGen(item.key);
                   }}
                 >
-                  {tempVal === item.key && (
+                  {tempGen === item.key && (
                     <View style={styles.checkedCircle} />
                   )}
                 </TouchableOpacity>
@@ -1743,12 +599,13 @@ const Home = ({ navigation }) => {
                     <TouchableOpacity
                       style={styles.circle}
                       onPress={() => {
-                        settempAddr(item.name);
-                        // setaddr(item.name);
-                        setaddrToggle(false);
+                        settempState(item.name);
+                        // settempAddr(item.name);
+                        // // setaddr(item.name);
+                        // setaddrToggle(false);
                       }}
                     >
-                      {tempAddr === item.name && (
+                      {tempState === item.name && (
                         <View style={styles.checkedCircle} />
                       )}
                     </TouchableOpacity>
@@ -1840,15 +697,15 @@ const Home = ({ navigation }) => {
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
                   popperPlacement="bottom-right"
-                  selected={tempDater ? tempEndDate : null}
+                  selected={tempEndDate}
                   onChange={(date) => {
-                    date <= tempStartDate
-                      ? (alert(
-                          "End Date cannot be less than or equal to Start Date"
-                        ),
-                        settempEndDate(null))
-                      : settempEndDate(date);
-                    settempDater(true);
+                    settempEndDate(date);
+                    // date <= tempStartDate
+                    //   ? alert(
+                    //       "End Date cannot be less than or equal to Start Date"
+                    //     )
+                    //   : settempEndDate(date);
+                    // settempDater(true);
                   }}
                   customInput={
                     <TextInput
@@ -1891,6 +748,469 @@ const Home = ({ navigation }) => {
           }}
         ></View>
       </Modalize>
+      <Modalize
+        ref={modalizeRef}
+        modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.88}
+        modalStyle={winWidth > 767 ? { width: 400, alignSelf: "center" } : null}
+        threshold={100}
+        closeOnOverlayTap={true}
+        mod
+      >
+        <View>
+          <View
+            style={{
+              backgroundColor: "#3A48ED",
+              width: "100%",
+              height: 170,
+              borderWidth: 1,
+              top: -2,
+              borderRadius: 15,
+              borderColor: "#3A48ED",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.32,
+              shadowRadius: 5.46,
+
+              elevation: 9,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => CloseProfile()}
+              style={{
+                alignItems: "center",
+                marginTop: 5,
+                marginRight: 2,
+                padding: 5,
+                justifyContent: "center",
+                alignSelf: "flex-end",
+                backgroundColor: "rgba(0,0,0,0.2)",
+                borderRadius: 10,
+                height: 35,
+                width: 70,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 500,
+                    color: "#fff",
+                    marginRight: 5,
+                  }}
+                >
+                  Close
+                </Text>
+                <SimpleLineIcons
+                  name="close"
+                  size={15}
+                  color="#fff"
+                  onPress={() => CloseProfile()}
+                />
+              </View>
+            </TouchableOpacity>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: 2,
+                top: -10,
+              }}
+            >
+              <View style={{ width: "40%", height: "100%", padding: 5 }}>
+                {focused.map((i) => {
+                  return (
+                    <Image
+                      source={{ uri: i.farmerImage }}
+                      style={{
+                        height: 120,
+                        width: 120,
+                        borderRadius: 120,
+                        borderColor: "#fff",
+                        borderWidth: 2,
+                      }}
+                    />
+                  );
+                })}
+              </View>
+              <View
+                style={{
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  width: "60%",
+                  height: "100%",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    width: "100%",
+                    height: "100%",
+                    justifyContent: "space-evenly",
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Feather name="user" size={20} color="#fff" />
+
+                    {focused.map((i) => {
+                      return (
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            color: "#fff",
+                            fontWeight: "700",
+                            marginLeft: 5,
+                          }}
+                        >
+                          {i.farmerName}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Feather name="map-pin" size={20} color="#fff" />
+                    {focused.map((i) => {
+                      return (
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            color: "#fff",
+                            fontWeight: "700",
+                            marginLeft: 5,
+                          }}
+                        >
+                          {i.state}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Feather name="phone" size={20} color="#fff" />
+                    {focused.map((i) => {
+                      return (
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            color: "#fff",
+                            fontWeight: "700",
+                            marginLeft: 5,
+                          }}
+                        >
+                          {i.phone}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View style={{ top: -40 }}>
+              <Text
+                style={{
+                  marginTop: winWidth < 400 ? 40 : 60,
+                  padding: 5,
+                  fontWeight: "500",
+                  color: "#6F6F6F",
+                  fontSize: 20,
+                  marginLeft: 5,
+                }}
+              >
+                Farming Details
+              </Text>
+              <View
+                style={{
+                  width: "95%",
+                  alignSelf: "center",
+                  height: 1,
+                  backgroundColor: "#C0C0C0",
+                }}
+              ></View>
+              <View
+                style={{
+                  flexDirection: "column",
+                  marginTop: 10,
+                  padding: 10,
+                  height: winWidth < 400 ? 100 : 180,
+                  justifyContent: "space-between",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    marginBottom: 10,
+                  }}
+                >
+                  <View style={{ flexDirection: "column", width: "50%" }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Entypo name="leaf" size={20} color="#9F99FF" />
+
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: "#6F6F6F",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Crop
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 20 }}>Crop</Text>
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      width: "50%",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <SimpleLineIcons
+                        name="calendar"
+                        size={20}
+                        color="#9F99FF"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: "#6F6F6F",
+                          marginLeft: 5,
+                          fontWeight: "600",
+                        }}
+                      >
+                        Harvest Date
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 20 }}>Harvest Date</Text>
+                    </View>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    marginTop: 5,
+                  }}
+                >
+                  <View style={{ flexDirection: "column", width: "50%" }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <SimpleLineIcons
+                        name="size-fullscreen"
+                        size={20}
+                        color="#9F99FF"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: "#6F6F6F",
+                          fontWeight: "600",
+                          marginLeft: 5,
+                        }}
+                      >
+                        Farming Area
+                      </Text>
+                    </View>
+                    <View style={{ marginTop: 5 }}>
+                      {focused.map((i) => {
+                        return (
+                          <Text style={{ fontSize: 20 }}>{i.totalLand}</Text>
+                        );
+                      })}
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      width: "50%",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <SimpleLineIcons
+                        name="speedometer"
+                        size={20}
+                        color="#9F99FF"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: "#6F6F6F",
+                          marginLeft: 5,
+                          fontWeight: "600",
+                        }}
+                      >
+                        Quantity
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 20, marginLeft: 5 }}>
+                        Quantity q
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <View></View>
+              </View>
+              <View
+                style={{
+                  width: "95%",
+                  alignSelf: "center",
+                  height: 1,
+                  backgroundColor: "#C0C0C0",
+                  marginTop: winWidth < 400 ? 30 : 10,
+                }}
+              />
+            </View>
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "column",
+                top: -29,
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: "#808080",
+                  marginLeft: 5,
+                }}
+              >
+                Coming soon
+              </Text>
+              <View
+                style={{
+                  width: "100%",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  top: 5,
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    width: winWidth < 400 ? 70 : 90,
+                    height: winWidth < 400 ? 30 : 40,
+                    backgroundColor: "#A9A9A9",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    borderRadius: 10,
+                  }}
+                  onPress={() =>
+                    alert(
+                      "Click to chat feature helps you connect directly to this farmer in one click. Feature Coming soon !"
+                    )
+                  }
+                >
+                  <FontAwesome5 name="whatsapp" size={20} color="#fff" />
+                  <Text
+                    style={{
+                      fontSize: winWidth < 400 ? 16 : 20,
+                      color: "#fff",
+                      marginLeft: 5,
+                    }}
+                  >
+                    Chat
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    width: winWidth < 400 ? 70 : 90,
+                    height: winWidth < 400 ? 30 : 40,
+                    backgroundColor: "#A9A9A9",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    borderRadius: 10,
+                  }}
+                  onPress={() => alert("Feature Coming soon !")}
+                >
+                  <Text
+                    style={{
+                      fontSize: winWidth < 400 ? 16 : 20,
+                      color: "#fff",
+                      marginLeft: 5,
+                    }}
+                  >
+                    Buy
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    width: winWidth < 400 ? 90 : 120,
+                    height: winWidth < 400 ? 35 : 40,
+                    backgroundColor: "#fff",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    borderRadius: 10,
+                    borderColor: "#A9A9A9",
+                    borderWidth: 2,
+                    padding: 5,
+                  }}
+                  onPress={() =>
+                    alert(
+                      "Support the farmer by any kind. Feature Coming Soon !"
+                    )
+                  }
+                >
+                  <FontAwesome name="handshake-o" size={15} color="#A9A9A9" />
+                  <Text
+                    style={{
+                      fontSize: winWidth < 400 ? 16 : 20,
+                      color: "#A9A9A9",
+                      marginLeft: 5,
+                    }}
+                  >
+                    Support
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modalize>
       {blur ? (
         <View
           style={{
@@ -1907,157 +1227,65 @@ const Home = ({ navigation }) => {
           >
             <View
               style={{
-                marginTop: 20,
-                padding: 5,
-                height: "100%",
+                backgroundColor: "#fff",
+                height: 55,
+                width: winWidth > 767 ? "50%" : "97%",
+                alignSelf: "center",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderRadius: 8,
+                padding: 20,
+                shadowColor: "#98A0FF",
+                shadowOffset: {
+                  width: 0,
+                  height: 4,
+                },
+                shadowOpacity: 0.32,
+                shadowRadius: 5.46,
+                marginTop: 10,
+                elevation: 9,
               }}
             >
-              <View
-                style={{
-                  backgroundColor: "#fff",
-                  height: 55,
-                  width: winWidth > 767 ? "50%" : "97%",
-                  alignSelf: "center",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  borderRadius: 8,
-                  padding: 20,
-                  shadowColor: "#98A0FF",
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.32,
-                  shadowRadius: 5.46,
-
-                  elevation: 9,
-                }}
-              >
-                {/* <TextInput style={{height:40, backgroundColor:"white", width:"75%", padding:5, outline}} placeholder="Search for crops..." autoFocus={true}/> */}
-                <TextInput
-                  style={
-                    Platform.OS === "web" && {
-                      outlineColor: "#fff",
-                      height: 40,
-                      backgroundColor: "white",
-                      width: "95%",
-                      padding: 5,
-                      fontSize: 20,
-                    }
+              <TextInput
+                style={
+                  Platform.OS === "web" && {
+                    outlineColor: "#fff",
+                    height: 40,
+                    backgroundColor: "white",
+                    width: "95%",
+                    padding: 5,
+                    fontSize: 20,
                   }
-                  placeholder="Search for Crops"
-                  autoFocus={true}
-                  editable={true}
-                  onChangeText={(text) => {
-                    setshow(text);
-                  }}
-                />
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  {/* {term ? (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setterm("");
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 50,
-                          height: 35,
-                          borderWidth: 2,
-                          borderColor: "#3d3f40",
-                          alignItems: "center",
-                          alignSelf: "flex-end",
-                          justifyContent: "center",
-                          marginRight: 5,
-                          backgroundColor: "#3d3f40",
-                          borderRadius: 5,
-                        }}
-                      >
-                        <Text style={{ fontSize: 15, color: "#fff" }}>
-                          Clear
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ) : null} */}
-                </View>
-                <TouchableOpacity onPress={() => setblur(false)}>
-                  <View
-                    style={{
-                      width: 25,
-                      height: 25,
-                      borderWidth: 2,
-                      borderColor: "#A1C7FF",
-                      alignItems: "center",
-                      alignSelf: "flex-end",
-                      justifyContent: "center",
-                      right: -10,
-                      backgroundColor: "#A1C7FF",
-                      borderRadius: 25,
-                    }}
-                  >
-                    <AntDesign name="close" size={20} color="#3A48ED" />
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={{ flex: 1, alignItems: "center", width: "100%" }}>
-                {/* <TouchableOpacity style={{width:"100%", height:30, alignItems:"center", justifyContent:"center", backgroundColor:"transparent"}} onPress={()=>{setplacer(true),setblur(!blur)}}>
-<Text>{term}</Text>
-</TouchableOpacity> */}
-                {show !== "" ? (
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={filteredBlur}
-                    renderItem={renderMatch}
-                    ListEmptyComponent={() => (
-                      <View style={styles.container}>
-                        <Text style={{ fontSize: 30 }}>
-                          {" "}
-                          Oops ! Didnt find that
-                        </Text>
-                      </View>
-                    )}
-                    contentContainerStyle={{
-                      width: "100%",
-                    }}
-                  />
-                ) : (
-                  <View
-                    style={{
-                      width: winWidth > 767 ? winWidth * 0.49 : winWidth * 0.95,
-                      marginTop: 5,
-                      backgroundColor: "#fff",
-                      borderRadius: 10,
-                      padding: 5,
-                    }}
-                  >
-                    <Text style={{ fontSize: 18, margin: 15 }}>Suggested </Text>
-                    <FlatList
-                      showsVerticalScrollIndicator={false}
-                      data={suggestions}
-                      renderItem={renderMatch}
-                      contentContainerStyle={{
-                        width: "100%",
-                      }}
-                    />
+                }
+                placeholder="Search for Crops"
+                autoFocus={true}
+                editable={true}
+                onChangeText={(text) => {
+                  console.log(text);
+                  setshow(text);
+                }}
+              />
+              <Button title="Close Blur" onPress={() => setblur(false)} />
+            </View>
+            {show !== "" ? (
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={filteredBlur}
+                renderItem={renderMatch}
+                ListEmptyComponent={() => (
+                  <View style={styles.container}>
+                    <Text style={{ fontSize: 30 }}>
+                      {" "}
+                      Oops ! Didnt find that
+                    </Text>
                   </View>
                 )}
-                <TouchableOpacity
-                  style={{
-                    width: "100%",
-                    flex: 1,
-                    backgroundColor: "transparent",
-                  }}
-                  onPress={() => setblur(false)}
-                ></TouchableOpacity>
-              </View>
-            </View>
+                contentContainerStyle={{
+                  width: "100%",
+                }}
+              />
+            ) : null}
           </BlurView>
         </View>
       ) : null}
@@ -2070,7 +1298,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f7ff",
+    backgroundColor: "#deebff",
     alignItems: "center",
     justifyContent: "center",
     height: winHeight,

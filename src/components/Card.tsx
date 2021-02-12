@@ -156,7 +156,7 @@ export default function Card(props: CardProps) {
         ) : null}
 
         {!isCrop ? (
-          <View>
+          <View style={{ marginBottom: 15 }}>
             <Text>{phone ? hideNumber(phone) : "Not available"}</Text>
           </View>
         ) : null}

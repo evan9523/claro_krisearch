@@ -1,0 +1,166 @@
+<View>
+  <>
+    <form onSubmit={handleSubmit}>
+      <View
+        style={{
+          borderWidth: 1,
+
+          borderColor: "#f5f5f5",
+          width: "100%",
+          marginBottom: 5,
+          borderRadius: 5,
+          marginTop: 5,
+        }}
+      >
+        <div className="form-row">
+          {inputFields.map((inputField, index) => (
+            <Fragment key={`${inputField}~${index}`}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  marginTop: 10,
+                  backgroundColor: "#f5f5f5",
+                  borderColor: "#f5f5f5",
+                  borderWidth: 1,
+                  borderRadius: 10,
+                }}
+              >
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ width: "90%", marginRight: 10 }}>
+                    <div className="form-group col-sm-6">
+                      {/* <label htmlFor="firstName">First Name</label> */}
+
+                      <input
+                        style={{
+                          width: "90%",
+                          height: 30,
+                          margin: 3,
+                          borderWidth: 1,
+                          outlineColor: "#fff",
+                          borderRadius: 5,
+                        }}
+                        placeholder="Type to add crop"
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        name="name"
+                        value={inputField.name}
+                        onChange={(event) => {
+                          handleInputChange(index, event);
+                        }}
+                      />
+                    </div>
+                  </View>
+
+                  <AntDesign
+                    style={{ marginRight: 10 }}
+                    name="delete"
+                    size={24}
+                    color="#ff7878"
+                    onPress={() => {
+                      handleRemoveFields(index);
+                    }}
+                  />
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "90%",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div className="form-group col-sm-4">
+                    {/* <label htmlFor="lastName">Last Name</label> */}
+                    <input
+                      style={{
+                        width: "85%",
+                        height: 25,
+                        margin: 3,
+                        outlineColor: "#fff",
+                      }}
+                      placeholder="Quantity"
+                      type="text"
+                      className="form-control"
+                      id="estimatedYield"
+                      name="estimatedYield"
+                      value={inputField.estimatedYield}
+                      onChange={(event) => handleInputChange(index, event)}
+                    />
+                  </div>
+                  <div className="form-group col-sm-4">
+                    {/* <label htmlFor="date">Date</label> */}
+                    <input
+                      style={{
+                        width: "85%",
+                        height: 25,
+                        marginLeft: -10,
+                        outlineColor: "#fff",
+                      }}
+                      placeholder="Harvest Date"
+                      type="text"
+                      className="form-control"
+                      id="harvestingTime"
+                      name="harvestingTime"
+                      value={inputField.harvestingTime}
+                      onChange={(event) => handleInputChange(index, event)}
+                    />
+                  </div>
+                </View>
+              </View>
+            </Fragment>
+          ))}
+        </div>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            width: "100%",
+            height: 35,
+            alignItems: "center",
+            backgroundColor: "#3A48ED",
+            borderWidth: 1,
+            borderRadius: 5,
+            marginTop: 10,
+            borderColor: "#3A48ED",
+            justifyContent: "center",
+          }}
+          onPress={() => {
+            handleAddFields();
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 15,
+              padding: 5,
+              color: "#fff",
+              fontWeight: "700",
+            }}
+          >
+            + Add Crop
+          </Text>
+        </TouchableOpacity>
+        <Button title="Submit" onPress={handleSubmit} />
+      </View>
+      <div className="submit-button"></div>
+      <br />
+      <pre>{JSON.stringify(inputFields, null, 2)}</pre>
+    </form>
+  </>
+</View>;
