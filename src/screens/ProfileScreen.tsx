@@ -34,14 +34,15 @@ import {
 } from "@expo/vector-icons";
 import DynamicForm from "../components/dynamicForm";
 import DynForm from "../components/DynForm";
+import { env } from "../env";
 
 const Profile = ({ navigation }) => {
   const config = {
     bucketName: "claro-farmers",
 
     region: "ap-south-1",
-    accessKeyId: "AKIA5J56SHX3SQWUR2EF",
-    secretAccessKey: "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",
+    accessKeyId: env.accessKeyId,
+    secretAccessKey: env.secretAccessKey,
   };
 
   const modalizeRef = useRef<Modalize>(null);
@@ -243,10 +244,14 @@ const Profile = ({ navigation }) => {
     { name: "", harvestingTime: "", estimatedYield: 0 },
   ]);
 
+  const [url, seturl] = useState("");
+
   const uploadImage = (e) => {
     console.log(e.target.files[0]);
     S3FileUpload.uploadFile(e.target.files[0], config)
-      .then((data) => console.log(data))
+      .then((data) => {
+        console.log(data.location), seturl(data.location);
+      })
       .catch((err) => console.log(err));
   };
 
@@ -418,8 +423,7 @@ const Profile = ({ navigation }) => {
             crops: inputFields,
             farmer: {
               name: tempfirstName == "" || null ? firstName : updatedName,
-              farmerImage:
-                "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553__340.png",
+              farmerImage: url,
 
               contactNo: "+11230981231",
               village: "Paikpara",
@@ -501,7 +505,9 @@ const Profile = ({ navigation }) => {
                   height: 95,
                   width: 95,
                   marginBottom: 3,
-                  borderColor: "#",
+                  borderColor: "#fff",
+                  borderWidth: 1,
+                  borderRadius: 95,
                 }}
               />
               <View

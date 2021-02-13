@@ -19,6 +19,7 @@ import dynamicForm from "../components/dynamicForm";
 import DynamicForm from "../components/dynamicForm";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { env } from "../env";
 
 import {
   SimpleLineIcons,
@@ -147,7 +148,7 @@ const SignUp = ({ navigation }) => {
     text = "errorMsg";
   } else if (location != null) {
     console.log(location);
-    Location.setGoogleApiKey("AIzaSyBM1KjPdMGHYcIiXTbDl4v_GAAjbOO6OPA");
+    Location.setGoogleApiKey(env.googleAPIkey);
     Location.reverseGeocodeAsync({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
