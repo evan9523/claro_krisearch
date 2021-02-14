@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  ImageBackground,
 } from "react-native";
 import Header from "../components/header";
 import { winWidth, winHeight } from "../utils/window";
@@ -21,6 +22,10 @@ import { Modalize } from "react-native-modalize";
 import * as ImagePicker from "expo-image-picker";
 import S3FileUpload from "react-s3";
 import { uploadFile } from "react-s3";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+import Select from "react-select";
 
 import {
   SimpleLineIcons,
@@ -35,6 +40,7 @@ import {
 import DynamicForm from "../components/dynamicForm";
 import DynForm from "../components/DynForm";
 import { env } from "../env";
+import { da } from "date-fns/locale";
 
 const Profile = ({ navigation }) => {
   const config = {
@@ -55,6 +61,7 @@ const Profile = ({ navigation }) => {
     modalizeRef.current?.close();
   };
   const [crop, setcrop] = useState([]);
+  const [applied, setapplied] = useState(false);
   const [firstName, setfirstName] = useState("");
   const [qty, setqty] = useState("");
   const [hdate, sethdate] = useState([]);
@@ -77,6 +84,13 @@ const Profile = ({ navigation }) => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [filteredBlur, setfilteredBlur] = useState([]);
+  const [unit, setunit] = useState("");
+  const [city, setcity] = useState("");
+  const [district, setdistrict] = useState("");
+  const [country, setcountry] = useState("");
+  const [region, setregion] = useState("");
+  const [lat, setlat] = useState(0);
+  const [long, setlong] = useState(0);
 
   useEffect(() => {
     firebase
@@ -100,12 +114,19 @@ const Profile = ({ navigation }) => {
             console.log(data.data.farmer);
             setfirstName(data.data.farmer.name);
             setblock(data.data.farmer.block);
+            setlat(data.data.farmer.latitude);
+            setlong(data.data.farmer.longitude);
+            setcity(data.data.farmer.village);
+            setblock(data.data.farmer.country);
+            setregion(data.data.farmer.state);
             setirState(data.data.farmer.state);
+            setdistrict(data.data.farmer.district);
             setimage(data.data.farmer.farmerImage);
             setfarmarea(data.data.farmer.totalLandSize);
-            setInputFields(data.data.crops);
-            setmainCrop(data.data.crops);
+            setunit(data.data.farmer.totalLandSizeUnit);
             console.log(data.data.crops);
+            setFields(data.data.crops);
+            setmainCrop(data.data.crops);
           })
           .catch((err) => console.log(err));
       });
@@ -211,38 +232,62 @@ const Profile = ({ navigation }) => {
       settempImage(result.uri);
     }
   };
-  // const editImage = () => {
-  //   console.log("Clicked Edit");
-  //   useEffect(() => {
-  //     (async () => {
-  //       if (Platform.OS !== "web") {
-  //         const {
-  //           status,
-  //         } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //         if (status !== "granted") {
-  //           alert("Sorry, we need camera roll permissions to make this work!");
-  //         }
-  //       }
-  //     })();
-  //   }, []);
 
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   console.log(result);
-
-  //   if (!result.cancelled) {
-  //     settempImage(result.uri);
-  //   }
-  // };
-
-  const [inputFields, setInputFields] = useState([
+  const [fields, setFields] = useState([
     { name: "", harvestingTime: "", estimatedYield: 0 },
   ]);
+
+  const [drops, setDrops] = useState([]);
+  const [imageColl, setimageColl] = useState([]);
+  const [tempDate, settempDate] = useState(new Date());
+  const [tempID, settempID] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedUnit, setselectedUnit] = useState(null);
+
+  const removeCrop = (i) => {
+    const values = [...fields];
+    values.splice(i, 1);
+    setFields(values);
+  };
+
+  const addCrop = () => {
+    const val = [...fields];
+    val.push({ name: "", harvestingTime: "", estimatedYield: 0 });
+    setFields(val);
+  };
+
+  const matchCrop = (e, q, h, i) => {
+    const values = [...fields];
+    if (e !== null) {
+      values[i].name = e;
+    } else if (q !== null) {
+      values[i].estimatedYield = Number(q);
+    } else if (h !== null) {
+      values[i].harvestingTime = h;
+    }
+
+    setFields(values);
+    console.log(fields);
+  };
+
+  const units = [
+    {
+      values: "Kattha",
+      label: "Kattha",
+    },
+    {
+      values: "Acres",
+      label: "Acres",
+    },
+  ];
+
+  const showData = () => {
+    console.log(fields);
+  };
+  const options = [];
+  drops.map((i) => {
+    options.push({ values: i.name, label: i.name });
+  });
 
   const [url, seturl] = useState("");
 
@@ -250,7 +295,9 @@ const Profile = ({ navigation }) => {
     console.log(e.target.files[0]);
     S3FileUpload.uploadFile(e.target.files[0], config)
       .then((data) => {
-        console.log(data.location), seturl(data.location);
+        console.log(data.location),
+          seturl(data.location),
+          setimage(data.location);
       })
       .catch((err) => console.log(err));
   };
@@ -308,8 +355,25 @@ const Profile = ({ navigation }) => {
       }),
     })
       .then((res) => res.json())
+      .then((data) => setDrops(data.data.list));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/crops", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cropName: null,
+      }),
+    })
+      .then((res) => res.json())
       .then((data) => setfilteredBlur(data.data.list));
   }, []);
+
+  console.log(filteredBlur);
 
   const handleAddFields = () => {
     const values = [...inputFields];
@@ -364,19 +428,45 @@ const Profile = ({ navigation }) => {
             justifyContent: "flex-start",
           }}
         >
-          <Image
-            source={{
-              uri:
-                "https://www.jaipuriaschoolballia.in/wp-content/uploads/2016/11/blank-img.jpg",
-            }}
-            style={{
-              height: 45,
-              width: 45,
-              marginRight: 5,
-              borderRadius: "50%",
-              borderColor: "green",
-            }}
-          />
+          {/* {opto.map((i) => {
+            if (i.name.localCompare(item.name) == 0) {
+              <Image
+                source={{
+                  uri: item.cropImage,
+                }}
+                style={{
+                  height: 45,
+                  width: 45,
+                  marginRight: 5,
+                  borderRadius: "50%",
+                  borderColor: "green",
+                }}
+              />;
+            }
+          })} */}
+
+          {filteredBlur.map((i) => {
+            if (
+              item.name.toString().toLocaleLowerCase() ===
+              i.name.toString().toLocaleLowerCase()
+            )
+              return (
+                <Image
+                  source={{
+                    uri: i.cropImage,
+                  }}
+                  style={{
+                    height: 45,
+                    width: 45,
+                    marginRight: 5,
+                    borderRadius: 45,
+                    borderWidth: 1,
+                    borderColor: "#bdbdbd",
+                  }}
+                />
+              );
+          })}
+
           <Text style={{ fontSize: 16 }}>{item.name}</Text>
           <Entypo name="dot-single" size={20} color="black" />
           <Text style={{ fontSize: 16 }}>{item.estimatedYield} Quintal</Text>
@@ -384,6 +474,11 @@ const Profile = ({ navigation }) => {
         <Text style={{ fontSize: 16 }}>{item.harvestingTime}</Text>
       </View>
     );
+  };
+
+  const confirmUnit = (e) => {
+    console.log(e);
+    setunit(e);
   };
 
   const dummyCrops = [
@@ -402,11 +497,11 @@ const Profile = ({ navigation }) => {
     console.log("FirstName", firstName);
     console.log(tempfirstName);
     var updatedName = tempfirstName;
-
+    setfirstName(tempfirstName ? tempfirstName : firstName);
     console.log(firstName);
     console.log(tempfa);
-    console.log(inputFields);
-    setmainCrop(inputFields);
+    setfarmarea(tempfa ? tempfa : farmarea);
+    console.log(fields);
 
     firebase
       .auth()
@@ -420,20 +515,20 @@ const Profile = ({ navigation }) => {
           },
           body: JSON.stringify({
             authToken: idtoken,
-            crops: inputFields,
+            crops: fields,
             farmer: {
-              name: tempfirstName == "" || null ? firstName : updatedName,
-              farmerImage: url,
+              name: firstName,
+              farmerImage: image,
 
-              contactNo: "+11230981231",
-              village: "Paikpara",
-              block: "Shyampur",
-              district: "South 24 Pgs",
-              state: "West Bengal",
+              contactNo: firebase.auth().currentUser?.phoneNumber,
+              village: city,
+              block: country,
+              district: district,
+              state: region,
               totalLandSize: tempfa == 0 || null ? farmarea : tempfa,
-              totalLandSizeUnit: "Kattha",
-              latitude: 22,
-              longitude: 88,
+              totalLandSizeUnit: unit,
+              latitude: lat,
+              longitude: long,
             },
           }),
         })
@@ -450,7 +545,7 @@ const Profile = ({ navigation }) => {
 
         <View
           style={{
-            backgroundColor: "#deebff",
+            backgroundColor: "#edf4ff",
             width: "100%",
             height: winHeight,
             alignItems: "center",
@@ -463,33 +558,23 @@ const Profile = ({ navigation }) => {
           ></View>
           <View
             style={{
-              width: winWidth < 768 ? "90%" : "35%",
+              width: winWidth < 768 ? "90%" : "40%",
 
               margin: 10,
-              marginTop: -100,
+              marginTop: -135,
               padding: 5,
-              backgroundColor: "#fff",
+              left: winWidth > 768 ? -20 : null,
               borderWidth: 1,
               borderRadius: 10,
-              borderColor: "#fff",
+              borderColor: "transparent",
               zIndex: 999,
-              shadowColor: "#346beb",
-              shadowOffset: {
-                width: 1,
-                height: 3,
-              },
-              shadowOpacity: 0.2,
-              shadowRadius: 2.22,
-
-              elevation: 5,
             }}
           >
             <View
               style={{
                 width: "100%",
-                height: 100,
-                borderBottomWidth: 2,
-                borderBottomColor: "#fff",
+                height: 120,
+
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -502,12 +587,13 @@ const Profile = ({ navigation }) => {
                   uri: image,
                 }}
                 style={{
-                  height: 95,
-                  width: 95,
+                  height: winWidth > 768 ? 130 : 120,
+                  width: winWidth > 768 ? 130 : 120,
                   marginBottom: 3,
                   borderColor: "#fff",
-                  borderWidth: 1,
-                  borderRadius: 95,
+                  borderWidth: 2,
+                  marginLeft: winWidth > 768 ? 10 : null,
+                  borderRadius: 130,
                 }}
               />
               <View
@@ -539,22 +625,22 @@ const Profile = ({ navigation }) => {
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-
+                    marginTop: winWidth > 768 ? -20 : null,
                     justifyContent: "flex-end",
                     width: "90%",
                   }}
                 >
                   <Feather
                     name="user"
-                    size={20}
-                    color="#000"
+                    size={winWidth > 768 ? 30 : 20}
+                    color="#fff"
                     style={{ marginTop: -2, marginRight: 5 }}
                   />
                   <Text
                     style={{
-                      fontSize: 18,
-
-                      fontWeight: "600",
+                      fontSize: winWidth > 768 ? 30 : 20,
+                      color: "#fff",
+                      fontWeight: "500",
                     }}
                   >
                     {firstName}
@@ -581,7 +667,14 @@ const Profile = ({ navigation }) => {
                   {firebase.auth().currentUser == null ? (
                     <Text>Not Found</Text>
                   ) : (
-                    <Text>{firebase.auth().currentUser?.phoneNumber}</Text>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: winWidth > 768 ? 25 : 16,
+                      }}
+                    >
+                      {firebase.auth().currentUser?.phoneNumber}
+                    </Text>
                   )}
                   {/* <Text style={{ fontSize: 16 }}>
                   {firebase.auth().currentUser.phoneNumber == null
@@ -589,7 +682,95 @@ const Profile = ({ navigation }) => {
                     : firebase.auth().currentUser.phoneNumber}
                 </Text> */}
                 </View>
+                <View
+                  style={{
+                    width: "75%",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginTop: winWidth > 768 ? 20 : 30,
+                    marginRight: winWidth > 768 ? 40 : 20,
+                    alignSelf: "flex-end",
+                  }}
+                >
+                  <TouchableOpacity
+                    // style={{
+                    //   width: 100,
+                    //   height: 30,
+                    //   backgroundColor: "#3ECF8E",
+                    //   alignItems: "center",
+                    //   justifyContent: "center",
+                    //   padding: 5,
+                    //   borderRadius: 10,
+                    //   borderColor: "#3ECF8E",
+                    //   borderWidth: 2,
+                    // }}
+                    style={{
+                      width: "50%",
+                      height: 30,
+                      alignItems: "center",
+                      backgroundColor: "#3ECF8E",
+                      borderWidth: 1,
+                      borderRadius: 5,
+                      marginRight: 10,
+                      borderColor: "#3ECF8E",
+                      justifyContent: "center",
+                    }}
+                    onPress={() => onOpen()}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        padding: 5,
+                        color: "#fff",
+                        fontWeight: "700",
+                      }}
+                    >
+                      Edit Profile
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    // style={{
+                    //   width: 100,
+                    //   height: 30,
+                    //   backgroundColor: "#3ECF8E",
+                    //   alignItems: "center",
+                    //   justifyContent: "center",
+                    //   padding: 5,
+                    //   borderRadius: 10,
+                    //   borderColor: "#3ECF8E",
+                    //   borderWidth: 2,
+                    // }}
+                    style={{
+                      width: "50%",
+                      height: 30,
+                      alignItems: "center",
+                      backgroundColor: "#ffd4dc",
+                      borderWidth: 2,
+                      borderRadius: 5,
+                      marginRight: 20,
+                      borderColor: "#ff0f3b",
+                      justifyContent: "center",
+                    }}
+                    onPress={() => {
+                      firebase.auth().signOut();
+                      navigation.navigate("Landing");
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        padding: 5,
+                        color: "#ff0f3b",
+                        fontWeight: "700",
+                      }}
+                    >
+                      Log Out
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+              <View></View>
             </View>
 
             {/* <Text>Welcome {firebase.auth().currentUser.phoneNumber}</Text>
@@ -601,64 +782,6 @@ const Profile = ({ navigation }) => {
                 width: "100%",
               }}
             >
-              <View
-                style={{
-                  width: "100%",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text
-                  style={{ fontWeight: "500", color: "#6F6F6F", fontSize: 18 }}
-                >
-                  Personal Details
-                </Text>
-                <TouchableOpacity
-                  // style={{
-                  //   width: 100,
-                  //   height: 30,
-                  //   backgroundColor: "#3ECF8E",
-                  //   alignItems: "center",
-                  //   justifyContent: "center",
-                  //   padding: 5,
-                  //   borderRadius: 10,
-                  //   borderColor: "#3ECF8E",
-                  //   borderWidth: 2,
-                  // }}
-                  style={{
-                    width: 120,
-                    height: 30,
-                    alignItems: "center",
-                    backgroundColor: "#3ECF8E",
-                    borderWidth: 1,
-                    borderRadius: 5,
-
-                    borderColor: "#3ECF8E",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => onOpen()}
-                >
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      padding: 5,
-                      color: "#fff",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Edit Profile
-                  </Text>
-                </TouchableOpacity>
-                <Button
-                  title="Log out"
-                  onPress={() => {
-                    firebase.auth().signOut();
-                    navigation.navigate("Landing");
-                  }}
-                />
-              </View>
-
               <View
                 style={{
                   width: "100%",
@@ -678,26 +801,105 @@ const Profile = ({ navigation }) => {
                 }}
               >
                 <View
-                  style={{ alignItems: "center", justifyContent: "center" }}
+                  style={{
+                    flexDirection: "column",
+                    width: "20%",
+                    alignItems: "flex-start",
+                    justifyContent: "flex-start",
+                  }}
                 >
-                  <Text style={{ color: "grey", fontSize: 13 }}>
-                    Farming Area
-                  </Text>
-                  <Text style={{ fontSize: 16, marginTop: 3 }}>
-                    {farmarea} Acres
-                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <SimpleLineIcons
+                      name="size-fullscreen"
+                      size={15}
+                      color="#9F99FF"
+                    />
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#6F6F6F",
+                        fontWeight: "600",
+                        marginLeft: 5,
+                      }}
+                    >
+                      Area
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 15 }}>
+                      {farmarea} {unit}
+                    </Text>
+                  </View>
                 </View>
                 <View
-                  style={{ alignItems: "center", justifyContent: "center" }}
+                  style={{
+                    flexDirection: "column",
+                    width: "20%",
+                    alignItems: "flex-start",
+                    justifyContent: "flex-start",
+                  }}
                 >
-                  <Text style={{ color: "grey", fontSize: 13 }}>Region</Text>
-                  <Text style={{ fontSize: 16, marginTop: 3 }}>{block}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    {/* <SimpleLineIcons
+                      name="size-fullscreen"
+                      size={15}
+                      color="#9F99FF"
+                    /> */}
+                    <FontAwesome name="map-marker" size={15} color="#9F99FF" />
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#6F6F6F",
+                        fontWeight: "600",
+                        marginLeft: 5,
+                      }}
+                    >
+                      Region
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 15 }}>{block} </Text>
+                  </View>
                 </View>
                 <View
-                  style={{ alignItems: "center", justifyContent: "center" }}
+                  style={{
+                    flexDirection: "column",
+                    width: "20%",
+                    alignItems: "flex-start",
+                    justifyContent: "flex-start",
+                  }}
                 >
-                  <Text style={{ color: "grey", fontSize: 13 }}>State</Text>
-                  <Text style={{ fontSize: 16, marginTop: 3 }}>{irState}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome name="map" size={15} color="#9F99FF" />
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#6F6F6F",
+                        fontWeight: "600",
+                        marginLeft: 5,
+                      }}
+                    >
+                      State
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 15 }}>{region} </Text>
+                  </View>
                 </View>
               </View>
               <View
@@ -724,56 +926,55 @@ const Profile = ({ navigation }) => {
                       width: "100%",
                       alignItems: "center",
                       flexDirection: "row",
-                      justifyContent: "flex-start",
+                      justifyContent: "space-between",
                       marginTop: 20,
+                      marginBottom: 10,
                     }}
                   >
-                    <Text
+                    <View
                       style={{
-                        fontWeight: "500",
-                        color: "#6F6F6F",
-                        fontSize: 18,
-                        marginBottom: 10,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
                       }}
                     >
-                      Crop Details
-                    </Text>
-                    {/* <TouchableOpacity
-                    // style={{
-                    //   width: 100,
-                    //   height: 30,
-                    //   backgroundColor: "#3ECF8E",
-                    //   alignItems: "center",
-                    //   justifyContent: "center",
-                    //   padding: 5,
-                    //   borderRadius: 10,
-                    //   borderColor: "#3ECF8E",
-                    //   borderWidth: 2,
-                    // }}
-                    style={{
-                      width: 120,
-                      height: 30,
-                      alignItems: "center",
-                      backgroundColor: "#3ECF8E",
-                      borderWidth: 1,
-                      borderRadius: 5,
+                      <Entypo name="leaf" size={15} color="#9F99FF" />
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: "#6F6F6F",
+                          fontWeight: "600",
+                          marginLeft: 5,
+                        }}
+                      >
+                        Crop Details
+                      </Text>
+                    </View>
 
-                      borderColor: "#3ECF8E",
-                      justifyContent: "center",
-                    }}
-                    onPress={() => onOpen()}
-                  >
-                    <Text
+                    <View
                       style={{
-                        fontSize: 14,
-                        padding: 5,
-                        color: "#fff",
-                        fontWeight: "500",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
                       }}
                     >
-                      Edit Crops
-                    </Text>
-                  </TouchableOpacity> */}
+                      <SimpleLineIcons
+                        name="calendar"
+                        size={15}
+                        color="#9F99FF"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: "#6F6F6F",
+                          fontWeight: "600",
+                          marginRight: 5,
+                          marginLeft: 5,
+                        }}
+                      >
+                        Harvest Dates
+                      </Text>
+                    </View>
                   </View>
 
                   <View
@@ -784,7 +985,7 @@ const Profile = ({ navigation }) => {
                   >
                     <FlatList
                       showsVerticalScrollIndicator={false}
-                      data={mainCrop}
+                      data={fields}
                       renderItem={renderItems}
                       ListEmptyComponent={() => (
                         <View style={styles.container}>
@@ -905,7 +1106,7 @@ const Profile = ({ navigation }) => {
                   {/* <Text style={{ fontSize: 18, marginTop: 3 }}>{hdate}</Text> */}
                 </View>
               </View>
-              <input type="file" onChange={uploadImage} />
+
               {/* <Text>{crop}</Text>
             <Text>{qty}</Text>
 
@@ -918,53 +1119,12 @@ const Profile = ({ navigation }) => {
                 marginTop: 5,
               }}
             /> */}
-              <View style={{ marginBottom: 10, width: "100%" }}>
-                <TouchableOpacity
-                  // style={{
-                  //   width: 100,
-                  //   height: 30,
-                  //   backgroundColor: "#3ECF8E",
-                  //   alignItems: "center",
-                  //   justifyContent: "center",
-                  //   padding: 5,
-                  //   borderRadius: 10,
-                  //   borderColor: "#3ECF8E",
-                  //   borderWidth: 2,
-                  // }}
-                  style={{
-                    width: "100%",
-                    height: 30,
-                    alignItems: "center",
-                    backgroundColor: "#000",
-                    borderWidth: 1,
-                    borderRadius: 5,
-
-                    borderColor: "#000",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => {
-                    firebase.auth().signOut();
-                    navigation.navigate("Landing");
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      padding: 5,
-                      color: "#fff",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Log Out
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
         </View>
         <Modalize
           ref={modalizeRef}
-          modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight}
+          modalHeight={winWidth > 767 ? winHeight * 0.86 : winHeight * 0.9}
           threshold={100}
           modalStyle={
             winWidth > 767 ? { width: 400, alignSelf: "center" } : null
@@ -984,7 +1144,7 @@ const Profile = ({ navigation }) => {
           <Text style={{ fontSize: 16 }}>Edit your profile here</Text>
           <SimpleLineIcons name="close" size={25} onPress={() => onClose()} />
         </View> */}
-          <ScrollView>
+          <ScrollView contentContainerStyle={{ height: winHeight * 0.9 }}>
             <View
               style={{
                 width: "100%",
@@ -1046,7 +1206,9 @@ const Profile = ({ navigation }) => {
                     borderWidth: 2,
                     marginRight: 10,
                   }}
-                  onPress={updateData}
+                  onPress={() => {
+                    updateData(), onClose();
+                  }}
                 >
                   <Text
                     style={{
@@ -1057,262 +1219,445 @@ const Profile = ({ navigation }) => {
                     Save
                   </Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity onPress={onClose}>
-                  <View
-                    style={{
-                      width: 25,
-                      height: 25,
-                      borderWidth: 2,
-                      borderColor: "#A1C7FF",
-                      alignItems: "center",
-                      alignSelf: "flex-end",
-                      justifyContent: "center",
-                      flexDirection: "row",
-                      backgroundColor: "#A1C7FF",
-                      borderRadius: 25,
-                    }}
-                  >
-                    <AntDesign name="close" size={20} color="#3A48ED" />
-                  </View>
-                </TouchableOpacity>
               </View>
             </View>
             <View style={{ padding: 10 }}>
-              <Text style={{ fontSize: 12, marginTop: 20 }}>Name</Text>
-              <TextInput
+              <View
                 style={{
-                  width: winWidth < 768 ? "80%" : 200,
-                  height: 40,
-                  borderWidth: 1,
-                  borderColor: "#D3D3D3",
-                  padding: 10,
-                  marginTop: 5,
-                  borderRadius: 5,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+
+                  width: "100%",
                 }}
-                onChangeText={(e) => settempfirstName(e)}
-                defaultValue={firstName}
-                placeholder="Enter your name"
-              />
-              <Text style={{ fontSize: 12, marginTop: 20 }}>Farming Area</Text>
-              <TextInput
-                textContentType="telephoneNumber"
+              >
+                <View style={{ width: "30%" }}>
+                  <Image
+                    source={{ uri: image }}
+                    style={{
+                      height: 120,
+                      width: 120,
+                      borderWidth: 2,
+                      borderRadius: 120,
+                      borderColor: "#346beb",
+                    }}
+                  />
+                  <View style={{ marginTop: 10 }}>
+                    <input
+                      type="file"
+                      onChange={uploadImage}
+                      title="Change Image"
+                    />
+                  </View>
+                </View>
+                <View style={{ width: "60%", marginBottom: 30 }}>
+                  <Text style={{ fontSize: 12 }}>Name</Text>
+                  <TextInput
+                    style={{
+                      width: "100%",
+                      height: 40,
+                      borderWidth: 1,
+                      borderColor: "#D3D3D3",
+                      padding: 10,
+                      marginTop: 5,
+                      borderRadius: 5,
+                    }}
+                    onChangeText={(e) => settempfirstName(e)}
+                    defaultValue={firstName}
+                    placeholder="Enter your name"
+                  />
+                  <Text style={{ fontSize: 12, marginTop: 20 }}>
+                    Farming Area
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <TextInput
+                      textContentType="telephoneNumber"
+                      style={{
+                        width: "48%",
+                        height: 40,
+                        borderWidth: 1,
+                        borderColor: "#D3D3D3",
+                        padding: 10,
+                        marginTop: 5,
+                        borderRadius: 5,
+                      }}
+                      defaultValue={farmarea != null ? farmarea : " "}
+                      onChangeText={(e) => settempfa(e)}
+                      placeholder="Enter Farming Area"
+                    />
+                    <View style={{ width: "50%", marginTop: 5 }}>
+                      <Select
+                        placeholder={unit ? unit : "Unit"}
+                        defaultValue={selectedUnit}
+                        onChange={(e) => {
+                          setselectedUnit;
+                          console.log(e.label);
+                          confirmUnit(e.label);
+                        }}
+                        options={units}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              <View
                 style={{
-                  width: winWidth < 768 ? "80%" : 200,
-                  height: 40,
-                  borderWidth: 1,
-                  borderColor: "#D3D3D3",
-                  padding: 10,
-                  marginTop: 5,
-                  borderRadius: 5,
+                  marginTop: 30,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
-                defaultValue={farmarea != null ? farmarea : " "}
-                onChangeText={(e) => settempfa(e)}
-                placeholder="Enter Farming Area"
-              />
-              <View style={{ marginTop: 20 }}>
+              >
                 <Text
                   style={{ fontSize: 16, marginLeft: 7, fontWeight: "600" }}
                 >
                   Edit your crops here
                 </Text>
-
+                <TouchableOpacity
+                  style={{
+                    width: "35%",
+                    height: 30,
+                    alignItems: "center",
+                    backgroundColor: "#fff",
+                    borderWidth: 2,
+                    borderRadius: 20,
+                    marginTop: 10,
+                    borderColor: "#3ECF8E",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    addCrop();
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      padding: 5,
+                      color: "#3ECF8E",
+                      fontWeight: "700",
+                    }}
+                  >
+                    + Add Crop
+                  </Text>
+                </TouchableOpacity>
                 {/* <DynamicForm /> */}
                 {/* <DynForm /> */}
+              </View>
+              <View
+                style={{
+                  width: winWidth < 768 ? "100%" : "100%",
 
-                <>
-                  <form onSubmit={handleSubmit}>
+                  alignSelf: "center",
+                }}
+              >
+                <View
+                  style={{
+                    width: "100%",
+                    height: 20,
+                    padding: 2,
+                    marginLeft: 2,
+                    marginTop: 10,
+                    marginBottom: 1,
+
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View
+                    style={{
+                      width: "35%",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <Text style={{ color: "#9e9e9e" }}>Crop</Text>
+                  </View>
+                  <View
+                    style={{ width: "25%", alignItems: "center", left: -20 }}
+                  >
+                    <Text style={{ color: "#9e9e9e" }}>Yield</Text>
+                  </View>
+                  <View
+                    style={{ width: "30%", left: -30, alignItems: "center" }}
+                  >
+                    <Text style={{ color: "#9e9e9e" }}>Harvest Date</Text>
+                  </View>
+                </View>
+                <View style={{ marginBottom: 10 }}>
+                  {fields.map((field, idx) => (
                     <View
-                      style={{
-                        borderWidth: 1,
-
-                        borderColor: "#f5f5f5",
-                        width: "100%",
-                        marginBottom: 5,
-                        borderRadius: 5,
-                        marginTop: 5,
-                      }}
-                    >
-                      <div className="form-row">
-                        {inputFields.map((inputField, index) => (
-                          <Fragment key={`${inputField}~${index}`}>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                                justifyContent: "center",
-                                marginTop: 10,
-                                backgroundColor: "#f5f5f5",
-                                borderColor: "#f5f5f5",
-                                borderWidth: 1,
-                                borderRadius: 10,
-                              }}
-                            >
-                              <View
-                                style={{
-                                  width: "100%",
-                                  flexDirection: "row",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                }}
-                              >
-                                <View style={{ width: "90%", marginRight: 10 }}>
-                                  <div className="form-group col-sm-6">
-                                    {/* <label htmlFor="firstName">First Name</label> */}
-
-                                    <input
-                                      style={{
-                                        width: "90%",
-                                        height: 30,
-                                        margin: 3,
-                                        borderWidth: 1,
-                                        outlineColor: "#fff",
-                                        borderRadius: 5,
-                                      }}
-                                      placeholder="Type to add crop"
-                                      type="text"
-                                      className="form-control"
-                                      id="name"
-                                      name="name"
-                                      value={inputField.name}
-                                      onChange={(event) => {
-                                        handleInputChange(index, event);
-                                      }}
-                                    />
-                                  </div>
-                                </View>
-
-                                <AntDesign
-                                  style={{ marginRight: 10 }}
-                                  name="delete"
-                                  size={24}
-                                  color="#ff7878"
-                                  onPress={() => {
-                                    handleRemoveFields(index);
-                                  }}
-                                />
-                              </View>
-                              <View
-                                style={{
-                                  flexDirection: "row",
-                                  width: "90%",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                }}
-                              >
-                                <div className="form-group col-sm-4">
-                                  {/* <label htmlFor="lastName">Last Name</label> */}
-                                  <input
-                                    style={{
-                                      width: "85%",
-                                      height: 25,
-                                      margin: 3,
-                                      outlineColor: "#fff",
-                                    }}
-                                    placeholder="Quantity"
-                                    type="text"
-                                    className="form-control"
-                                    id="estimatedYield"
-                                    name="estimatedYield"
-                                    value={inputField.estimatedYield}
-                                    onChange={(event) =>
-                                      handleInputChange(index, event)
-                                    }
-                                  />
-                                </div>
-                                <div className="form-group col-sm-4">
-                                  {/* <label htmlFor="date">Date</label> */}
-                                  <input
-                                    style={{
-                                      width: "85%",
-                                      height: 25,
-                                      marginLeft: -10,
-                                      outlineColor: "#fff",
-                                    }}
-                                    placeholder="Harvest Date"
-                                    type="text"
-                                    className="form-control"
-                                    id="harvestingTime"
-                                    name="harvestingTime"
-                                    value={inputField.harvestingTime}
-                                    onChange={(event) =>
-                                      handleInputChange(index, event)
-                                    }
-                                  />
-                                </div>
-                              </View>
-                            </View>
-                          </Fragment>
-                        ))}
-                      </div>
-                    </View>
-                    <View
+                      key={`${field}~${idx}`}
                       style={{
                         flexDirection: "row",
                         width: "100%",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        justifyContent: "center",
+                        margin: 2,
+                        padding: 2,
+                        height: 50,
+                        borderColor: "#fafcff",
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        backgroundColor: "#fafcff",
                       }}
                     >
-                      {/* <View>
-                  <button
-                    className="btn btn-primary mr-2"
-                    type="submit"
-                    onSubmit={handleSubmit}
-                    style={{
-                      width: 100,
-                      height: 30,
-                      alignItems: "center",
-                      backgroundColor: "#8f98ff",
-                      borderWidth: 1.5,
-                      borderRadius: 5,
-                      marginLeft: 10,
-                      marginTop: 10,
-                      borderColor: "#3A48ED",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={{ color: "#fff", fontWeight: "500" }}>
-                      {" "}
-                      Done
-                    </Text>
-                  </button>
-                </View> */}
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          height: 35,
-                          alignItems: "center",
-                          backgroundColor: "#3A48ED",
-                          borderWidth: 1,
-                          borderRadius: 5,
-                          marginTop: 10,
-                          borderColor: "#3A48ED",
-                          justifyContent: "center",
-                        }}
-                        onPress={() => {
-                          handleAddFields();
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            padding: 5,
-                            color: "#fff",
-                            fontWeight: "700",
+                      <View style={{ width: "35%", zIndex: 999 }}>
+                        <Select
+                          placeholder={field.name ? field.name : "Add Crop"}
+                          defaultValue={selectedOption}
+                          onChange={(e) => {
+                            setSelectedOption;
+                            matchCrop(e.label, null, null, idx);
                           }}
-                        >
-                          + Add Crop
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <div className="submit-button"></div>
-                    <br />
-                    {/* <pre>{JSON.stringify(inputFields, null, 2)}</pre> */}
-                  </form>
-                </>
-              </View>
+                          options={options}
+                        />
+                      </View>
 
+                      {/* <TextInput
+            style={{
+              width: "70%",
+              fontSize: 15,
+              borderWidth: 1,
+              borderColor: "black",
+              borderRadius: 5,
+              padding: 5,
+              margin: 5,
+            }}
+            value={field.value}
+            onChangeText={(e) => {
+              // setcrop(e);
+              // settempID(idx);
+              // matchCrop(e, null, null, idx);
+            }}
+            placeholder="Add Crop"
+          /> */}
+
+                      <TextInput
+                        style={{
+                          width: "20%",
+                          fontSize: 15,
+                          borderWidth: 1,
+                          borderColor: "#D3D3D3",
+                          borderRadius: 5,
+                          padding: 5,
+                          margin: 5,
+                          height: 37,
+                          outlineColor: "#D3D3D3",
+                          textAlign: "center",
+                        }}
+                        onChangeText={(q) => matchCrop(null, q, null, idx)}
+                        placeholder="Quantity"
+                        value={field.estimatedYield}
+                      />
+
+                      {applied || field.harvestingTime ? (
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#d6d9ff",
+                            borderRadius: 5,
+                            borderColor: "#7b42ff",
+                            height: 35,
+                            borderWidth: 2,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "30%",
+                          }}
+                          onPress={() => setapplied(false)}
+                        >
+                          <Text style={{ fontSize: 14 }}>
+                            {field.harvestingTime}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <DatePicker
+                          dateFormat="dd/MM/yyyy"
+                          popperPlacement="top-end"
+                          popperModifiers={{
+                            offset: {
+                              enabled: true,
+                              offset: "5px, 10px",
+                            },
+                            preventOverflow: {
+                              enabled: true,
+                              escapeWithReference: false,
+                              boundariesElement: "viewport",
+                            },
+                          }}
+                          selected={tempDate}
+                          onChange={(date) => {
+                            settempDate(date);
+                            setapplied(true);
+                            matchCrop(
+                              null,
+                              null,
+                              date.toLocaleDateString(),
+                              idx
+                            );
+                          }}
+                          customInput={
+                            <TextInput
+                              style={{
+                                backgroundColor: "#d6d9ff",
+                                borderRadius: 5,
+                                borderColor: "#7b42ff",
+                                height: 35,
+                                borderWidth: 2,
+                                padding: 5,
+                                fontSize: 14,
+                                width: "70%",
+                              }}
+                            />
+                          }
+                        />
+                      )}
+                      <AntDesign
+                        name="delete"
+                        size={20}
+                        color="#eb3d3d"
+                        onPress={() => removeCrop(idx)}
+                      />
+                      {/* <Button title="Remove" onPress={() => removeCrop(idx)} /> */}
+                    </View>
+                  ))}
+                </View>
+                {/* {fields.map((field, idx) => {
+        return (
+          <View
+            key={`${field}-${idx}`}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              borderWidth: 1,
+              padding: 2,
+              borderColor: "#D3D3D3",
+              borderRadius: 5,
+              margin: 2,
+            }}
+          >
+            <View style={{ flexDirection: "column", width: "80%" }}>
+              <View>
+                <TextInput
+                  placeholder="Crop"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "100%",
+                      padding: 5,
+                      fontSize: 14,
+                      borderWidth: 1,
+
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.value || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <TextInput
+                  placeholder="Quantity"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "50%",
+                      padding: 5,
+                      fontSize: 14,
+                      borderWidth: 1,
+                      marginTop: 5,
+                      marginRight: 5,
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.quantity || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
+                <TextInput
+                  placeholder="Harvest Date"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "50%",
+                      padding: 5,
+                      fontSize: 14,
+                      borderWidth: 1,
+                      marginTop: 5,
+                      marginLeft: 5,
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.harvestDate || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
+              </View>
+            </View>
+
+            <AntDesign
+              name="delete"
+              size={20}
+              color="#eb3d3d"
+              onPress={() => handleRemove(idx)}
+            />
+          </View>
+        );
+      })}
+      <TouchableOpacity
+        style={{
+          width: "100%",
+          height: 35,
+          alignItems: "center",
+          backgroundColor: "#3A48ED",
+          borderWidth: 1,
+          borderRadius: 5,
+          marginTop: 10,
+          borderColor: "#3A48ED",
+          justifyContent: "center",
+        }}
+        onPress={() => {
+          handleAdd();
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 15,
+            padding: 5,
+            color: "#fff",
+            fontWeight: "700",
+          }}
+        >
+          + Add Crop
+        </Text>
+      </TouchableOpacity> */}
+
+                {/* <Button
+        title="Add Crop"
+        onPress={() => {
+          addCrop(), setapplied(false);
+        }}
+      /> */}
+                {/* <Button title="Submit" onPress={() => showData()} /> */}
+              </View>
               {/* <TextInput
             style={{
               width: winWidth < 768 ? "80%" : 200,
@@ -1415,6 +1760,35 @@ const Profile = ({ navigation }) => {
 
           
           </View> */}
+              {/* <TouchableOpacity
+                style={{
+                  width: "43%",
+                  height: 40,
+                  alignItems: "center",
+                  backgroundColor: "#3ECF8E",
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  top: 30,
+                  borderColor: "#3ECF8E",
+                  justifyContent: "center",
+                  alignSelf: "flex-end",
+                }}
+                onPress={() => {
+                  console.log(fields);
+                  updateData();
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    padding: 5,
+                    color: "#fff",
+                    fontWeight: "700",
+                  }}
+                >
+                  SUBMIT
+                </Text>
+              </TouchableOpacity> */}
             </View>
           </ScrollView>
         </Modalize>

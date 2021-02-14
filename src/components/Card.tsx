@@ -14,7 +14,7 @@ import getSmallString from "../utils/getSmallString";
 import hideNumber from "../utils/hideNumber";
 
 export interface CardProps {
-  name: string;
+  name?: string;
   avatar?: string;
   crop?: string;
   phone?: number;
@@ -126,7 +126,7 @@ export default function Card(props: CardProps) {
           }
         />
         <Text style={{ fontWeight: "500", fontSize: 16, marginTop: 10 }}>
-          {toTitleCase(name)}
+          {isCrop ? crop : toTitleCase(name)}
         </Text>
 
         {!isCrop ? (
@@ -136,6 +136,7 @@ export default function Card(props: CardProps) {
               justifyContent: "space-evenly",
               alignItems: "center",
 
+              width: "90%",
               padding: 5,
             }}
           >
@@ -144,13 +145,22 @@ export default function Card(props: CardProps) {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
+                backgroundColor: "#87edbf",
+
+                borderColor: "#43d162",
+                borderWidth: 1,
+                borderRadius: 10,
+                padding: 1.5,
               }}
             >
-              <Text> {crop}</Text>
+              <Text style={{ color: "#016617", alignSelf: "center" }}>
+                {" "}
+                {crop}
+              </Text>
             </View>
             <Entypo name="dot-single" size={15} style={{ marginTop: 5 }} />
             <View>
-              <Text>{address}</Text>
+              <Text>{getSmallString(address, 8)}</Text>
             </View>
           </View>
         ) : null}

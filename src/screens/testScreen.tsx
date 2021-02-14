@@ -25,6 +25,7 @@ import {
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { TextInput } from "react-native-gesture-handler";
+import DynamicForm from "../components/dynamicForm";
 
 const Test = ({ navigation }) => {
   const [inputFields, setInputFields] = useState([
@@ -126,24 +127,7 @@ const Test = ({ navigation }) => {
         justifyContent: "center",
       }}
     >
-      <Text>{selected == null || selected == "" ? "Null" : selected}</Text>
-      <TextInput
-        style={{ borderWidth: 1, width: 100, height: 30 }}
-        onChangeText={(e) => setshow(e)}
-      />
-      {show !== "" ? (
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={crops}
-          renderItem={renderMatch}
-          ListEmptyComponent={() => (
-            <Text style={{ fontSize: 30 }}> Oops ! Didnt find that</Text>
-          )}
-          contentContainerStyle={{
-            width: "100%",
-          }}
-        />
-      ) : null}
+      <DynamicForm />
     </View>
   );
 };

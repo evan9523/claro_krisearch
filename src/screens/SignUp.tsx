@@ -20,6 +20,7 @@ import DynamicForm from "../components/dynamicForm";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { env } from "../env";
+import Select from "react-select";
 
 import {
   SimpleLineIcons,
@@ -50,13 +51,23 @@ const SignUp = ({ navigation }) => {
   const [qty, setqty] = useState("");
   const [hdate, sethdate] = useState("");
   const [filteredBlur, setfilteredBlur] = useState([]);
+  const [crop, setcrop] = useState(null);
+  const [added, setadded] = useState(null);
+  const [drops, setDrops] = useState([]);
+  const [tempDate, settempDate] = useState(new Date());
+  const [tempID, settempID] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [sugg, setsugg] = useState([]);
+  const [applied, setapplied] = useState(false);
+  const [fields, setFields] = useState([
+    { name: "", harvestingTime: "", estimatedYield: 0 },
+  ]);
   const [inputFields, setInputFields] = useState([
     { name: "", harvestingTime: "", estimatedYield: 0 },
   ]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("inputFields", inputFields);
+  const handleSubmit = () => {
+    console.log("fields", fields);
     console.log(userName);
     let phone = firebase.auth().currentUser?.phoneNumber;
     firebase
@@ -71,7 +82,7 @@ const SignUp = ({ navigation }) => {
           },
           body: JSON.stringify({
             authToken: idtoken,
-            crops: inputFields,
+            crops: fields,
             farmer: {
               name: userName,
               farmerImage:
@@ -115,6 +126,21 @@ const SignUp = ({ navigation }) => {
     values.splice(index, 1);
     setInputFields(values);
   };
+
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/crops", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cropName: show,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => setDrops(data.data.list));
+  }, []);
 
   useEffect(() => {
     fetch("http://staging.clarolabs.in:7050/Ksearch/crops", {
@@ -182,6 +208,40 @@ const SignUp = ({ navigation }) => {
     });
   };
 
+  const removeCrop = (i) => {
+    const values = [...fields];
+    values.splice(i, 1);
+    setFields(values);
+  };
+
+  const addCrop = () => {
+    const val = [...fields];
+    val.push({ name: "", estimatedYield: 0, harvestingTime: "" });
+    setFields(val);
+  };
+
+  const matchCrop = (e, q, h, i) => {
+    const values = [...fields];
+    if (e !== null) {
+      values[i].name = e;
+    } else if (q !== null) {
+      values[i].estimatedYield = Number(q);
+    } else if (h !== null) {
+      values[i].harvestingTime = h;
+    }
+
+    setFields(values);
+    console.log(fields);
+  };
+
+  const showData = () => {
+    console.log(fields);
+  };
+  const options = [];
+  drops.map((i) => {
+    options.push({ values: i.name, label: i.name });
+  });
+
   const renderMatch = ({ item }) => (
     <TouchableOpacity
       style={{
@@ -245,7 +305,7 @@ const SignUp = ({ navigation }) => {
         <View
           style={{
             width: "100%",
-            height: "20%",
+            height: "10%",
 
             justifyContent: "center",
             alignItems: "center",
@@ -254,27 +314,43 @@ const SignUp = ({ navigation }) => {
             borderBottomColor: "#d6d6d6",
           }}
         >
-          <Text
+          <View
             style={{
-              fontSize: 16,
+              flexDirection: "row",
+              alignSelf: "center",
+              justifyContent: "space-between",
+
+              alignItems: "center",
+              width: winWidth > 768 ? "40%" : "95%",
             }}
           >
-            Please tell us your name
-          </Text>
-          <TextInput
-            style={{
-              width: winWidth < 768 ? "80%" : 200,
-              height: 40,
-              borderWidth: 1,
-              borderColor: "#D3D3D3",
-              padding: 10,
-              marginTop: 10,
-              borderRadius: 5,
-              outlineColor: "#fff",
-            }}
-            onChangeText={(e) => setuserName(e)}
-            placeholder="Enter your name"
-          />
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                marginLeft: 5,
+                color: "#6F6F6F",
+              }}
+            >
+              Your Name
+            </Text>
+            <TextInput
+              style={{
+                width: winWidth < 768 ? "60%" : "60%",
+                height: 40,
+                borderWidth: 1,
+                borderColor: "#D3D3D3",
+                padding: 10,
+                marginTop: 10,
+                borderRadius: 5,
+                outlineColor: "#D3D3D3",
+                fontSize: 16,
+              }}
+              onChangeText={(e) => setuserName(e)}
+              placeholder="Enter your name"
+            />
+          </View>
+
           {/* <TouchableOpacity
             style={{
               width: "80%",
@@ -303,7 +379,7 @@ const SignUp = ({ navigation }) => {
           </TouchableOpacity> */}
           {/* <Text>SignUp Form</Text>
           <Text>{text}</Text> */}
-          <View
+          {/* <View
             style={{
               width: "100%",
               backgroundColor: "yellow",
@@ -316,255 +392,367 @@ const SignUp = ({ navigation }) => {
             <Text>{district !== "" || null ? district : "Loading"}</Text>
             <Text>{region !== "" || null ? region : "Loading"}</Text>
             <Text>{country !== "" || null ? country : "Loading"}</Text>
-          </View>
+          </View> */}
         </View>
         <View
           style={{
             width: "100%",
             padding: 10,
-            marginTop: 15,
+            marginTop: 5,
           }}
         >
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexDirection: "row",
+              width: winWidth < 768 ? "100%" : "40%",
+              alignSelf: "center",
+            }}
+          >
             <Text
               style={{
                 fontSize: 16,
+                fontWeight: "bold",
+                marginLeft: 5,
+                color: "#6F6F6F",
               }}
             >
               List your crops below
             </Text>
+            <TouchableOpacity
+              style={{
+                width: "35%",
+                height: 30,
+                alignItems: "center",
+                backgroundColor: "#fff",
+                borderWidth: 2,
+                borderRadius: 20,
+                marginTop: 10,
+                borderColor: "#3ECF8E",
+                justifyContent: "center",
+              }}
+              onPress={() => {
+                addCrop();
+                setapplied(false);
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  padding: 5,
+                  color: "#3ECF8E",
+                  fontWeight: "700",
+                }}
+              >
+                + Add Crop
+              </Text>
+            </TouchableOpacity>
           </View>
+          <View
+            style={{
+              width: winWidth < 768 ? "100%" : "40%",
 
-          <>
-            <form onSubmit={handleSubmit}>
-              <View
-                style={{
-                  borderWidth: 1,
+              alignSelf: "center",
+            }}
+          >
+            <View style={{ marginBottom: 10 }}>
+              {fields.map((field, idx) => (
+                <View
+                  key={`${field}~${idx}`}
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    margin: 5,
+                    padding: 2,
+                    height: 50,
+                    borderColor: "#fafcff",
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    backgroundColor: "#fafcff",
+                  }}
+                >
+                  <View style={{ width: "35%", zIndex: 999 }}>
+                    <Select
+                      placeholder="Add Crop..."
+                      defaultValue={selectedOption}
+                      onChange={(e) => {
+                        setSelectedOption;
+                        matchCrop(e.label, null, null, idx);
+                      }}
+                      options={options}
+                    />
+                  </View>
 
-                  borderColor: "#f5f5f5",
-                  width: "100%",
-                  marginBottom: 5,
-                  borderRadius: 5,
-                  marginTop: 5,
-                }}
-              >
-                <div className="form-row">
-                  {inputFields.map((inputField, index) => (
-                    <Fragment key={`${inputField}~${index}`}>
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          alignItems: "flex-start",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <View
-                          style={{
-                            width: "100%",
-                            flexDirection: "row",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <View style={{ width: "90%", marginRight: 10 }}>
-                            <div className="form-group col-sm-6">
-                              {/* <label htmlFor="firstName">First Name</label> */}
+                  {/* <TextInput
+            style={{
+              width: "70%",
+              fontSize: 15,
+              borderWidth: 1,
+              borderColor: "black",
+              borderRadius: 5,
+              padding: 5,
+              margin: 5,
+            }}
+            value={field.value}
+            onChangeText={(e) => {
+              // setcrop(e);
+              // settempID(idx);
+              // matchCrop(e, null, null, idx);
+            }}
+            placeholder="Add Crop"
+          /> */}
 
-                              <input
-                                style={{
-                                  width: "90%",
-                                  height: 30,
-                                  margin: 3,
-                                  borderWidth: 1,
-                                  outlineColor: "#fff",
-                                  borderRadius: 5,
-                                }}
-                                placeholder="Type to add crop"
-                                type="text"
-                                className="form-control"
-                                id="name"
-                                name="name"
-                                value={inputField.name}
-                                onChange={(event) => {
-                                  handleInputChange(index, event);
-                                  setshow(event);
-                                }}
-                              />
-                              {/* {show !== "" ? (
-                                <FlatList
-                                  showsVerticalScrollIndicator={false}
-                                  data={filteredBlur}
-                                  renderItem={renderMatch}
-                                  ListEmptyComponent={() => (
-                                    <Text style={{ fontSize: 30 }}>
-                                      {" "}
-                                      Oops ! Didnt find that
-                                    </Text>
-                                  )}
-                                  contentContainerStyle={{
-                                    width: "100%",
-                                  }}
-                                />
-                              ) : null} */}
-                            </div>
-                          </View>
-
-                          <AntDesign
-                            style={{ marginRight: 10 }}
-                            name="delete"
-                            size={24}
-                            color="#ff7878"
-                            onPress={() => {
-                              handleRemoveFields(index);
-                            }}
-                          />
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            width: "90%",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div className="form-group col-sm-4">
-                            {/* <label htmlFor="lastName">Last Name</label> */}
-                            <input
-                              style={{
-                                width: "85%",
-                                height: 25,
-                                margin: 3,
-                                outlineColor: "#fff",
-                              }}
-                              placeholder="Quantity"
-                              type="text"
-                              className="form-control"
-                              id="estimatedYield"
-                              name="estimatedYield"
-                              value={inputField.estimatedYield}
-                              onChange={(event) =>
-                                handleInputChange(index, event)
-                              }
-                            />
-                          </div>
-                          <div className="form-group col-sm-4">
-                            {/* <label htmlFor="date">Date</label> */}
-
-                            <input
-                              style={{
-                                width: "85%",
-                                height: 25,
-                                marginLeft: -10,
-                                outlineColor: "#fff",
-                              }}
-                              placeholder="Harvest Date"
-                              type="text"
-                              className="form-control"
-                              id="harvestingTime"
-                              name="harvestingTime"
-                              value={inputField.harvestingTime}
-                              onChange={(event) =>
-                                handleInputChange(index, event)
-                              }
-                            />
-                          </div>
-                        </View>
-                      </View>
-                    </Fragment>
-                  ))}
-                </div>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {/* <View>
-                  <button
-                    className="btn btn-primary mr-2"
-                    type="submit"
-                    onSubmit={handleSubmit}
+                  <TextInput
                     style={{
-                      width: 100,
-                      height: 30,
-                      alignItems: "center",
-                      backgroundColor: "#8f98ff",
-                      borderWidth: 1.5,
+                      width: "20%",
+                      fontSize: 15,
+                      borderWidth: 1,
+                      borderColor: "#D3D3D3",
                       borderRadius: 5,
-                      marginLeft: 10,
-                      marginTop: 10,
-                      borderColor: "#3A48ED",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={{ color: "#fff", fontWeight: "500" }}>
-                      {" "}
-                      Done
-                    </Text>
-                  </button>
-                </View> */}
-                <TouchableOpacity
-                  style={{
-                    width: "100%",
-                    height: 35,
-                    alignItems: "center",
-                    backgroundColor: "#fff",
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    marginTop: 10,
-                    borderColor: "#3A48ED",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => {
-                    handleAddFields();
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 15,
                       padding: 5,
-                      color: "#3A48ED",
-                      fontWeight: "700",
+                      margin: 5,
+                      height: 37,
+                      outlineColor: "#D3D3D3",
                     }}
-                  >
-                    + Add Crop
-                  </Text>
-                </TouchableOpacity>
+                    onChangeText={(q) => matchCrop(null, q, null, idx)}
+                    placeholder="Quantity"
+                  />
+
+                  {applied ? (
+                    <View
+                      style={{
+                        backgroundColor: "#d6d9ff",
+                        borderRadius: 5,
+                        borderColor: "#7b42ff",
+                        height: 35,
+                        borderWidth: 2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "30%",
+                      }}
+                    >
+                      <Text style={{ fontSize: 14 }}>
+                        {field.harvestingTime}
+                      </Text>
+                    </View>
+                  ) : (
+                    <DatePicker
+                      dateFormat="dd/MM/yyyy"
+                      popperPlacement="top-end"
+                      popperModifiers={{
+                        offset: {
+                          enabled: true,
+                          offset: "5px, 10px",
+                        },
+                        preventOverflow: {
+                          enabled: true,
+                          escapeWithReference: false,
+                          boundariesElement: "viewport",
+                        },
+                      }}
+                      selected={tempDate}
+                      onChange={(date) => {
+                        settempDate(date);
+                        setapplied(true);
+                        matchCrop(null, null, date.toLocaleDateString(), idx);
+                      }}
+                      customInput={
+                        <TextInput
+                          style={{
+                            backgroundColor: "#d6d9ff",
+                            borderRadius: 5,
+                            borderColor: "#7b42ff",
+                            height: 35,
+                            borderWidth: 2,
+                            padding: 5,
+                            fontSize: 14,
+                            width: "70%",
+                          }}
+                        />
+                      }
+                    />
+                  )}
+                  <AntDesign
+                    name="delete"
+                    size={20}
+                    color="#eb3d3d"
+                    onPress={() => removeCrop(idx)}
+                  />
+                  {/* <Button title="Remove" onPress={() => removeCrop(idx)} /> */}
+                </View>
+              ))}
+            </View>
+            {/* {fields.map((field, idx) => {
+        return (
+          <View
+            key={`${field}-${idx}`}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              borderWidth: 1,
+              padding: 2,
+              borderColor: "#D3D3D3",
+              borderRadius: 5,
+              margin: 2,
+            }}
+          >
+            <View style={{ flexDirection: "column", width: "80%" }}>
+              <View>
+                <TextInput
+                  placeholder="Crop"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "100%",
+                      padding: 5,
+                      fontSize: 14,
+                      borderWidth: 1,
+
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.value || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
               </View>
-              <div className="submit-button">
-                <TouchableOpacity
-                  style={{
-                    width: "100%",
-                    height: 35,
-                    alignItems: "center",
-                    backgroundColor: "#3ECF8E",
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    marginTop: 10,
-                    borderColor: "#3ECF8E",
-                    justifyContent: "center",
-                  }}
-                  onPress={handleSubmit}
-                >
-                  <Text
-                    style={{
-                      fontSize: 15,
+              <View style={{ flexDirection: "row" }}>
+                <TextInput
+                  placeholder="Quantity"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "50%",
                       padding: 5,
-                      color: "#fff",
-                      fontWeight: "700",
-                    }}
-                  >
-                    Submit
-                  </Text>
-                </TouchableOpacity>
-              </div>
-              <br />
-              <pre>{JSON.stringify(inputFields, null, 2)}</pre>
-            </form>
-          </>
+                      fontSize: 14,
+                      borderWidth: 1,
+                      marginTop: 5,
+                      marginRight: 5,
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.quantity || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
+                <TextInput
+                  placeholder="Harvest Date"
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#3ECF8E",
+                      height: 30,
+                      backgroundColor: "white",
+                      width: "50%",
+                      padding: 5,
+                      fontSize: 14,
+                      borderWidth: 1,
+                      marginTop: 5,
+                      marginLeft: 5,
+                      borderColor: "#D3D3D3",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  value={field.harvestDate || ""}
+                  onChange={(e) => handleChange(idx, e)}
+                />
+              </View>
+            </View>
+
+            <AntDesign
+              name="delete"
+              size={20}
+              color="#eb3d3d"
+              onPress={() => handleRemove(idx)}
+            />
+          </View>
+        );
+      })}
+      <TouchableOpacity
+        style={{
+          width: "100%",
+          height: 35,
+          alignItems: "center",
+          backgroundColor: "#3A48ED",
+          borderWidth: 1,
+          borderRadius: 5,
+          marginTop: 10,
+          borderColor: "#3A48ED",
+          justifyContent: "center",
+        }}
+        onPress={() => {
+          handleAdd();
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 15,
+            padding: 5,
+            color: "#fff",
+            fontWeight: "700",
+          }}
+        >
+          + Add Crop
+        </Text>
+      </TouchableOpacity> */}
+
+            {/* <Button
+        title="Add Crop"
+        onPress={() => {
+          addCrop(), setapplied(false);
+        }}
+      /> */}
+            {/* <Button title="Submit" onPress={() => showData()} /> */}
+          </View>
+          {/* <DynamicForm /> */}
+          <View
+            style={{
+              width: winWidth > 768 ? "40%" : "100%",
+
+              alignSelf: "center",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                width: "43%",
+                height: 40,
+                alignItems: "center",
+                backgroundColor: "#3ECF8E",
+                borderWidth: 1,
+                borderRadius: 5,
+                top: 30,
+                borderColor: "#3ECF8E",
+                justifyContent: "center",
+                alignSelf: "flex-end",
+              }}
+              onPress={() => {
+                handleSubmit();
+                // console.log(fields);
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  padding: 5,
+                  color: "#fff",
+                  fontWeight: "700",
+                }}
+              >
+                SUBMIT
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 

@@ -42,6 +42,7 @@ import { BlurView } from "expo-blur";
 import { add } from "date-fns";
 import * as Location from "expo-location";
 import firebase from "../firebase/firebase";
+import { concat } from "react-native-reanimated";
 
 const Home = ({ navigation }) => {
   const [location, setLocation] = useState(null);
@@ -76,7 +77,18 @@ const Home = ({ navigation }) => {
   const [show, setshow] = useState("");
   const [applied, setapplied] = useState(false);
   const [focused, setfocused] = useState([]);
-  const [cropFinal, setcropFinal] = useState("");
+  const [cropFinal, setcropFinal] = useState(null);
+  const [listRegion, setlistRegion] = useState([]);
+  const [fileredFarmers, setfileredFarmers] = useState([]);
+  const [listCrops, setlistCrops] = useState([]);
+  const [showList, setshowList] = useState([]);
+  const [finallist, setfinallist] = useState([
+    {
+      cropName: "",
+      harvestDate: "",
+      quantity: 0,
+    },
+  ]);
   const [filter, setfilter] = useState([
     {
       gender: "",
@@ -85,8 +97,8 @@ const Home = ({ navigation }) => {
     },
   ]);
 
-  const [tempGen, settempGen] = useState("");
-  const [tempState, settempState] = useState("");
+  const [tempGen, settempGen] = useState(null);
+  const [tempState, settempState] = useState(null);
   const [tempDate, settempDate] = useState("");
   const [sendVal, setsendVal] = useState(0);
   const [filteredBlur, setfilteredBlur] = useState([]);
@@ -108,7 +120,35 @@ const Home = ({ navigation }) => {
         farmerName: true,
         farmingArea: true,
         gender: tempGen,
-        harvestDate: tempEndDate.toLocaleDateString(),
+        harvestDate:
+          tempEndDate !== null ? tempEndDate.toLocaleDateString() : "",
+        orderBy: "",
+        cropName: cropFinal,
+        pageNo: firstScroll,
+        quantity: true,
+        state: tempState,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.data.list), setfarmers(farmers.concat(data.data.list));
+      })
+      .catch((error) => console.error(error));
+  }, [firstScroll]);
+
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/farmers", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        farmerName: true,
+        farmingArea: true,
+        gender: tempGen,
+        harvestDate:
+          tempEndDate !== null ? tempEndDate.toLocaleDateString() : "",
         orderBy: "",
         cropName: cropFinal,
         pageNo: 0,
@@ -118,12 +158,14 @@ const Home = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.data.list), setfarmers(data.data.list);
+        console.log(data.data.list),
+          setlistCrops(data.data.list),
+          setfileredFarmers(data.data.list);
       })
       .catch((error) => console.error(error));
-  }, [sendVal, firstScroll]);
+  }, [sendVal]);
 
-  console.log(farmers);
+  console.log(listCrops);
 
   useEffect(() => {
     fetch("http://staging.clarolabs.in:7050/Ksearch/crops", {
@@ -140,6 +182,23 @@ const Home = ({ navigation }) => {
       .then((data) => setfilteredBlur(data.data.list));
   }, [show]);
 
+  useEffect(() => {
+    fetch("http://staging.clarolabs.in:7050/Ksearch/fetch/states", {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cropName: cropFinal,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.data.list), setlistRegion(data.data.list);
+      });
+  }, [cropFinal]);
+
   const renderMatch = ({ item }) => (
     <TouchableOpacity
       style={{
@@ -148,16 +207,16 @@ const Home = ({ navigation }) => {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "flex-start",
-        margin: 2,
+
         padding: 5,
         borderWidth: 1,
         borderColor: "#fff",
         borderRadius: 10,
         backgroundColor: "#fff",
-        alignSelf: "center",
       }}
       onPress={() => {
         setcropFinal(item.name), setsendVal(sendVal + 1);
+        setblur(false);
       }}
     >
       <Image
@@ -184,10 +243,23 @@ const Home = ({ navigation }) => {
       body: null,
     })
       .then((res) => res.json())
-      .then((data) => setfocused(data.data.list))
+      .then((data) => {
+        console.log(data.data), setfocused(data.data.list);
+      })
       .catch((err) => console.log(err));
 
     OpenProfile();
+    console.log(listCrops);
+    {
+      listCrops.map((i) => {
+        if (i.id == id) {
+          i.crops.map((j) => {
+            showList.push(j);
+          });
+        }
+      });
+    }
+    console.log(showList);
   };
 
   console.log(focused);
@@ -262,6 +334,13 @@ const Home = ({ navigation }) => {
     modalizeRef.current?.close();
   };
 
+  const suggestions = filteredBlur.filter((item) => {
+    // console.log(item.id, item.name);
+    if (item.id == 548 || item.id == 5721 || item.id == 810 || item.id == 47) {
+      return item;
+    }
+  });
+
   const genderData = [
     {
       key: "m",
@@ -273,6 +352,93 @@ const Home = ({ navigation }) => {
     },
   ];
 
+  const renderCrops = ({ item }) => (
+    <View
+      style={{
+        width: "100%",
+        height: 60,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#fff",
+        marginBottom: 3,
+        borderWidth: 1,
+        padding: 5,
+        borderColor: "#e8e8e8",
+        borderRadius: 5,
+        shadowColor: "#346beb",
+        shadowOffset: {
+          width: 1,
+          height: 3,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 2.22,
+
+        elevation: 5,
+      }}
+    >
+      {/* {
+    filteredBlur.map((i)=>{
+      if(item.name==i.cropName){
+        
+      }
+    })
+  } */}
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "flex-start",
+        }}
+      >
+        {/* {opto.map((i) => {
+      if (i.name.localCompare(item.name) == 0) {
+        <Image
+          source={{
+            uri: item.cropImage,
+          }}
+          style={{
+            height: 45,
+            width: 45,
+            marginRight: 5,
+            borderRadius: "50%",
+            borderColor: "green",
+          }}
+        />;
+      }
+    })} */}
+
+        {filteredBlur.map((i) => {
+          if (
+            item.cropName.toString().toLocaleLowerCase() ===
+            i.name.toString().toLocaleLowerCase()
+          )
+            return (
+              <Image
+                source={{
+                  uri: i.cropImage,
+                }}
+                style={{
+                  height: 45,
+                  width: 45,
+                  marginRight: 5,
+                  borderRadius: 45,
+                  borderWidth: 1,
+                  borderColor: "#bdbdbd",
+                }}
+              />
+            );
+        })}
+
+        <Text style={{ fontSize: 16 }}>{item.cropName}</Text>
+        <Entypo name="dot-single" size={20} color="black" />
+        <Text style={{ fontSize: 16 }}>{item.quantity} Quintal</Text>
+      </View>
+
+      <Text style={{ fontSize: 16 }}>{item.harvestDate}</Text>
+    </View>
+  );
   const renderItems = ({ item }) => (
     <Card
       key={item.id}
@@ -320,7 +486,7 @@ const Home = ({ navigation }) => {
           justifyContent: "flex-start",
           flexDirection: "row",
           backgroundColor: "#deebff",
-          padding: 5,
+          padding: 10,
         }}
       >
         <TouchableOpacity
@@ -349,8 +515,218 @@ const Home = ({ navigation }) => {
             Filter
           </Text>
         </TouchableOpacity>
+        {sendVal !== 0 ? (
+          <View
+            style={{
+              marginRight: 10,
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#f2f7ff",
+                height: 30,
+                width: 90,
+                padding: 3,
+                borderRadius: 5,
+                margin: 5,
+                borderWidth: 2,
+                borderColor: "#3A48ED",
+              }}
+              onPress={() => {
+                settempGen("");
+                settempEndDate(null);
+                settempState("");
+                setcropFinal("");
+                setsendVal(0);
+              }}
+            >
+              <MaterialIcons name="clear-all" size={15} color="#3A48ED" />
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "500",
+                  marginLeft: 2,
+                  color: "#3A48ED",
+                }}
+              >
+                {" "}
+                Clear All
+              </Text>
+            </TouchableOpacity>
+            {cropFinal !== null ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: "center",
+                  marginRight: 5,
+                  backgroundColor: "#87EDBF",
+                  padding: 5,
+                  height: 30,
+
+                  borderRadius: 10,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  borderWidth: 1,
+                  borderColor: "#3ECF8E",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#009150",
+                    fontWeight: "600",
+                    fontSize: 15,
+                  }}
+                >
+                  {cropFinal}
+                </Text>
+
+                <AntDesign
+                  name="close"
+                  size={15}
+                  color="#fff"
+                  style={{
+                    top: 2,
+                    backgroundColor: "#009150",
+                    padding: 2,
+                    marginLeft: 5,
+                    borderRadius: 15,
+                  }}
+                  onPress={() => {
+                    setcropFinal("");
+                    setsendVal(0);
+                  }}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={{ backgroundColor: "transparent" }} />
+            )}
+            {tempGen !== null && sendVal !== 0 ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: "center",
+                  marginRight: 5,
+                  backgroundColor: val ? "#fff" : "#deebff",
+                  padding: 5,
+                  height: 30,
+
+                  borderRadius: 20,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  borderWidth: 1,
+                  borderColor: "#346beb",
+                }}
+              >
+                <Text style={{ color: "#000" }}>
+                  {tempGen
+                    ? tempGen === "m"
+                      ? "Men"
+                      : tempGen === "f"
+                      ? "Women"
+                      : "Other"
+                    : null}
+                </Text>
+                <AntDesign
+                  name="close"
+                  size={15}
+                  color="#3A48ED"
+                  style={{
+                    top: 2,
+                    backgroundColor: "#A1C7FF",
+                    padding: 2,
+                    borderRadius: 15,
+                    marginLeft: 5,
+                  }}
+                  onPress={() => {
+                    settempGen(null), setsendVal(sendVal + 1);
+                  }}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={{ backgroundColor: "transparent" }} />
+            )}
+            {tempState !== null && sendVal !== 0 ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: "center",
+                  marginRight: 5,
+                  backgroundColor: val ? "#fff" : "#deebff",
+                  padding: 5,
+                  height: 30,
+
+                  borderRadius: 20,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  borderWidth: 1,
+                  borderColor: "#346beb",
+                }}
+              >
+                <Text style={{ color: "#000" }}>{tempState}</Text>
+                <AntDesign
+                  name="close"
+                  size={15}
+                  color="#3A48ED"
+                  style={{
+                    top: 2,
+                    backgroundColor: "#A1C7FF",
+                    padding: 2,
+                    borderRadius: 15,
+                    marginLeft: 5,
+                  }}
+                  onPress={() => {
+                    settempState(null), setsendVal(sendVal + 1);
+                  }}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={{ backgroundColor: "transparent" }} />
+            )}
+          </View>
+        ) : (
+          <View
+            style={{
+              alignItems: "center",
+              marginRight: 5,
+              backgroundColor: "#fff",
+              padding: 5,
+              height: 30,
+              margin: 5,
+              width: 50,
+              borderRadius: 10,
+              justifyContent: "center",
+              flexDirection: "row",
+              borderWidth: 1,
+              borderColor: "#346beb",
+            }}
+          >
+            <Text style={{ color: "#000" }}>All</Text>
+          </View>
+        )}
       </View>
-      {farmers !== null ? (
+      {sendVal !== 0 ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={fileredFarmers}
+          renderItem={renderItems}
+          ListEmptyComponent={() => (
+            <Text style={{ fontSize: 30 }}> Oops ! Didnt find that</Text>
+          )}
+          contentContainerStyle={{
+            flexDirection: "row",
+            width: "100%",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            backgroundColor: "#deebff",
+            padding: winWidth > 767 ? 10 : 2,
+          }}
+          onEndReached={() => handleLoad()}
+        />
+      ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
           data={farmers}
@@ -369,7 +745,7 @@ const Home = ({ navigation }) => {
           }}
           onEndReached={() => handleLoad()}
         />
-      ) : null}
+      )}
       <View style={{ width: "100%", height: 40 }} />
       <Modalize
         ref={modalizeFilterRef}
@@ -420,7 +796,7 @@ const Home = ({ navigation }) => {
               onPress={() => {
                 settempGen("");
                 settempState("");
-                settempDate("");
+                settempEndDate(null);
                 setsendVal(0);
               }}
             >
@@ -593,24 +969,24 @@ const Home = ({ navigation }) => {
           </TouchableOpacity>
           {addrToggle ? (
             <View style={{ marginTop: 10 }}>
-              {States.map((item) => {
+              {listRegion.map((item) => {
                 return (
-                  <View key={item.code} style={styles.buttonnewContainer}>
+                  <View key={item.state} style={styles.buttonnewContainer}>
                     <TouchableOpacity
                       style={styles.circle}
                       onPress={() => {
-                        settempState(item.name);
+                        settempState(item.state);
                         // settempAddr(item.name);
                         // // setaddr(item.name);
                         // setaddrToggle(false);
                       }}
                     >
-                      {tempState === item.name && (
+                      {tempState === item.state && (
                         <View style={styles.checkedCircle} />
                       )}
                     </TouchableOpacity>
                     <Text style={{ fontSize: 16, marginLeft: 5 }}>
-                      {item.name}
+                      {item.state}
                     </Text>
                   </View>
                 );
@@ -664,39 +1040,11 @@ const Home = ({ navigation }) => {
                 padding: 5,
               }}
             >
-              <View>
-                <Text style={{ marginBottom: 10 }}>From</Text>
-                <DatePicker
-                  dateFormat="dd/MM/yyyy"
-                  selected={
-                    tempStartDate < new Date() ? new Date() : tempStartDate
-                  }
-                  onChange={(date) => {
-                    date < new Date().toLocaleDateString()
-                      ? alert("Start Date cannot be less than today")
-                      : settempStartDate(date);
-                  }}
-                  customInput={
-                    <TextInput
-                      style={{
-                        backgroundColor: "#d6d9ff",
-                        borderRadius: 5,
-                        borderColor: "#7b42ff",
-                        height: 35,
-                        borderWidth: 2,
-                        padding: 5,
-                        fontSize: 15,
-                        width: 100,
-                      }}
-                    />
-                  }
-                />
-              </View>
               <View style={{ marginLeft: 20 }}>
                 <Text style={{ marginBottom: 10 }}>To</Text>
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
-                  popperPlacement="bottom-right"
+                  popperPlacement="bottom-left"
                   selected={tempEndDate}
                   onChange={(date) => {
                     settempEndDate(date);
@@ -778,7 +1126,9 @@ const Home = ({ navigation }) => {
             }}
           >
             <TouchableOpacity
-              onPress={() => CloseProfile()}
+              onPress={() => {
+                CloseProfile(), setshowList([]);
+              }}
               style={{
                 alignItems: "center",
                 marginTop: 5,
@@ -907,7 +1257,7 @@ const Home = ({ navigation }) => {
                             marginLeft: 5,
                           }}
                         >
-                          {i.phone}
+                          {hideNumber(i.phone)}
                         </Text>
                       );
                     })}
@@ -915,19 +1265,59 @@ const Home = ({ navigation }) => {
                 </View>
               </View>
             </View>
-            <View style={{ top: -40 }}>
-              <Text
+            <View style={{}}>
+              <View
                 style={{
-                  marginTop: winWidth < 400 ? 40 : 60,
+                  width: "100%",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 20,
                   padding: 5,
-                  fontWeight: "500",
-                  color: "#6F6F6F",
-                  fontSize: 20,
-                  marginLeft: 5,
+                  marginBottom: 10,
                 }}
               >
-                Farming Details
-              </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Entypo name="leaf" size={15} color="#9F99FF" />
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: "#6F6F6F",
+                      fontWeight: "600",
+                      marginLeft: 5,
+                    }}
+                  >
+                    Crop Details
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <SimpleLineIcons name="calendar" size={15} color="#9F99FF" />
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: "#6F6F6F",
+                      fontWeight: "600",
+                      marginRight: 5,
+                      marginLeft: 5,
+                    }}
+                  >
+                    Harvest Dates
+                  </Text>
+                </View>
+              </View>
               <View
                 style={{
                   width: "95%",
@@ -938,168 +1328,28 @@ const Home = ({ navigation }) => {
               ></View>
               <View
                 style={{
-                  flexDirection: "column",
+                  height: winHeight * 0.4,
                   marginTop: 10,
-                  padding: 10,
-                  height: winWidth < 400 ? 100 : 180,
-                  justifyContent: "space-between",
+                  marginBottom: 10,
                 }}
               >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: "100%",
-                    justifyContent: "space-between",
-                    marginBottom: 10,
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={showList}
+                  renderItem={renderCrops}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Loading your crops..
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    flex: 1,
                   }}
-                >
-                  <View style={{ flexDirection: "column", width: "50%" }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Entypo name="leaf" size={20} color="#9F99FF" />
-
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#6F6F6F",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Crop
-                      </Text>
-                    </View>
-                    <View>
-                      <Text style={{ fontSize: 20 }}>Crop</Text>
-                    </View>
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      width: "50%",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <SimpleLineIcons
-                        name="calendar"
-                        size={20}
-                        color="#9F99FF"
-                      />
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#6F6F6F",
-                          marginLeft: 5,
-                          fontWeight: "600",
-                        }}
-                      >
-                        Harvest Date
-                      </Text>
-                    </View>
-                    <View>
-                      <Text style={{ fontSize: 20 }}>Harvest Date</Text>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: "100%",
-                    justifyContent: "space-between",
-                    marginTop: 5,
-                  }}
-                >
-                  <View style={{ flexDirection: "column", width: "50%" }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <SimpleLineIcons
-                        name="size-fullscreen"
-                        size={20}
-                        color="#9F99FF"
-                      />
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#6F6F6F",
-                          fontWeight: "600",
-                          marginLeft: 5,
-                        }}
-                      >
-                        Farming Area
-                      </Text>
-                    </View>
-                    <View style={{ marginTop: 5 }}>
-                      {focused.map((i) => {
-                        return (
-                          <Text style={{ fontSize: 20 }}>{i.totalLand}</Text>
-                        );
-                      })}
-                    </View>
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      width: "50%",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <SimpleLineIcons
-                        name="speedometer"
-                        size={20}
-                        color="#9F99FF"
-                      />
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#6F6F6F",
-                          marginLeft: 5,
-                          fontWeight: "600",
-                        }}
-                      >
-                        Quantity
-                      </Text>
-                    </View>
-                    <View>
-                      <Text style={{ fontSize: 20, marginLeft: 5 }}>
-                        Quantity q
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View></View>
+                />
               </View>
-              <View
-                style={{
-                  width: "95%",
-                  alignSelf: "center",
-                  height: 1,
-                  backgroundColor: "#C0C0C0",
-                  marginTop: winWidth < 400 ? 30 : 10,
-                }}
-              />
             </View>
             <View
               style={{
@@ -1266,26 +1516,83 @@ const Home = ({ navigation }) => {
                   setshow(text);
                 }}
               />
-              <Button title="Close Blur" onPress={() => setblur(false)} />
+              <TouchableOpacity onPress={() => setblur(false)}>
+                <View
+                  style={{
+                    width: 25,
+                    height: 25,
+                    borderWidth: 2,
+                    borderColor: "#A1C7FF",
+                    alignItems: "center",
+                    alignSelf: "flex-end",
+                    justifyContent: "center",
+                    right: -10,
+                    backgroundColor: "#A1C7FF",
+                    borderRadius: 25,
+                  }}
+                >
+                  <AntDesign name="close" size={20} color="#3A48ED" />
+                </View>
+              </TouchableOpacity>
             </View>
-            {show !== "" ? (
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                data={filteredBlur}
-                renderItem={renderMatch}
-                ListEmptyComponent={() => (
-                  <View style={styles.container}>
-                    <Text style={{ fontSize: 30 }}>
-                      {" "}
-                      Oops ! Didnt find that
-                    </Text>
-                  </View>
-                )}
-                contentContainerStyle={{
-                  width: "100%",
-                }}
-              />
-            ) : null}
+            <View
+              style={{
+                width: winWidth > 767 ? "50%" : "97%",
+                backgroundColor: "#fff",
+                borderRadius: 10,
+                borderWidth: 1,
+                margin: 10,
+                borderColor: "#fff",
+                alignSelf: "center",
+                alignItems: "flex-start",
+              }}
+            >
+              <View style={{ height: 40, padding: 10 }}>
+                <Text style={{ fontSize: 15 }}>
+                  {show !== "" ? "Matching Crops" : "Suggested Crops"}
+                </Text>
+              </View>
+
+              {show !== "" ? (
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={filteredBlur}
+                  renderItem={renderMatch}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    width: "100%",
+                  }}
+                />
+              ) : (
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={suggestions}
+                  renderItem={renderMatch}
+                  ListEmptyComponent={() => (
+                    <View style={styles.container}>
+                      <Text style={{ fontSize: 30 }}>
+                        {" "}
+                        Oops ! Didnt find that
+                      </Text>
+                    </View>
+                  )}
+                  contentContainerStyle={{
+                    width: "100%",
+                  }}
+                />
+              )}
+            </View>
+            <TouchableOpacity
+              style={{ flex: 1, backgroundColor: "transparent" }}
+              onPress={() => setblur(false)}
+            ></TouchableOpacity>
           </BlurView>
         </View>
       ) : null}

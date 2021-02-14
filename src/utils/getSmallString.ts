@@ -1,6 +1,6 @@
-const getSmallString=(str : string)=>{
-    if(str.length>20){
-        str =str.substring(0,19)+"...";
+const getSmallString=(str : string,x:number)=>{
+    if(str.length>x){
+        str =str.substring(0,x-1)+"...";
         return str;
     }
     else{

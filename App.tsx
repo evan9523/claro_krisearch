@@ -23,6 +23,7 @@ import { auth } from "firebase";
 import SignUp from "./src/screens/SignUp";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Test from "./src/screens/testScreen";
+import Feed from "./src/screens/Feed";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -267,6 +268,14 @@ const App = () => {
           component={SignUp}
           options={{
             title: "SignUp",
+          }}
+        />
+
+        <Stack.Screen
+          name="Feed"
+          component={Feed}
+          options={{
+            title: "Feed",
           }}
         />
         {/* {winWidth > 768 ? (

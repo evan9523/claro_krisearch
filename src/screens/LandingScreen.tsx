@@ -359,7 +359,7 @@ const Landing = ({ navigation }) => {
             flexDirection: "row",
             marginTop: 20,
           }}
-          onPress={() => navigation.navigate("Homely", { screen: "Home" })}
+          onPress={() => navigation.navigate("Feed")}
         >
           <View
             style={{
@@ -403,7 +403,7 @@ const Landing = ({ navigation }) => {
             style={{ marginRight: 10 }}
           />
         </TouchableOpacity>
-        <Button title="To test" onPress={() => navigation.navigate("Test")} />
+
         {/* <TouchableOpacity
             style={{
               width: "100%",

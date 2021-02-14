@@ -32,6 +32,7 @@ const Login = ({ navigation }) => {
   const [otpsent, setotpsent] = useState(false);
   const [gotCode, setgotCode] = useState("");
   const [tempCode, settempCode] = useState("");
+  const [result, setresult] = useState(null);
 
   const handleClick = () => {
     let recaptcha = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
@@ -131,6 +132,41 @@ const Login = ({ navigation }) => {
         var errorMessage = error.message;
       });
   };
+  var codeResult;
+
+  const sendCode = () => {
+    let recaptcha = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+      size: "invisible",
+    });
+
+    firebase
+      .auth()
+      .signInWithPhoneNumber(number, recaptcha)
+      .then((confirmResult) => {
+        confirmResult = confirmResult;
+        codeResult = confirmResult;
+        console.log(codeResult);
+        setresult(codeResult);
+
+        setotpsent(true);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
+
+  const verifyCode = () => {
+    var code = tempCode;
+    result
+      .confirm(code)
+      .then((result) => {
+        var user = result.user;
+        console.log(user);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
 
   const checkUser = (data) => {
     if (data == null) {
@@ -179,6 +215,12 @@ const Login = ({ navigation }) => {
     }
   };
 
+  const handleOTP = (e) => {
+    settempCode(e);
+  };
+
+  console.log(tempCode);
+
   return (
     <View style={styles.container}>
       <div id="recaptcha-container"></div>
@@ -225,14 +267,24 @@ const Login = ({ navigation }) => {
         </View>
         <View
           style={{
-            width: "100%",
+            width: winWidth < 768 ? "100%" : "30%",
             alignItems: "center",
+            alignSelf: "center",
             justifyContent: "center",
             margin: 10,
+            flexDirection: "row",
           }}
         >
-          <Text style={{ fontSize: 20, color: "#fff", fontWeight: 600 }}>
-            You are ready to go
+          <Feather name="smartphone" size={24} color="#fff" />
+          <Text
+            style={{
+              fontSize: 20,
+              color: "#fff",
+
+              marginLeft: 10,
+            }}
+          >
+            Sign-in with your phone
           </Text>
         </View>
 
@@ -244,8 +296,17 @@ const Login = ({ navigation }) => {
             width: winWidth < 768 ? "90%" : "30%",
             borderColor: "#fff",
             alignSelf: "center",
-            borderRadius: 10,
+            borderRadius: 5,
             margin: 10,
+            shadowColor: "#002f9c",
+            shadowOffset: {
+              width: 3,
+              height: 5,
+            },
+            shadowOpacity: 0.5,
+            shadowRadius: 2.22,
+
+            elevation: 5,
           }}
         >
           <View
@@ -256,50 +317,12 @@ const Login = ({ navigation }) => {
               marginTop: 10,
             }}
           >
-            <Text style={{ fontSize: 25, fontWeight: "bold" }}>Sign In</Text>
+            <Text style={{ fontSize: 25, color: "#346beb" }}>Welcome</Text>
             {/* <SimpleLineIcons
               name="close"
               size={25}
               onPress={() => navigation.navigate("Landing")}
             /> */}
-          </View>
-          <View
-            style={{
-              padding: 10,
-              top: 20,
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
-            <TextInput
-              placeholder="Enter your 10-digit number here"
-              // style={{
-              //   width: "70%",
-              //   height: 40,
-              //   borderWidth: 1,
-              //   borderColor: "#A9A9A9",
-              //   borderRadius: 5,
-              //   padding: 5,
-              // }}
-              focusable={true}
-              style={
-                Platform.OS === "web" && {
-                  outlineColor: "#fff",
-                  height: 40,
-                  backgroundColor: "white",
-                  width: "95%",
-                  padding: 5,
-                  fontSize: 20,
-                  borderWidth: 1,
-                  borderBottomColor: "#000",
-                  borderColor: "#fff",
-                  borderRadius: 5,
-                  textAlign: "center",
-                }
-              }
-              onChangeText={(e) => setnumber("+91" + e)}
-            />
           </View>
 
           {/* <Button title="Submit" onPress={() => setnumber(temp)} /> */}
@@ -312,69 +335,26 @@ const Login = ({ navigation }) => {
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity
-              style={{
-                width: "60%",
-                height: 40,
-                alignItems: "center",
-                backgroundColor: "#3ECF8E",
-                borderWidth: 1,
-                borderRadius: 5,
-                top: 30,
-                borderColor: "#3ECF8E",
-                justifyContent: "center",
-              }}
-              onPress={() => {
-                setotpsent(true);
-                handleClick();
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 15,
-                  padding: 5,
-                  color: "#fff",
-                  fontWeight: "700",
-                }}
-              >
-                Get OTP
-              </Text>
-            </TouchableOpacity>
-            {/* {otpsent ? (
+            {otpsent ? (
               <View
                 style={{
                   padding: 10,
-                  top: 20,
+                  marginTop: 50,
                   alignItems: "center",
                   justifyContent: "center",
                   width: "100%",
                 }}
               >
-                <TextInput
-                  placeholder="Enter the OTP"
-                  // style={{
-                  //   width: "70%",
-                  //   height: 40,
-                  //   borderWidth: 1,
-                  //   borderColor: "#A9A9A9",
-                  //   borderRadius: 5,
-                  //   padding: 5,
-                  // }}
-                  style={
-                    Platform.OS === "web" && {
-                      outlineColor: "#fff",
-                      height: 40,
-                      backgroundColor: "white",
-                      width: "95%",
-                      padding: 5,
-                      fontSize: 20,
-                      borderWidth: 1,
-                      borderBottomColor: "#000",
-                      borderColor: "#fff",
-                      borderRadius: 5,
-                    }
-                  }
-                  onChangeText={(e) => settempCode(e)}
+                <OtpInput
+                  value={tempCode}
+                  onChange={(e) => handleOTP(e)}
+                  numInputs={6}
+                  separator={<span>-</span>}
+                  inputStyle={{
+                    fontSize: 15,
+                    height: 30,
+                    width: 30,
+                  }}
                 />
                 <TouchableOpacity
                   style={{
@@ -389,7 +369,8 @@ const Login = ({ navigation }) => {
                     justifyContent: "center",
                   }}
                   onPress={() => {
-                    setgotCode(tempCode);
+                    alert(tempCode);
+                    verifyCode();
                   }}
                 >
                   <Text
@@ -404,7 +385,75 @@ const Login = ({ navigation }) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-            ) : null} */}
+            ) : (
+              <View
+                style={{
+                  padding: 10,
+
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <TextInput
+                  placeholder="Enter your 10-digit number here"
+                  // style={{
+                  //   width: "70%",
+                  //   height: 40,
+                  //   borderWidth: 1,
+                  //   borderColor: "#A9A9A9",
+                  //   borderRadius: 5,
+                  //   padding: 5,
+                  // }}
+                  focusable={true}
+                  style={
+                    Platform.OS === "web" && {
+                      outlineColor: "#fff",
+                      height: 40,
+                      backgroundColor: "white",
+                      width: "95%",
+                      padding: 5,
+                      fontSize: 20,
+                      borderWidth: 1,
+                      borderBottomColor: "#000",
+                      borderColor: "#fff",
+                      borderRadius: 5,
+                      textAlign: "center",
+                    }
+                  }
+                  onChangeText={(e) => setnumber("+91" + e)}
+                />
+                <TouchableOpacity
+                  style={{
+                    width: "60%",
+                    height: 40,
+                    alignItems: "center",
+                    backgroundColor: "#3ECF8E",
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    top: 30,
+                    borderColor: "#3ECF8E",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    // handleClick();
+
+                    sendCode();
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      padding: 5,
+                      color: "#fff",
+                      fontWeight: "700",
+                    }}
+                  >
+                    Get OTP
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           <StatusBar style="auto" />
